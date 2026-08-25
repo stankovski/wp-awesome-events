@@ -73,33 +73,6 @@ docker-compose exec -T wordpress bash /scripts/install-wp-tests.sh <<< "y"
 echo -e "${GREEN}✓ WordPress test environment installed${NC}"
 echo ""
 
-# Install Composer dependencies
-echo -e "${YELLOW}Installing Composer dependencies...${NC}"
-if docker-compose exec -T wordpress bash -c "cd wp-content/plugins/awesome-events && composer install"; then
-    echo -e "${GREEN}✓ Composer dependencies installed${NC}"
-else
-    echo -e "${RED}✗ Failed to install Composer dependencies${NC}"
-fi
-echo ""
-
-# Install npm dependencies
-echo -e "${YELLOW}Installing npm dependencies...${NC}"
-if docker-compose exec -T wordpress bash -c "cd wp-content/plugins/awesome-events && npm install"; then
-    echo -e "${GREEN}✓ npm dependencies installed${NC}"
-else
-    echo -e "${RED}✗ Failed to install npm dependencies${NC}"
-fi
-echo ""
-
-# Build assets
-echo -e "${YELLOW}Building assets...${NC}"
-if docker-compose exec -T wordpress bash -c "cd wp-content/plugins/awesome-events && npm run build"; then
-    echo -e "${GREEN}✓ Assets built successfully${NC}"
-else
-    echo -e "${YELLOW}⚠ Asset build failed (you may need to run 'npm run build' manually)${NC}"
-fi
-echo ""
-
 # Summary
 echo -e "${BLUE}=========================================${NC}"
 echo -e "${GREEN}Bootstrap Complete!${NC}"
@@ -111,7 +84,5 @@ echo -e "  ${BLUE}WordPress:${NC}     http://localhost:8000"
 echo -e "  ${BLUE}phpMyAdmin:${NC}    http://localhost:8080"
 echo ""
 echo "Useful commands:"
-echo -e "  ${YELLOW}Run tests:${NC}       docker-compose exec wordpress bash -c 'cd wp-content/plugins/awesome-events && /scripts/run-tests.sh'"
-echo -e "  ${YELLOW}Run unit tests:${NC}  docker-compose exec wordpress bash -c 'cd wp-content/plugins/awesome-events && /scripts/run-tests.sh --unit'"
 echo -e "  ${YELLOW}Stop Docker:${NC}     docker-compose down"
 echo ""
