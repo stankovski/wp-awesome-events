@@ -189,7 +189,7 @@ class Awesome_Events_Event_Shortcodes {
         }
 
         // Parse and format the time
-        $ts = strtotime(date('Y-m-d') . ' ' . $time_raw);
+        $ts = strtotime(gmdate('Y-m-d') . ' ' . $time_raw);
         if (!$ts) {
             return $atts['fallback'];
         }
@@ -236,7 +236,7 @@ class Awesome_Events_Event_Shortcodes {
         }
 
         // Parse and format the start time
-        $start_ts = strtotime(date('Y-m-d') . ' ' . $start_time_raw);
+        $start_ts = strtotime(gmdate('Y-m-d') . ' ' . $start_time_raw);
         if (!$start_ts) {
             return $atts['fallback'];
         }
@@ -249,7 +249,7 @@ class Awesome_Events_Event_Shortcodes {
         }
 
         // Parse and format the end time
-        $end_ts = strtotime(date('Y-m-d') . ' ' . $end_time_raw);
+        $end_ts = strtotime(gmdate('Y-m-d') . ' ' . $end_time_raw);
         if (!$end_ts) {
             return esc_html($start_formatted);
         }

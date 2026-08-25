@@ -152,7 +152,7 @@ class Awesome_Events_ICS_Generator {
         }
 
         // Build event properties
-        $uid = $post->ID . '@' . parse_url(home_url(), PHP_URL_HOST);
+        $uid = $post->ID . '@' . wp_parse_url(home_url(), PHP_URL_HOST);
         $summary = $this->escape_text(get_the_title($post));
         $desc = $this->escape_text(wp_strip_all_tags($post->post_excerpt ?: $post->post_content));
         $url = get_permalink($post);
@@ -321,7 +321,7 @@ class Awesome_Events_ICS_Generator {
             $lines[] = 'TZID:' . $this->timezone_string;
             
             // Get current year for timezone calculations
-            $current_year = (int)date('Y');
+            $current_year = (int)gmdate('Y');
             
             // Generate STANDARD and DAYLIGHT components for current and next year
             for ($year = $current_year; $year <= $current_year + 1; $year++) {
@@ -349,9 +349,8 @@ class Awesome_Events_ICS_Generator {
             }
             
             $lines[] = 'END:VTIMEZONE';
-        } catch (Exception $e) {
-            // If timezone component generation fails, continue without it
-            error_log('Awesome Events ICS: Failed to generate VTIMEZONE component: ' . $e->getMessage());
+        } catch (Exception) {
+            // If timezone component generation fails, continue without it.
         }
     }
 

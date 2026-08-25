@@ -59,7 +59,6 @@ class Awesome_Events_Plugin {
      */
     private function init_hooks() {
         add_action('init', array($this, 'init'));
-        add_action('plugins_loaded', array($this, 'load_textdomain'));
         add_filter('block_categories_all', array($this, 'add_block_category'), 10, 2);
 
         // Activation and deactivation hooks
@@ -119,13 +118,6 @@ class Awesome_Events_Plugin {
         new Awesome_Events_Single_Event_ICS();
         // Initialize add to calendar button
         new Awesome_Events_Add_To_Calendar_Button();
-    }
-
-    /**
-     * Load plugin text domain for translations
-     */
-    public function load_textdomain() {
-        load_plugin_textdomain('awesome-events', false, dirname(plugin_basename(__FILE__)) . '/languages');
     }
 
     /**

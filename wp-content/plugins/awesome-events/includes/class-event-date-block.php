@@ -134,7 +134,7 @@ class Awesome_Events_Event_Date_Block {
             $time_raw = get_post_meta($post_ID, '_icob_event_time', true);
             if ($time_raw) {
                 // Normalize and format via strtotime best-effort.
-                $ts = strtotime(date('Y-m-d') . ' ' . $time_raw);
+                $ts = strtotime(gmdate('Y-m-d') . ' ' . $time_raw);
                 if ($ts) { $output = esc_html(date_i18n($timeFormat, $ts)); }
             }
         } elseif ($dataType === 'location') {

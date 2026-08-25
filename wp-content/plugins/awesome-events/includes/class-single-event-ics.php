@@ -17,15 +17,18 @@ class Awesome_Events_Single_Event_ICS {
 
     public function maybe_output() {
         // Check if this is a single event ICS request
-        if (!isset($_GET['ics']) || $_GET['ics'] !== 'event') {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public read-only ICS endpoint.
+        $request_type = isset($_GET['ics']) ? sanitize_key(wp_unslash($_GET['ics'])) : '';
+        if ($request_type !== 'event') {
             return;
         }
 
-        if (!isset($_GET['post_id']) || !is_numeric($_GET['post_id'])) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public read-only ICS endpoint.
+        $post_id = isset($_GET['post_id']) ? absint(wp_unslash($_GET['post_id'])) : 0;
+        if (!$post_id) {
             return;
         }
 
-        $post_id = intval($_GET['post_id']);
         $post = get_post($post_id);
 
         if (!$post || $post->post_status !== 'publish') {

@@ -161,7 +161,7 @@ class Awesome_Events_Event_Meta {
         <div id="icob_event_fields_wrap" style="opacity: <?php echo $enabled ? '1' : '.55'; ?>; pointer-events: <?php echo $enabled ? 'auto' : 'none'; ?>; transition: opacity .15s;">
         <p>
             <label for="icob_event_date"><strong><?php _e('Event Date', 'awesome-events'); ?></strong></label>
-            <input type="date" id="icob_event_date" name="icob_event_date" value="<?php echo $event_date ? esc_attr( date('Y-m-d', strtotime($event_date)) ) : ''; ?>" style="width:100%;" />
+            <input type="date" id="icob_event_date" name="icob_event_date" value="<?php echo $event_date ? esc_attr( gmdate('Y-m-d', strtotime($event_date)) ) : ''; ?>" style="width:100%;" />
             <small><?php _e('Leave empty if not an event. Time is not stored.', 'awesome-events'); ?></small>
         </p>
         <div style="display:flex; gap:6px;">
@@ -322,56 +322,56 @@ class Awesome_Events_Event_Meta {
     }
 
     public function save_meta($post_id) {
-        if (!isset($_POST['icob_event_meta_nonce']) || !wp_verify_nonce($_POST['icob_event_meta_nonce'], 'icob_event_meta_save')) { return; }
+        if (!isset($_POST['icob_event_meta_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['icob_event_meta_nonce'])), 'icob_event_meta_save')) { return; }
         if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) { return; }
         if (!current_user_can('edit_post', $post_id)) { return; }
 
-        $date_raw = isset($_POST['icob_event_date']) ? sanitize_text_field($_POST['icob_event_date']) : '';
+        $date_raw = isset($_POST['icob_event_date']) ? sanitize_text_field(wp_unslash($_POST['icob_event_date'])) : '';
         $event_date = '';
         if ($date_raw) {
             $ts = strtotime($date_raw);
-            if ($ts) { $event_date = date('Y-m-d', $ts); }
+            if ($ts) { $event_date = gmdate('Y-m-d', $ts); }
         }
     // Enabled flag
     $enabled = isset($_POST['icob_event_date_enabled']) ? 1 : 0;
     update_post_meta($post_id, '_icob_event_date_enabled', $enabled);
     update_post_meta($post_id, '_icob_event_date', $enabled ? $event_date : '');
 
-    $rec_type = isset($_POST['icob_event_recurrence_type']) ? sanitize_text_field($_POST['icob_event_recurrence_type']) : 'none';
+    $rec_type = isset($_POST['icob_event_recurrence_type']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_type'])) : 'none';
         $valid_types = ['none','daily','weekly','monthly','yearly'];
         if (!in_array($rec_type, $valid_types, true)) { $rec_type='none'; }
     update_post_meta($post_id, '_icob_event_recurrence_type', $enabled ? $rec_type : 'none');
 
-    $interval = isset($_POST['icob_event_recurrence_interval']) ? max(1, intval($_POST['icob_event_recurrence_interval'])) : 1;
+    $interval = isset($_POST['icob_event_recurrence_interval']) ? max(1, intval(wp_unslash($_POST['icob_event_recurrence_interval']))) : 1;
     update_post_meta($post_id, '_icob_event_recurrence_interval', $enabled ? $interval : 1);
 
-    $weekdays = isset($_POST['icob_event_recurrence_weekdays']) ? array_map('intval', (array)$_POST['icob_event_recurrence_weekdays']) : [];
+    $weekdays = isset($_POST['icob_event_recurrence_weekdays']) ? array_map('intval', (array)wp_unslash($_POST['icob_event_recurrence_weekdays'])) : [];
     $weekdays = array_values(array_intersect($weekdays, range(0,6)));
     sort($weekdays);
     $weekday_string = '[' . implode(',', $weekdays) . ']';
     update_post_meta($post_id, '_icob_event_recurrence_weekdays', $enabled ? $weekday_string : '[]');
 
-    $end_type = isset($_POST['icob_event_recurrence_end_type']) ? sanitize_text_field($_POST['icob_event_recurrence_end_type']) : 'none';
+    $end_type = isset($_POST['icob_event_recurrence_end_type']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_end_type'])) : 'none';
     if (!in_array($end_type, ['none','date','count'], true)) { $end_type='none'; }
     update_post_meta($post_id, '_icob_event_recurrence_end_type', $enabled ? $end_type : 'none');
 
-    $end_date = isset($_POST['icob_event_recurrence_end_date']) ? sanitize_text_field($_POST['icob_event_recurrence_end_date']) : '';
+    $end_date = isset($_POST['icob_event_recurrence_end_date']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_end_date'])) : '';
     update_post_meta($post_id, '_icob_event_recurrence_end_date', ($enabled && $end_type==='date') ? $end_date : '');
 
-    $count = isset($_POST['icob_event_recurrence_count']) ? intval($_POST['icob_event_recurrence_count']) : 0;
+    $count = isset($_POST['icob_event_recurrence_count']) ? intval(wp_unslash($_POST['icob_event_recurrence_count'])) : 0;
     update_post_meta($post_id, '_icob_event_recurrence_count', ($enabled && $end_type==='count') ? $count : 0);
 
     // Start time (HH:MM 24h)
-    $start_time = isset($_POST['icob_event_start_time']) ? trim(sanitize_text_field($_POST['icob_event_start_time'])) : '';
+    $start_time = isset($_POST['icob_event_start_time']) ? trim(sanitize_text_field(wp_unslash($_POST['icob_event_start_time']))) : '';
     if ($start_time && !preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $start_time)) { $start_time=''; }
     update_post_meta($post_id, '_icob_event_start_time', $enabled ? $start_time : '');
 
     // Custom time label
-    $custom_time_label = isset($_POST['icob_event_custom_time_label']) ? sanitize_text_field($_POST['icob_event_custom_time_label']) : '';
+    $custom_time_label = isset($_POST['icob_event_custom_time_label']) ? sanitize_text_field(wp_unslash($_POST['icob_event_custom_time_label'])) : '';
     update_post_meta($post_id, '_icob_event_custom_time_label', $enabled ? $custom_time_label : '');
 
     // Duration hours (canonical) & sync legacy minutes
-    $duration_hours = isset($_POST['icob_event_duration_hours']) ? floatval($_POST['icob_event_duration_hours']) : 0;
+    $duration_hours = isset($_POST['icob_event_duration_hours']) ? floatval(wp_unslash($_POST['icob_event_duration_hours'])) : 0;
     if ($duration_hours < 0) { $duration_hours = 0; }
     $duration_hours = $enabled ? $duration_hours : 0;
     update_post_meta($post_id, '_icob_event_duration_hours', $duration_hours);
@@ -380,7 +380,7 @@ class Awesome_Events_Event_Meta {
     update_post_meta($post_id, '_icob_event_duration_minutes', $legacy_minutes);
 
     // Location
-    $location = isset($_POST['icob_event_location']) ? sanitize_text_field($_POST['icob_event_location']) : '';
+    $location = isset($_POST['icob_event_location']) ? sanitize_text_field(wp_unslash($_POST['icob_event_location'])) : '';
     update_post_meta($post_id, '_icob_event_location', $enabled ? $location : '');
     }
 
@@ -395,7 +395,7 @@ class Awesome_Events_Event_Meta {
         $event_date_raw = get_post_meta($post_id, '_icob_event_date', true);
         if (!$event_date_raw) { return null; }
     // Treat stored date as local site date (midnight)
-    $start = strtotime(date('Y-m-d', strtotime($event_date_raw)) . ' 00:00:00');
+    $start = strtotime(gmdate('Y-m-d', strtotime($event_date_raw)) . ' 00:00:00');
         if ($start === false) { return null; }
 
         $type = get_post_meta($post_id, '_icob_event_recurrence_type', true) ?: 'none';
@@ -407,18 +407,18 @@ class Awesome_Events_Event_Meta {
 
         // If single event
         if ($type === 'none') {
-            return ($start >= strtotime(date('Y-m-d', $from) . ' 00:00:00')) ? date('Y-m-d', $start) : null;
+            return ($start >= strtotime(gmdate('Y-m-d', $from) . ' 00:00:00')) ? gmdate('Y-m-d', $start) : null;
         }
 
         $occurrence = $start;
         $occurrence_index = 1; // first occurrence
         $max_iterations = 1000; // safety
         while ($max_iterations-- > 0) {
-            if ($occurrence >= strtotime(date('Y-m-d', $from) . ' 00:00:00')) {
+            if ($occurrence >= strtotime(gmdate('Y-m-d', $from) . ' 00:00:00')) {
                 // Check end conditions
                 if ($end_type === 'date' && $end_date && strtotime($end_date.' 23:59:59') < $occurrence) { return null; }
                 if ($end_type === 'count' && $count_limit > 0 && $occurrence_index > $count_limit) { return null; }
-                return date('Y-m-d', $occurrence);
+                return gmdate('Y-m-d', $occurrence);
             }
             // Advance occurrence
             switch($type) {
@@ -430,9 +430,9 @@ class Awesome_Events_Event_Meta {
                         // Move day by day until match weekday sequence
                         $next = strtotime('+1 day', $occurrence);
                         while(true) {
-                            // Convert PHP date('w') (0=Sunday..6=Saturday) to Monday=0..Sunday=6 mapping
-                            $w = (intval(date('w', $next)) + 6) % 7; // Sunday(0)->6, Monday(1)->0, ... Saturday(6)->5
-                            if (in_array($w, $weekdays, true)) { $occurrence_index++; $occurrence = strtotime(date('Y-m-d', $next).' 00:00:00'); break; }
+                            // Convert PHP gmdate('w') (0=Sunday..6=Saturday) to Monday=0..Sunday=6 mapping
+                            $w = (intval(gmdate('w', $next)) + 6) % 7; // Sunday(0)->6, Monday(1)->0, ... Saturday(6)->5
+                            if (in_array($w, $weekdays, true)) { $occurrence_index++; $occurrence = strtotime(gmdate('Y-m-d', $next).' 00:00:00'); break; }
                             $next = strtotime('+1 day', $next);
                             // safety
                             if ($next - $occurrence > 60*60*24*14) { break; }
@@ -507,7 +507,7 @@ class Awesome_Events_Event_Meta {
         if ($next) {
             $ts = strtotime($next . ' 00:00:00');
             if ($ts) {
-                $result['iso'] = date('Y-m-d', $ts);
+                $result['iso'] = gmdate('Y-m-d', $ts);
                 $result['date'] = date_i18n($date_format, $ts);
                 $result['has_value'] = true;
             }
@@ -519,7 +519,7 @@ class Awesome_Events_Event_Meta {
                 if ($original_raw) {
                     $orig_ts = strtotime($original_raw . ' 00:00:00');
                     if ($orig_ts) {
-                        $result['iso'] = date('Y-m-d', $orig_ts);
+                        $result['iso'] = gmdate('Y-m-d', $orig_ts);
                         $result['date'] = date_i18n($date_format, $orig_ts);
                         $result['has_value'] = true;
                     }
@@ -532,7 +532,7 @@ class Awesome_Events_Event_Meta {
             $weekdays = self::get_weekdays($post_id);
             if (empty($weekdays) && $result['iso']) {
                 // Fallback to weekday of next occurrence using Monday=0..Sunday=6 mapping
-                $weekdays = [ (intval(date('w', strtotime($result['iso']))) + 6) % 7 ];
+                $weekdays = [ (intval(gmdate('w', strtotime($result['iso']))) + 6) % 7 ];
             }
             if ($weekdays) {
                 // Monday=0 .. Sunday=6 mapping for display
@@ -571,23 +571,23 @@ class Awesome_Events_Event_Meta {
             $event_ts = strtotime($result['iso'] . ' 00:00:00');
             if ($event_ts) {
                 $today_ts = current_time('timestamp'); // site local time
-                $today_mid = strtotime(date('Y-m-d', $today_ts) . ' 00:00:00');
+                $today_mid = strtotime(gmdate('Y-m-d', $today_ts) . ' 00:00:00');
                 $tomorrow_mid = strtotime('+1 day', $today_mid);
-                $event_date_str = date('Y-m-d', $event_ts);
-                $today_str = date('Y-m-d', $today_mid);
-                $tomorrow_str = date('Y-m-d', $tomorrow_mid);
+                $event_date_str = gmdate('Y-m-d', $event_ts);
+                $today_str = gmdate('Y-m-d', $today_mid);
+                $tomorrow_str = gmdate('Y-m-d', $tomorrow_mid);
                 if ($event_date_str === $today_str) {
                     $result['relative'] = __('Today', 'awesome-events');
                 } elseif ($event_date_str === $tomorrow_str) {
                     $result['relative'] = __('Tomorrow', 'awesome-events');
                 } else {
                     $start_of_week = intval(get_option('start_of_week', 1));
-                    $today_w = intval(date('w', $today_mid));
+                    $today_w = intval(gmdate('w', $today_mid));
                     $delta = ($today_w - $start_of_week + 7) % 7;
                     $week_start_ts = strtotime('-' . $delta . ' day', $today_mid);
                     $week_end_ts = strtotime('+6 day', $week_start_ts) + 86399;
                     if ($event_ts >= $week_start_ts && $event_ts <= $week_end_ts) {
-                        // date('w') still returns Sunday=0, so for consistency we rely on date_i18n('l') but relative string
+                        // gmdate('w') still returns Sunday=0, so for consistency we rely on date_i18n('l') but relative string
                         // does not need index remapping here (only label output).
                         $weekday = date_i18n('l', $event_ts);
                         $result['relative'] = sprintf(__('This %s', 'awesome-events'), $weekday);

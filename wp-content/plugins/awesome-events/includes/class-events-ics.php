@@ -45,7 +45,7 @@ class Awesome_Events_Events_ICS {
 
     public function disable_canonical_redirect_for_ics($redirect_url, $requested_url) {
         // Check if the requested URL ends with events.ics (without trailing slash)
-        if (preg_match('/\/events\.ics$/', parse_url($requested_url, PHP_URL_PATH))) {
+        if (preg_match('/\/events\.ics$/', wp_parse_url($requested_url, PHP_URL_PATH))) {
             return false; // Disable canonical redirect
         }
         return $redirect_url;
