@@ -1,0 +1,129 @@
+/* Event Countdown Block - Frontend Styles */
+
+.icob-event-countdown {
+    display: flex;
+    flex-direction: column;
+    gap: var(--icob-countdown-gap, 12px);
+    align-items: flex-start;
+}
+
+/* Alignment support */
+.icob-event-countdown.aligncenter {
+    align-items: center;
+    text-align: center;
+}
+
+.icob-event-countdown.alignright {
+    align-items: flex-end;
+    text-align: right;
+}
+
+.icob-event-countdown.alignleft {
+    align-items: flex-start;
+    text-align: left;
+}
+
+.icob-countdown-label {
+    font-weight: 600;
+    font-size: var(--icob-countdown-label-size, 1em);
+}
+
+.icob-countdown-timer {
+    display: flex;
+    gap: var(--icob-countdown-unit-gap, 16px);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.icob-countdown-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: var(--icob-countdown-unit-min-width, 60px);
+}
+
+.icob-countdown-value {
+    font-size: var(--icob-countdown-value-size, 2.5em);
+    font-weight: var(--icob-countdown-value-weight, 700);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+}
+
+.icob-countdown-unit-label {
+    font-size: var(--icob-countdown-unit-label-size, 0.875em);
+    font-weight: var(--icob-countdown-unit-label-weight, 400);
+    opacity: var(--icob-countdown-unit-label-opacity, 0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.icob-countdown-separator {
+    font-size: var(--icob-countdown-separator-size, 2em);
+    font-weight: var(--icob-countdown-separator-weight, 300);
+    align-self: flex-start;
+    opacity: 0.5;
+    line-height: 1;
+    margin-top: 0;
+}
+
+/* Completed state */
+.icob-event-countdown.icob-countdown-completed .icob-countdown-timer {
+    display: block;
+}
+
+.icob-countdown-completed-text {
+    font-size: var(--icob-countdown-completed-size, 1.25em);
+    font-weight: var(--icob-countdown-completed-weight, 600);
+}
+
+/* Placeholder (should not appear on frontend, but just in case) */
+.icob-event-countdown-placeholder {
+    padding: 16px;
+    background: #f0f0f0;
+    border: 2px dashed #ccc;
+    border-radius: 4px;
+    text-align: center;
+    color: #666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .icob-countdown-timer {
+        gap: var(--icob-countdown-unit-gap-mobile, 12px);
+    }
+
+    .icob-countdown-unit {
+        min-width: var(--icob-countdown-unit-min-width-mobile, 50px);
+    }
+
+    .icob-countdown-value {
+        font-size: var(--icob-countdown-value-size-mobile, 2em);
+    }
+
+    .icob-countdown-unit-label {
+        font-size: var(--icob-countdown-unit-label-size-mobile, 0.75em);
+    }
+}
+
+/* Alternative compact layout (can be activated via custom class) */
+.icob-event-countdown.is-style-compact .icob-countdown-timer {
+    flex-direction: row;
+    gap: 8px;
+}
+
+.icob-event-countdown.is-style-compact .icob-countdown-unit {
+    flex-direction: row;
+    gap: 4px;
+    min-width: auto;
+}
+
+.icob-event-countdown.is-style-compact .icob-countdown-value {
+    font-size: 1.5em;
+}
+
+.icob-event-countdown.is-style-compact .icob-countdown-unit-label {
+    align-self: flex-end;
+    margin-bottom: 2px;
+}

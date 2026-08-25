@@ -1,0 +1,68 @@
+/* Event Countdown Block - Editor Styles */
+
+.icob-event-countdown-editor {
+    padding: 20px;
+    border: 2px dashed #e0e0e0;
+    border-radius: 4px;
+    background: #f9f9f9;
+}
+
+.icob-countdown-placeholder {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.icob-countdown-placeholder p:first-child {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.icob-countdown-preview {
+    padding: 12px;
+    background: white;
+    border-radius: 4px;
+}
+
+.icob-countdown-timer-preview {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.icob-countdown-timer-preview .icob-countdown-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    background: #f0f0f0;
+    border-radius: 4px;
+    min-width: 60px;
+}
+
+.icob-countdown-timer-preview .value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    color: #1e1e1e;
+}
+
+.icob-countdown-timer-preview .label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+    font-weight: 500;
+}
+
+/* Make editor controls more readable */
+.icob-event-countdown-editor .components-base-control {
+    margin-bottom: 16px;
+}
+
+.icob-event-countdown-editor .components-base-control__label {
+    font-weight: 600;
+    margin-bottom: 4px;
+}

@@ -1,0 +1,31 @@
+wp-content/themes/*
+wp-content/fonts/*
+wp-content/plugins/akismet/*
+wp-content/plugins/hello.php
+wp-content/uploads/*
+**/vendor/**/*
+wp-content/debug.log
+wp-content/plugins/muslim-prayer-times/.phpunit.result.cache
+wp-content/plugins/digital-signage/*
+wp-content/plugins/spice-starter-sites/*
+wp-content/plugins/plugin-check/*
+wp-content/plugins/members/*
+wp-content/plugins/smtp-mailer/*
+wp-content/plugins/icob/*
+wp-content/plugins/advanced-query-loop/*
+wp-content/plugins/muslim-prayer-times/*
+wp-content/plugins/advanced-cron-manager/*
+wp-content/plugins/updraftplus/*
+wp-content/upgrade/*
+
+# Testing artifacts
+wp-content/plugins/awesome-events/.phpunit.result.cache
+wp-content/plugins/awesome-events/coverage/
+wp-content/plugins/awesome-events/phpunit.xml
+
+# Deployment artifacts
+dist/*
+
+# WordPress configuration (contains salts and credentials)
+# NOTE: wp-config.php is intentionally committed for development only
+# In production, this file should be managed separately and never in git
