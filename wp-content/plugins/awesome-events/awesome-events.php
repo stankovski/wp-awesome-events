@@ -1,18 +1,18 @@
 <?php
 /**
  * Plugin Name: Awesome Events
- * Plugin URI: https://bothellmosque.org
+ * Plugin URI: https://github.com/stankovski/wp-awesome-events
  * Description: Manage event dates and recurring schedules, publish calendar feeds, display countdowns, and let visitors add events to their calendar.
  * Version: 1.0.0
- * Author: ICOB Team
- * Author URI: https://bothellmosque.org
+ * Author: stankovski
+ * Author URI: https://github.com/stankovski/wp-awesome-events
  * Text Domain: awesome-events
  * Domain Path: /languages
  * Requires at least: 6.0
- * Tested up to: 6.6
+ * Tested up to: 7.1
  * Requires PHP: 8.0
  * License: GPL v2 or later
- * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * License URI: https://github.com/stankovski/wp-awesome-events/blob/main/LICENSE
  * Network: false
  */
 

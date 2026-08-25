@@ -25,6 +25,7 @@ wp-content/plugins/awesome-events/phpunit.xml
 
 # Deployment artifacts
 dist/*
+package.zip
 
 # WordPress configuration (contains salts and credentials)
 # NOTE: wp-config.php is intentionally committed for development only
