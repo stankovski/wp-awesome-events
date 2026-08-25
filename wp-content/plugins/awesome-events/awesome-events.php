@@ -5,7 +5,7 @@
  * Description: Manage event dates and recurring schedules, publish calendar feeds, display countdowns, and let visitors add events to their calendar.
  * Version: 1.0.0
  * Author: stankovski
- * Author URI: https://github.com/stankovski/wp-awesome-events
+ * Author URI: https://github.com/stankovski/
  * Text Domain: awesome-events
  * Domain Path: /languages
  * Requires at least: 6.0
@@ -13,7 +13,6 @@
  * Requires PHP: 8.0
  * License: GPL v2 or later
  * License URI: https://github.com/stankovski/wp-awesome-events/blob/main/LICENSE
- * Network: false
  */
 
 // Prevent direct access

@@ -138,8 +138,8 @@ class Awesome_Events_Event_Meta {
         $end_type = esc_attr($this->get_meta($post->ID, '_icob_event_recurrence_end_type', 'none'));
         $end_date = esc_attr($this->get_meta($post->ID, '_icob_event_recurrence_end_date'));
         $count = intval($this->get_meta($post->ID, '_icob_event_recurrence_count', 0));
-    $start_time = esc_attr($this->get_meta($post->ID, '_icob_event_start_time', ''));
-    $custom_time_label = esc_attr($this->get_meta($post->ID, '_icob_event_custom_time_label', ''));
+    $start_time = $this->get_meta($post->ID, '_icob_event_start_time', '');
+    $custom_time_label = $this->get_meta($post->ID, '_icob_event_custom_time_label', '');
     $duration_hours = $this->get_meta($post->ID, '_icob_event_duration_hours', '');
     if ($duration_hours === '' || $duration_hours === '0') {
         // Fallback convert legacy minutes if present
@@ -147,44 +147,44 @@ class Awesome_Events_Event_Meta {
         $duration_hours = $legacy_minutes > 0 ? round($legacy_minutes / 60, 2) : 0;
     }
     $duration_hours = floatval($duration_hours);
-    $location = esc_attr($this->get_meta($post->ID, '_icob_event_location', ''));
+    $location = $this->get_meta($post->ID, '_icob_event_location', '');
 
     // Weekday labels aligned to new Monday=0..Sunday=6 indexing
     $weekday_labels = [__('Mon','awesome-events'),__('Tue','awesome-events'),__('Wed','awesome-events'),__('Thu','awesome-events'),__('Fri','awesome-events'),__('Sat','awesome-events'),__('Sun','awesome-events')];
         ?>
         <p>
-            <label for="icob_event_date_enabled"><strong><?php _e('Event Date Enabled', 'awesome-events'); ?></strong></label><br/>
+            <label for="icob_event_date_enabled"><strong><?php esc_html_e('Event Date Enabled', 'awesome-events'); ?></strong></label><br/>
             <label style="display:inline-flex;align-items:center;gap:4px;">
-                <input type="checkbox" id="icob_event_date_enabled" name="icob_event_date_enabled" value="1" <?php checked($enabled); ?> /> <?php _e('Enable event date & recurrence for this post','awesome-events'); ?>
+                <input type="checkbox" id="icob_event_date_enabled" name="icob_event_date_enabled" value="1" <?php checked($enabled); ?> /> <?php esc_html_e('Enable event date & recurrence for this post','awesome-events'); ?>
             </label>
         </p>
         <div id="icob_event_fields_wrap" style="opacity: <?php echo $enabled ? '1' : '.55'; ?>; pointer-events: <?php echo $enabled ? 'auto' : 'none'; ?>; transition: opacity .15s;">
         <p>
-            <label for="icob_event_date"><strong><?php _e('Event Date', 'awesome-events'); ?></strong></label>
+            <label for="icob_event_date"><strong><?php esc_html_e('Event Date', 'awesome-events'); ?></strong></label>
             <input type="date" id="icob_event_date" name="icob_event_date" value="<?php echo $event_date ? esc_attr( gmdate('Y-m-d', strtotime($event_date)) ) : ''; ?>" style="width:100%;" />
-            <small><?php _e('Leave empty if not an event. Time is not stored.', 'awesome-events'); ?></small>
+            <small><?php esc_html_e('Leave empty if not an event. Time is not stored.', 'awesome-events'); ?></small>
         </p>
         <div style="display:flex; gap:6px;">
             <p style="flex:1;">
-                <label for="icob_event_start_time"><strong><?php _e('Start Time','awesome-events'); ?></strong></label>
-                <input type="time" id="icob_event_start_time" name="icob_event_start_time" value="<?php echo $start_time; ?>" style="width:100%;" />
+                <label for="icob_event_start_time"><strong><?php esc_html_e('Start Time','awesome-events'); ?></strong></label>
+                <input type="time" id="icob_event_start_time" name="icob_event_start_time" value="<?php echo esc_attr($start_time); ?>" style="width:100%;" />
             </p>
             <p style="flex:1;">
-                <label for="icob_event_duration_hours"><strong><?php _e('Duration (hours)','awesome-events'); ?></strong></label>
+                <label for="icob_event_duration_hours"><strong><?php esc_html_e('Duration (hours)','awesome-events'); ?></strong></label>
                 <input type="number" min="0" step="0.25" id="icob_event_duration_hours" name="icob_event_duration_hours" value="<?php echo esc_attr($duration_hours); ?>" style="width:100%;" />
             </p>
         </div>
         <p>
-            <label for="icob_event_custom_time_label"><strong><?php _e('Custom Time Label','awesome-events'); ?></strong></label>
-            <input type="text" id="icob_event_custom_time_label" name="icob_event_custom_time_label" value="<?php echo $custom_time_label; ?>" style="width:100%;" placeholder="<?php esc_attr_e('e.g. After Sunset', 'awesome-events'); ?>" />
-            <small><?php _e('Optional. If provided, this will be shown instead of the start time.', 'awesome-events'); ?></small>
+            <label for="icob_event_custom_time_label"><strong><?php esc_html_e('Custom Time Label','awesome-events'); ?></strong></label>
+            <input type="text" id="icob_event_custom_time_label" name="icob_event_custom_time_label" value="<?php echo esc_attr($custom_time_label); ?>" style="width:100%;" placeholder="<?php esc_attr_e('e.g. After Sunset', 'awesome-events'); ?>" />
+            <small><?php esc_html_e('Optional. If provided, this will be shown instead of the start time.', 'awesome-events'); ?></small>
         </p>
         <p>
-            <label for="icob_event_location"><strong><?php _e('Location','awesome-events'); ?></strong></label>
-            <input type="text" id="icob_event_location" name="icob_event_location" value="<?php echo $location; ?>" style="width:100%;" />
+            <label for="icob_event_location"><strong><?php esc_html_e('Location','awesome-events'); ?></strong></label>
+            <input type="text" id="icob_event_location" name="icob_event_location" value="<?php echo esc_attr($location); ?>" style="width:100%;" />
         </p>
         <p>
-            <label for="icob_event_recurrence_type"><strong><?php _e('Recurrence', 'awesome-events'); ?></strong></label>
+            <label for="icob_event_recurrence_type"><strong><?php esc_html_e('Recurrence', 'awesome-events'); ?></strong></label>
             <select name="icob_event_recurrence_type" id="icob_event_recurrence_type" style="width:100%;">
                 <?php foreach(['none'=>__('None','awesome-events'),'daily'=>__('Daily','awesome-events'),'weekly'=>__('Weekly','awesome-events'),'monthly'=>__('Monthly','awesome-events'),'yearly'=>__('Yearly','awesome-events')] as $k=>$label): ?>
                     <option value="<?php echo esc_attr($k); ?>" <?php selected($recurrence_type, $k); ?>><?php echo esc_html($label); ?></option>
@@ -192,21 +192,21 @@ class Awesome_Events_Event_Meta {
             </select>
         </p>
         <p>
-            <label><strong><?php _e('Interval', 'awesome-events'); ?></strong></label>
-            <input type="number" min="1" name="icob_event_recurrence_interval" value="<?php echo $interval; ?>" style="width:60px;" />
-            <small><?php _e('Every N units (days/weeks/months/years).', 'awesome-events'); ?></small>
+            <label><strong><?php esc_html_e('Interval', 'awesome-events'); ?></strong></label>
+            <input type="number" min="1" name="icob_event_recurrence_interval" value="<?php echo esc_attr($interval); ?>" style="width:60px;" />
+            <small><?php esc_html_e('Every N units (days/weeks/months/years).', 'awesome-events'); ?></small>
         </p>
         <div id="icob_event_weekdays" style="margin-bottom:8px; <?php echo $recurrence_type==='weekly' ? '' : 'display:none;'; ?>">
-            <label><strong><?php _e('Weekdays', 'awesome-events'); ?></strong></label><br/>
+            <label><strong><?php esc_html_e('Weekdays', 'awesome-events'); ?></strong></label><br/>
             <?php foreach($weekday_labels as $i=>$lbl): ?>
                 <label style="display:inline-block;margin-right:4px;">
-                    <input type="checkbox" name="icob_event_recurrence_weekdays[]" value="<?php echo $i; ?>" <?php checked(in_array((string)$i, array_map('strval',$weekdays))); ?> /> <?php echo esc_html($lbl); ?>
+                    <input type="checkbox" name="icob_event_recurrence_weekdays[]" value="<?php echo esc_attr($i); ?>" <?php checked(in_array((string)$i, array_map('strval',$weekdays))); ?> /> <?php echo esc_html($lbl); ?>
                 </label>
             <?php endforeach; ?>
-            <small style="display:block;"><?php _e('If none selected, original event weekday is used.', 'awesome-events'); ?></small>
+            <small style="display:block;"><?php esc_html_e('If none selected, original event weekday is used.', 'awesome-events'); ?></small>
         </div>
         <p>
-            <label for="icob_event_recurrence_end_type"><strong><?php _e('End Condition', 'awesome-events'); ?></strong></label>
+            <label for="icob_event_recurrence_end_type"><strong><?php esc_html_e('End Condition', 'awesome-events'); ?></strong></label>
             <select name="icob_event_recurrence_end_type" id="icob_event_recurrence_end_type" style="width:100%;">
                 <?php foreach(['none'=>__('No End','awesome-events'),'date'=>__('End Date','awesome-events'),'count'=>__('Occurrence Count','awesome-events')] as $k=>$label): ?>
                     <option value="<?php echo esc_attr($k); ?>" <?php selected($end_type, $k); ?>><?php echo esc_html($label); ?></option>
@@ -214,13 +214,13 @@ class Awesome_Events_Event_Meta {
             </select>
         </p>
         <p id="icob_event_end_date_wrap" style="<?php echo $end_type==='date' ? '' : 'display:none;'; ?>">
-            <label><strong><?php _e('End Date', 'awesome-events'); ?></strong></label>
+            <label><strong><?php esc_html_e('End Date', 'awesome-events'); ?></strong></label>
             <input type="date" name="icob_event_recurrence_end_date" value="<?php echo esc_attr($end_date); ?>" style="width:100%;" />
         </p>
         <p id="icob_event_count_wrap" style="<?php echo $end_type==='count' ? '' : 'display:none;'; ?>">
-            <label><strong><?php _e('Occurrences', 'awesome-events'); ?></strong></label>
-            <input type="number" min="0" name="icob_event_recurrence_count" value="<?php echo $count; ?>" style="width:100%;" />
-            <small><?php _e('0 or blank = unlimited', 'awesome-events'); ?></small>
+            <label><strong><?php esc_html_e('Occurrences', 'awesome-events'); ?></strong></label>
+            <input type="number" min="0" name="icob_event_recurrence_count" value="<?php echo esc_attr($count); ?>" style="width:100%;" />
+            <small><?php esc_html_e('0 or blank = unlimited', 'awesome-events'); ?></small>
         </p>
         </div>
 
@@ -258,7 +258,7 @@ class Awesome_Events_Event_Meta {
         ?>
         <div style="padding: 5px;">
             <p style="margin-top: 0; margin-bottom: 10px; font-size: 13px; color: #666;">
-                <?php _e('Use these shortcodes in paragraph blocks or other content to display event information:', 'awesome-events'); ?>
+                <?php esc_html_e('Use these shortcodes in paragraph blocks or other content to display event information:', 'awesome-events'); ?>
             </p>
             <table style="width: 100%; font-size: 12px; border-collapse: collapse;">
                 <tbody>
@@ -267,9 +267,9 @@ class Awesome_Events_Event_Meta {
                             [event_date]
                         </td>
                         <td style="padding: 8px 0;">
-                            <?php _e('Event date in site format', 'awesome-events'); ?>
+                            <?php esc_html_e('Event date in site format', 'awesome-events'); ?>
                             <div style="color: #666; font-size: 11px; margin-top: 2px;">
-                                <?php _e('Optional: format="F j, Y"', 'awesome-events'); ?>
+                                <?php esc_html_e('Optional: format="F j, Y"', 'awesome-events'); ?>
                             </div>
                         </td>
                     </tr>
@@ -278,7 +278,7 @@ class Awesome_Events_Event_Meta {
                             [event_friendly_date]
                         </td>
                         <td style="padding: 8px 0;">
-                            <?php _e('Friendly date (Today, Tomorrow, This Monday)', 'awesome-events'); ?>
+                            <?php esc_html_e('Friendly date (Today, Tomorrow, This Monday)', 'awesome-events'); ?>
                         </td>
                     </tr>
                     <tr style="border-bottom: 1px solid #ddd;">
@@ -286,9 +286,9 @@ class Awesome_Events_Event_Meta {
                             [event_time]
                         </td>
                         <td style="padding: 8px 0;">
-                            <?php _e('Event start time', 'awesome-events'); ?>
+                            <?php esc_html_e('Event start time', 'awesome-events'); ?>
                             <div style="color: #666; font-size: 11px; margin-top: 2px;">
-                                <?php _e('Optional: format="g:i A"', 'awesome-events'); ?>
+                                <?php esc_html_e('Optional: format="g:i A"', 'awesome-events'); ?>
                             </div>
                         </td>
                     </tr>
@@ -297,9 +297,9 @@ class Awesome_Events_Event_Meta {
                             [event_full_time]
                         </td>
                         <td style="padding: 8px 0;">
-                            <?php _e('Event time range (start - end)', 'awesome-events'); ?>
+                            <?php esc_html_e('Event time range (start - end)', 'awesome-events'); ?>
                             <div style="color: #666; font-size: 11px; margin-top: 2px;">
-                                <?php _e('Optional: format="g:i A" separator=" to "', 'awesome-events'); ?>
+                                <?php esc_html_e('Optional: format="g:i A" separator=" to "', 'awesome-events'); ?>
                             </div>
                         </td>
                     </tr>
@@ -308,13 +308,13 @@ class Awesome_Events_Event_Meta {
                             [event_location]
                         </td>
                         <td style="padding: 8px 0;">
-                            <?php _e('Event location', 'awesome-events'); ?>
+                            <?php esc_html_e('Event location', 'awesome-events'); ?>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <p style="margin-top: 12px; margin-bottom: 0; font-size: 12px; color: #666;">
-                <strong><?php _e('Example:', 'awesome-events'); ?></strong>
+                <strong><?php esc_html_e('Example:', 'awesome-events'); ?></strong>
                 <span style="font-family: monospace; color: #333;">Join us on [event_friendly_date] at [event_time] in [event_location]</span>
             </p>
         </div>
@@ -590,6 +590,7 @@ class Awesome_Events_Event_Meta {
                         // gmdate('w') still returns Sunday=0, so for consistency we rely on date_i18n('l') but relative string
                         // does not need index remapping here (only label output).
                         $weekday = date_i18n('l', $event_ts);
+                        // translators: %s is a day of the week.
                         $result['relative'] = sprintf(__('This %s', 'awesome-events'), $weekday);
                     }
                 }

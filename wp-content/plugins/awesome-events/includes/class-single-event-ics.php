@@ -70,6 +70,7 @@ class Awesome_Events_Single_Event_ICS {
         header('Content-Disposition: attachment; filename="event-' . $post->ID . '.ics"');
         header('Content-Length: ' . strlen($ics_content));
 
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- RFC 5545 text/calendar output is escaped by the generator, not as HTML.
         echo $ics_content;
     }
 }

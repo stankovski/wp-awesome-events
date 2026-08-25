@@ -200,7 +200,7 @@ class Awesome_Events_Event_Countdown_Block {
 
         ob_start();
         ?>
-        <div <?php echo $wrapper_attrs; ?>>
+        <div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns a complete core-escaped attribute string. ?>>
             <?php if ($show_label) : ?>
                 <span class="icob-countdown-label"><?php echo esc_html($label_text); ?></span>
             <?php endif; ?>

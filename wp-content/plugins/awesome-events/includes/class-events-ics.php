@@ -86,6 +86,7 @@ class Awesome_Events_Events_ICS {
         header('Content-Disposition: inline; filename="events.ics"');
 
         // Output ICS content
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- RFC 5545 text/calendar output is escaped by the generator, not as HTML.
         echo $ics_content;
     }
 }
