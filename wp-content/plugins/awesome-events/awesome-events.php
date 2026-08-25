@@ -95,6 +95,8 @@ class Awesome_Events_Plugin {
         require_once AWESOME_EVENTS_PLUGIN_DIR . 'includes/class-single-event-ics.php';
         // Add to Calendar button block variation
         require_once AWESOME_EVENTS_PLUGIN_DIR . 'includes/class-add-to-calendar-button.php';
+        // Advanced Query Loop dynamic date placeholders
+        require_once AWESOME_EVENTS_PLUGIN_DIR . 'includes/aql-dynamic-date.php';
     }
 
     /**

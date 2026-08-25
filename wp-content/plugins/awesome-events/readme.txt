@@ -24,6 +24,16 @@ Awesome Events turns ordinary posts into full-featured events. Give a post a dat
 * Event date block and event countdown block for the block editor
 * Shortcodes for displaying event dates and countdowns outside the block editor
 * REST API endpoint for querying event posts programmatically
+* Advanced Query Loop (AQL) integration with dynamic date placeholders for event meta queries
+
+= Advanced Query Loop integration =
+
+Works with Advanced Query Loop plugin to build dynamic lists of upcoming events. Use these keywords to create date filters that update automatically using the site's local timezone:
+
+* `todays_date` for the current date in `Y-m-d` format
+* `today_minus_1` for the previous date in `Y-m-d` format
+
+Both values work as a single meta-query value or within a `BETWEEN` value array.
 
 == Installation ==
 

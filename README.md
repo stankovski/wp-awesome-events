@@ -11,8 +11,18 @@ The plugin provides:
 - Shortcodes for displaying event dates, times, and locations in themes and other content.
 - A site-wide `/events.ics` subscription feed and downloadable calendar files for individual events.
 - An authenticated `GET /wp-json/icob/v1/event-posts` endpoint for editor integrations.
+- Advanced Query Loop (AQL) date placeholders for dynamic event meta queries.
 
 Awesome Events requires WordPress 6.0 or newer and PHP 8.0 or newer.
+
+## Advanced Query Loop Integration
+
+When the [Advanced Query Loop](https://wordpress.org/plugins/advanced-query-loop/) plugin builds a meta query, Awesome Events replaces these values with site-local dates:
+
+- `todays_date`: the current date in `Y-m-d` format.
+- `today_minus_1`: the previous date in `Y-m-d` format.
+
+Use either value in an AQL meta-query clause, including a `BETWEEN` value array, to build event listings that update automatically each day.
 
 ## Dev Start
 
