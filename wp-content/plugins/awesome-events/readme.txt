@@ -46,6 +46,10 @@ Point any calendar app at `yourdomain.com/events.ics`. The feed updates automati
 
 Yes, each event with a date has a downloadable `.ics` file that can be linked to individually.
 
+= How do I add an Add to Calendar button to an event? =
+
+In the block editor, open the Awesome Events category and insert "Add to Calendar." It automatically creates a Buttons block containing the configured calendar button. On the published event, the button offers Google Calendar, Apple Calendar, Outlook, Office 365, Yahoo Calendar, and an iCal download using the event's date, time, location, and title.
+
 == Changelog ==
 
 = 1.0.0 =

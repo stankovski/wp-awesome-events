@@ -135,7 +135,7 @@ class Awesome_Events_Plugin {
         }
         array_unshift($categories, array(
             'slug'  => 'icob',
-            'title' => __('ICOB Blocks', 'awesome-events'),
+            'title' => __('Awesome Events', 'awesome-events'),
             'icon'  => 'slides',
         ));
         return $categories;

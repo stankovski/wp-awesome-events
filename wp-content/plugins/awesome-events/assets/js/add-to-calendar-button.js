@@ -1,26 +1,56 @@
 (function() {
-    const { registerBlockVariation } = wp.blocks;
+    const { registerBlockType, registerBlockVariation } = wp.blocks;
     const { __ } = wp.i18n;
     const { addFilter } = wp.hooks;
     const { createHigherOrderComponent } = wp.compose;
     const { Fragment } = wp.element;
-    const { InspectorControls } = wp.blockEditor || wp.editor;
+    const { InnerBlocks, InspectorControls, useBlockProps } = wp.blockEditor || wp.editor;
     const { PanelBody } = wp.components;
 
-    // Register the block variation
+    const getAddToCalendarButtonAttributes = () => ({
+        text: __('Add to Calendar', 'awesome-events'),
+        className: 'is-style-add-to-calendar',
+        url: '#add-to-calendar',
+        metadata: {
+            name: __('Add to Calendar', 'awesome-events')
+        }
+    });
+
+    registerBlockType('icob/add-to-calendar', {
+        title: __('Add to Calendar', 'awesome-events'),
+        description: __('Button that opens a calendar selection dialog for the event', 'awesome-events'),
+        icon: 'calendar-alt',
+        category: 'icob',
+        keywords: ['event', 'calendar', 'ical'],
+        supports: {
+            html: false
+        },
+        edit: () => {
+            const blockProps = useBlockProps();
+
+            return wp.element.createElement(
+                'div',
+                blockProps,
+                wp.element.createElement(InnerBlocks, {
+                    template: [
+                        ['core/buttons', {}, [
+                            ['core/button', getAddToCalendarButtonAttributes()]
+                        ]]
+                    ],
+                    templateLock: 'all'
+                })
+            );
+        },
+        save: () => wp.element.createElement(InnerBlocks.Content)
+    });
+
+    // Retain the button variation for adding the calendar button to existing Buttons blocks.
     registerBlockVariation('core/button', {
         name: 'icob-add-to-calendar',
         title: __('Add to Calendar', 'awesome-events'),
         description: __('Button that opens a calendar selection dialog for the event', 'awesome-events'),
         icon: 'calendar-alt',
-        attributes: {
-            text: __('Add to Calendar', 'awesome-events'),
-            className: 'is-style-add-to-calendar',
-            url: '#add-to-calendar',
-            metadata: {
-                name: __('Add to Calendar', 'awesome-events')
-            }
-        },
+        attributes: getAddToCalendarButtonAttributes(),
         isActive: (blockAttributes) => {
             return blockAttributes.className && blockAttributes.className.includes('is-style-add-to-calendar');
         },
