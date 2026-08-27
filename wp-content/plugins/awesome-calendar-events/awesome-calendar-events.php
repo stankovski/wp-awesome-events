@@ -5,7 +5,7 @@
  * Description: Manage event dates and recurring schedules, publish calendar feeds, display countdowns, and let visitors add events to their calendar.
  * Version: 1.0.0
  * Author: stankovski
- * Author URI: https://github.com/stankovski/
+ * Author URI: https://goodsoftware.foundation/
  * Text Domain: awesome-calendar-events
  * Domain Path: /languages
  * Requires at least: 6.0

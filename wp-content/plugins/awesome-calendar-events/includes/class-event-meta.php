@@ -32,6 +32,27 @@ class Awesome_Calendar_Events_Event_Meta {
         add_action('add_meta_boxes', [$this, 'add_meta_box']);
         add_action('save_post', [$this, 'save_meta']);
         add_action('init', [$this, 'register_meta']);
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
+    }
+
+    /**
+     * Enqueue admin JS for the event meta box (post edit screens only).
+     */
+    public function enqueue_admin_assets($hook) {
+        if (!in_array($hook, ['post.php', 'post-new.php'], true)) {
+            return;
+        }
+        $screen = get_current_screen();
+        if (!$screen || $screen->post_type !== 'post') {
+            return;
+        }
+        wp_enqueue_script(
+            'awesome-calendar-events-event-meta-admin',
+            AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-meta-admin.js',
+            [],
+            AWESOME_CALENDAR_EVENTS_VERSION,
+            true
+        );
     }
 
     public function register_meta() {
@@ -223,34 +244,6 @@ class Awesome_Calendar_Events_Event_Meta {
             <small><?php esc_html_e('0 or blank = unlimited', 'awesome-calendar-events'); ?></small>
         </p>
         </div>
-
-        <script>
-        (function(){
-            const recSel=document.getElementById('icob_event_recurrence_type');
-            const weekdays=document.getElementById('icob_event_weekdays');
-            const endSel=document.getElementById('icob_event_recurrence_end_type');
-            const endDateWrap=document.getElementById('icob_event_end_date_wrap');
-            const countWrap=document.getElementById('icob_event_count_wrap');
-            const enabledCb=document.getElementById('icob_event_date_enabled');
-            const fieldsWrap=document.getElementById('icob_event_fields_wrap');
-            function update(){
-                weekdays.style.display = (recSel.value==='weekly') ? '' : 'none';
-                endDateWrap.style.display = (endSel.value==='date') ? '' : 'none';
-                countWrap.style.display = (endSel.value==='count') ? '' : 'none';
-                if (enabledCb.checked){
-                    fieldsWrap.style.opacity='1';
-                    fieldsWrap.style.pointerEvents='auto';
-                } else {
-                    fieldsWrap.style.opacity='.55';
-                    fieldsWrap.style.pointerEvents='none';
-                }
-            }
-            recSel.addEventListener('change', update);
-            endSel.addEventListener('change', update);
-            enabledCb.addEventListener('change', update);
-            update();
-        })();
-        </script>
         <?php
     }
 

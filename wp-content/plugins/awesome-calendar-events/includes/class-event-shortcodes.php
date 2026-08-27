@@ -80,11 +80,11 @@ class Awesome_Calendar_Events_Event_Shortcodes {
 
         $post_id = $this->get_post_id($atts);
         if (!$post_id) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         if (!class_exists('Awesome_Calendar_Events_Event_Meta')) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         $format = $atts['format'] ?: get_option('date_format');
@@ -94,7 +94,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
             return esc_html($display['date']);
         }
 
-        return $atts['fallback'];
+        return esc_html($atts['fallback']);
     }
 
     /**
@@ -118,11 +118,11 @@ class Awesome_Calendar_Events_Event_Shortcodes {
 
         $post_id = $this->get_post_id($atts);
         if (!$post_id) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         if (!class_exists('Awesome_Calendar_Events_Event_Meta')) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         $format = $atts['format'] ?: get_option('date_format');
@@ -151,7 +151,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
             return esc_html($display['weekdays']);
         }
 
-        return $atts['fallback'];
+        return esc_html($atts['fallback']);
     }
 
     /**
@@ -174,7 +174,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
 
         $post_id = $this->get_post_id($atts);
         if (!$post_id) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         // Check for custom time label first
@@ -185,13 +185,13 @@ class Awesome_Calendar_Events_Event_Shortcodes {
 
         $time_raw = get_post_meta($post_id, '_icob_event_start_time', true);
         if (!$time_raw) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         // Parse and format the time
         $ts = strtotime(gmdate('Y-m-d') . ' ' . $time_raw);
         if (!$ts) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         return esc_html(date_i18n($atts['format'], $ts));
@@ -219,7 +219,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
 
         $post_id = $this->get_post_id($atts);
         if (!$post_id) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         // Check for custom time label first
@@ -232,13 +232,13 @@ class Awesome_Calendar_Events_Event_Shortcodes {
         $end_time_raw = get_post_meta($post_id, '_icob_event_end_time', true);
 
         if (!$start_time_raw) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         // Parse and format the start time
         $start_ts = strtotime(gmdate('Y-m-d') . ' ' . $start_time_raw);
         if (!$start_ts) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         $start_formatted = date_i18n($atts['format'], $start_ts);
@@ -277,12 +277,12 @@ class Awesome_Calendar_Events_Event_Shortcodes {
 
         $post_id = $this->get_post_id($atts);
         if (!$post_id) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         $location = get_post_meta($post_id, '_icob_event_location', true);
         if (!$location) {
-            return $atts['fallback'];
+            return esc_html($atts['fallback']);
         }
 
         return esc_html($location);
