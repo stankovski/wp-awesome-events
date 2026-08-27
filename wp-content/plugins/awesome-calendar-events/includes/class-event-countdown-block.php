@@ -111,7 +111,7 @@ class Awesome_Calendar_Events_Event_Countdown_Block {
             return '';
         }
 
-        $enabled = get_post_meta($post_id, '_icob_event_date_enabled', true);
+        $enabled = awecal_get_post_meta($post_id, '_awecal_event_date_enabled', true);
         if (!$enabled) {
             return '';
         }
@@ -128,7 +128,7 @@ class Awesome_Calendar_Events_Event_Countdown_Block {
 
         // Parse next occurrence date (Y-m-d format) and combine with event start time if available
         $event_date = strtotime($next_occurrence . ' 00:00:00');
-        $start_time = get_post_meta($post_id, '_icob_event_start_time', true);
+        $start_time = awecal_get_post_meta($post_id, '_awecal_event_start_time', true);
 
         if ($start_time && preg_match('/^([01]?[0-9]|2[0-3]):([0-5][0-9])$/', $start_time)) {
             // Combine date with time

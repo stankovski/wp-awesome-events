@@ -128,7 +128,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
         $format = $atts['format'] ?: get_option('date_format');
 
         // Check if this is a weekly recurring event
-        $rec_type = get_post_meta($post_id, '_icob_event_recurrence_type', true);
+        $rec_type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_type', true);
 
         if ($rec_type === 'weekly') {
             // For weekly events, get singular weekday names and prepend "Every"
@@ -178,12 +178,12 @@ class Awesome_Calendar_Events_Event_Shortcodes {
         }
 
         // Check for custom time label first
-        $custom_label = get_post_meta($post_id, '_icob_event_custom_time_label', true);
+        $custom_label = awecal_get_post_meta($post_id, '_awecal_event_custom_time_label', true);
         if (!empty($custom_label)) {
             return esc_html($custom_label);
         }
 
-        $time_raw = get_post_meta($post_id, '_icob_event_start_time', true);
+        $time_raw = awecal_get_post_meta($post_id, '_awecal_event_start_time', true);
         if (!$time_raw) {
             return esc_html($atts['fallback']);
         }
@@ -223,13 +223,13 @@ class Awesome_Calendar_Events_Event_Shortcodes {
         }
 
         // Check for custom time label first
-        $custom_label = get_post_meta($post_id, '_icob_event_custom_time_label', true);
+        $custom_label = awecal_get_post_meta($post_id, '_awecal_event_custom_time_label', true);
         if (!empty($custom_label)) {
             return esc_html($custom_label);
         }
 
-        $start_time_raw = get_post_meta($post_id, '_icob_event_start_time', true);
-        $end_time_raw = get_post_meta($post_id, '_icob_event_end_time', true);
+        $start_time_raw = awecal_get_post_meta($post_id, '_awecal_event_start_time', true);
+        $end_time_raw = awecal_get_post_meta($post_id, '_awecal_event_end_time', true);
 
         if (!$start_time_raw) {
             return esc_html($atts['fallback']);
@@ -280,7 +280,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
             return esc_html($atts['fallback']);
         }
 
-        $location = get_post_meta($post_id, '_icob_event_location', true);
+        $location = awecal_get_post_meta($post_id, '_awecal_event_location', true);
         if (!$location) {
             return esc_html($atts['fallback']);
         }

@@ -77,6 +77,8 @@ class Awesome_Calendar_Events_Plugin {
      * Load plugin includes
      */
     private function load_includes() {
+        // Meta helper (canonical `_awecal_` prefix with transparent legacy fallback)
+        require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-meta-helper.php';
         // Event meta (dates & recurrence)
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-meta.php';
         // Event REST API endpoints

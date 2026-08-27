@@ -56,7 +56,7 @@ class Awesome_Calendar_Events_Event_Date_Block {
                 // Optional explicit post ID when block context is unavailable (e.g. programmatic render).
                 'postId' => [ 'type' => 'integer', 'default' => 0 ],
                 // Location meta key (allows customization / future flexibility)
-                'locationMetaKey' => [ 'type' => 'string', 'default' => '_icob_event_location' ],
+                'locationMetaKey' => [ 'type' => 'string', 'default' => '_awecal_event_location' ],
                 // When showing a Date, optionally output relative forms (weekdays plural for weekly recurrence, or "This Monday" for single events this week)
                 'relativeCurrentWeek' => [ 'type' => 'boolean', 'default' => false ],
             ],
@@ -115,7 +115,7 @@ class Awesome_Calendar_Events_Event_Date_Block {
     $showWeekdays  = !isset($attributes['showWeekdaysWhenMissing']) || $attributes['showWeekdaysWhenMissing'];
     $relativeWeek  = !empty($attributes['relativeCurrentWeek']) && $dataType === 'date';
         $wrapTag       = isset($attributes['wrapTag']) && in_array(strtolower($attributes['wrapTag']), ['div','span','p'], true) ? strtolower($attributes['wrapTag']) : 'div';
-        $locationKey   = isset($attributes['locationMetaKey']) && $attributes['locationMetaKey'] ? sanitize_key($attributes['locationMetaKey']) : '_icob_event_location';
+        $locationKey   = isset($attributes['locationMetaKey']) && $attributes['locationMetaKey'] ? sanitize_key($attributes['locationMetaKey']) : '_awecal_event_location';
         // Use unified helper for date / weekday fallback logic.
         $output = '';
         if ($dataType === 'date') {
@@ -130,15 +130,16 @@ class Awesome_Calendar_Events_Event_Date_Block {
                 }
             }
         } elseif ($dataType === 'time') {
-            // Expect time stored as meta _icob_event_time (HH:MM or similar). Not previously defined; we attempt retrieval gracefully.
-            $time_raw = get_post_meta($post_ID, '_icob_event_time', true);
+            // Expect time stored as meta _awecal_event_time (HH:MM or similar). Not previously defined; we attempt retrieval gracefully.
+            $time_raw = awecal_get_post_meta($post_ID, '_awecal_event_time', true);
             if ($time_raw) {
                 // Normalize and format via strtotime best-effort.
                 $ts = strtotime(gmdate('Y-m-d') . ' ' . $time_raw);
                 if ($ts) { $output = esc_html(date_i18n($timeFormat, $ts)); }
             }
         } elseif ($dataType === 'location') {
-            $loc = get_post_meta($post_ID, $locationKey, true);
+            // Prefix-aware read via the meta helper (falls back to pre-migration data).
+            $loc = awecal_get_post_meta($post_ID, $locationKey, true);
             if ($loc) { $output = esc_html($loc); }
         }
 

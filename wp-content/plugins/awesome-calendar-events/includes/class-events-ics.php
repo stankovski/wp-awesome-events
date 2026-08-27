@@ -5,7 +5,7 @@
  * Strategy:
  *  - Hook into init to add rewrite rule for events.ics
  *  - Hook template_redirect to detect request and output ICS
- *  - Query all published posts having _icob_event_date_enabled=1 (meta query)
+ *  - Query all published posts having the event date enabled (prefix handled by the meta helper)
  *  - For each post build one or more VEVENTs.
  *      * Non-recurring: single VEVENT
  *      * Recurring: If recurrence is present we will create an RRULE instead of expanding fully (efficient)
@@ -58,16 +58,9 @@ class Awesome_Calendar_Events_Events_ICS {
             'post_status' => 'publish',
             'posts_per_page' => -1,
             'meta_query' => [
-                [
-                    'key' => '_icob_event_date_enabled',
-                    'value' => '1',
-                    'compare' => '='
-                ],
-                [
-                    'key' => '_icob_event_date',
-                    'compare' => '!=',
-                    'value' => ''
-                ]
+                'relation' => 'AND',
+                awecal_event_date_enabled_meta_query(),
+                awecal_event_date_present_meta_query(),
             ]
         ];
         $posts = get_posts($args);

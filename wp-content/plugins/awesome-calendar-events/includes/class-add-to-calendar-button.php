@@ -9,9 +9,9 @@
  * 1. In the block editor, insert the "Add to Calendar" block from Awesome Calendar Events
  * 2. It automatically creates a Buttons container with the configured button
  * 3. The button will automatically use event metadata from the current post:
- *    - Event date and time (_icob_event_date, _icob_event_start_time)
- *    - Event duration (_icob_event_duration_hours)
- *    - Event location (_icob_event_location)
+ *    - Event date and time (_awecal_event_date, _awecal_event_start_time)
+ *    - Event duration (_awecal_event_duration_hours)
+ *    - Event location (_awecal_event_location)
  *    - Post title (used as event name)
  * 4. On the frontend, clicking the button opens a modal with calendar options:
  *    - Google Calendar
@@ -81,16 +81,16 @@ class Awesome_Calendar_Events_Add_To_Calendar_Button {
             return;
         }
 
-        $event_enabled = get_post_meta($post->ID, '_icob_event_date_enabled', true);
+        $event_enabled = awecal_get_post_meta($post->ID, '_awecal_event_date_enabled', true);
         if (!$event_enabled) {
             return;
         }
 
-        $event_date = get_post_meta($post->ID, '_icob_event_date', true);
-        $start_time = get_post_meta($post->ID, '_icob_event_start_time', true);
-        $duration = get_post_meta($post->ID, '_icob_event_duration_hours', true);
-        $location = get_post_meta($post->ID, '_icob_event_location', true);
-        $recurrence_type = get_post_meta($post->ID, '_icob_event_recurrence_type', true) ?: 'none';
+        $event_date = awecal_get_post_meta($post->ID, '_awecal_event_date', true);
+        $start_time = awecal_get_post_meta($post->ID, '_awecal_event_start_time', true);
+        $duration = awecal_get_post_meta($post->ID, '_awecal_event_duration_hours', true);
+        $location = awecal_get_post_meta($post->ID, '_awecal_event_location', true);
+        $recurrence_type = awecal_get_post_meta($post->ID, '_awecal_event_recurrence_type', true) ?: 'none';
 
         if (!$event_date) {
             return;
@@ -158,10 +158,10 @@ class Awesome_Calendar_Events_Add_To_Calendar_Button {
      */
     public static function get_calendar_urls($post_id) {
         $title = get_the_title($post_id);
-        $event_date = get_post_meta($post_id, '_icob_event_date', true);
-        $start_time = get_post_meta($post_id, '_icob_event_start_time', true);
-        $duration_hours = get_post_meta($post_id, '_icob_event_duration_hours', true);
-        $location = get_post_meta($post_id, '_icob_event_location', true);
+        $event_date = awecal_get_post_meta($post_id, '_awecal_event_date', true);
+        $start_time = awecal_get_post_meta($post_id, '_awecal_event_start_time', true);
+        $duration_hours = awecal_get_post_meta($post_id, '_awecal_event_duration_hours', true);
+        $location = awecal_get_post_meta($post_id, '_awecal_event_location', true);
         $description = wp_strip_all_tags(get_the_excerpt($post_id));
         $url = get_permalink($post_id);
 

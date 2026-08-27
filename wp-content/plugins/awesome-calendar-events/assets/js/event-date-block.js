@@ -19,7 +19,7 @@
             labelText: { type: 'string', default: __('Event Date:', 'awesome-calendar-events') },
             showWeekdaysWhenMissing: { type: 'boolean', default: true },
             wrapTag: { type: 'string', default: 'div' },
-            locationMetaKey: { type: 'string', default: '_icob_event_location' },
+            locationMetaKey: { type: 'string', default: '_awecal_event_location' },
             relativeCurrentWeek: { type: 'boolean', default: false }
         },
         edit: (props) => {

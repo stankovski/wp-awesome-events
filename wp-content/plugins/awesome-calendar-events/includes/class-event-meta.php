@@ -6,23 +6,26 @@
  * Supports single events and recurring patterns (daily, weekly, monthly, yearly) with an optional end date
  * or number of occurrences. Provides helper to compute next upcoming occurrence.
  *
- * Meta keys:
- *  - _icob_event_date (string: Y-m-d in site timezone)
- *  - _icob_event_date_enabled (int: 0|1) master enable flag; when 0 other event fields ignored
- *  - _icob_event_start_time (string: HH:MM 24h) optional start time
- *  - _icob_event_duration_hours (number: >=0) optional duration in hours (was minutes pre-change)
- *  - _icob_event_duration_minutes (int: >=0) legacy field kept in sync for backward compatibility
- *  - _icob_event_location (string) optional location text
- *  - _icob_event_recurrence_type (string: none|daily|weekly|monthly|yearly)
- *  - _icob_event_recurrence_interval (int: >=1) e.g. every 2 weeks
- *  - _icob_event_recurrence_weekdays (string: "[0,2,4]" with Monday=0..Sunday=6) only for weekly when specifying specific weekdays.
- *  - _icob_event_recurrence_end_type (string: none|date|count)
- *  - _icob_event_recurrence_end_date (string: Y-m-d)
- *  - _icob_event_recurrence_count (int: max number of occurrences)
+ * All keys use the canonical `_awecal_` prefix:
+ *  - _awecal_event_date (string: Y-m-d in site timezone)
+ *  - _awecal_event_date_enabled (int: 0|1) master enable flag; when 0 other event fields ignored
+ *  - _awecal_event_start_time (string: HH:MM 24h) optional start time
+ *  - _awecal_event_duration_hours (number: >=0) optional duration in hours (was minutes pre-change)
+ *  - _awecal_event_duration_minutes (int: >=0) legacy field kept in sync for backward compatibility
+ *  - _awecal_event_location (string) optional location text
+ *  - _awecal_event_recurrence_type (string: none|daily|weekly|monthly|yearly)
+ *  - _awecal_event_recurrence_interval (int: >=1) e.g. every 2 weeks
+ *  - _awecal_event_recurrence_weekdays (string: "[0,2,4]" with Monday=0..Sunday=6) only for weekly when specifying specific weekdays.
+ *  - _awecal_event_recurrence_end_type (string: none|date|count)
+ *  - _awecal_event_recurrence_end_date (string: Y-m-d)
+ *  - _awecal_event_recurrence_count (int: max number of occurrences)
  *
- * NOTE: Meta keys retain the historical `_icob_event_*` prefix even though this
- * class now lives in the awesome-calendar-events plugin, to preserve backward
- * compatibility with existing post content, REST consumers, and ICS feeds.
+ * NOTE: Posts written before the `_awecal_` prefix migration store their meta
+ * under the historical prefix. Those keys are still registered (read-only for
+ * REST consumers). All reads go through awecal_get_post_meta()
+ * (see class-meta-helper.php), which is the single place aware of the legacy
+ * prefix and transparently falls back to legacy data so existing posts, REST
+ * consumers, and ICS feeds keep working.
  */
 
 if (!defined('ABSPATH')) { exit; }
@@ -62,61 +65,71 @@ class Awesome_Calendar_Events_Event_Meta {
             'type' => 'string',
             'auth_callback' => function() { return current_user_can('edit_posts'); }
         ];
-        register_post_meta('post', '_icob_event_date', $meta_args_public);
-        register_post_meta('post', '_icob_event_date_enabled', array_merge($meta_args_public, [
-            'type' => 'boolean',
-            'default' => false,
-            'sanitize_callback' => function($val){ return (bool)$val; }
-        ]));
-        register_post_meta('post', '_icob_event_recurrence_type', array_merge($meta_args_public, ['type' => 'string']));
-        register_post_meta('post', '_icob_event_start_time', array_merge($meta_args_public, [
-            'type' => 'string',
-            'default' => '',
-            'sanitize_callback' => function($val){
-                $val = trim((string)$val);
-                return preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $val) ? $val : '';
-            }
-        ]));
-        register_post_meta('post', '_icob_event_custom_time_label', array_merge($meta_args_public, [
-            'type' => 'string',
-            'default' => '',
-            'sanitize_callback' => function($val){ return sanitize_text_field($val); }
-        ]));
-        // New canonical duration in hours (allows fractional values e.g., 1.5)
-        register_post_meta('post', '_icob_event_duration_hours', array_merge($meta_args_public, [
-            'type' => 'number',
-            'default' => 0,
-            'sanitize_callback' => function($val){ $v = floatval($val); return $v < 0 ? 0 : $v; }
-        ]));
-        // Legacy minutes field retained (read-only conceptually) for older code paths; kept synchronized on save.
-        register_post_meta('post', '_icob_event_duration_minutes', array_merge($meta_args_public, [
-            'type' => 'integer',
-            'default' => 0,
-            'sanitize_callback' => function($val){ return max(0, intval($val)); }
-        ]));
-        register_post_meta('post', '_icob_event_location', array_merge($meta_args_public, [
-            'type' => 'string',
-            'default' => '',
-            'sanitize_callback' => function($val){ return sanitize_text_field($val); }
-        ]));
-        register_post_meta('post', '_icob_event_recurrence_interval', array_merge($meta_args_public, ['type' => 'integer']));
-        // Store weekdays as canonical bracketed comma string (e.g., "[0,1,3]"). We expose as string in REST.
-        register_post_meta('post', '_icob_event_recurrence_weekdays', array_merge($meta_args_public, [
-            'type' => 'string',
-            'sanitize_callback' => function($val){
-                // Accept either string or legacy array; normalize to bracketed list
-                if (is_array($val)) {
-                    $ints = array_values(array_intersect(array_map('intval',$val), range(0,6)));
-                    sort($ints);
-                    return '[' . implode(',', $ints) . ']';
+
+        $meta_defs = [
+            'event_date' => $meta_args_public,
+            'event_date_enabled' => array_merge($meta_args_public, [
+                'type' => 'boolean',
+                'default' => false,
+                'sanitize_callback' => function($val){ return (bool)$val; }
+            ]),
+            'event_recurrence_type' => array_merge($meta_args_public, ['type' => 'string']),
+            'event_start_time' => array_merge($meta_args_public, [
+                'type' => 'string',
+                'default' => '',
+                'sanitize_callback' => function($val){
+                    $val = trim((string)$val);
+                    return preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $val) ? $val : '';
                 }
-                $parsed = self::parse_weekday_string($val);
-                return $parsed ? ('[' . implode(',', $parsed) . ']') : '[]';
-            }
-        ]));
-        register_post_meta('post', '_icob_event_recurrence_end_type', array_merge($meta_args_public, ['type' => 'string']));
-        register_post_meta('post', '_icob_event_recurrence_end_date', array_merge($meta_args_public, ['type' => 'string']));
-        register_post_meta('post', '_icob_event_recurrence_count', array_merge($meta_args_public, ['type' => 'integer']));
+            ]),
+            'event_custom_time_label' => array_merge($meta_args_public, [
+                'type' => 'string',
+                'default' => '',
+                'sanitize_callback' => function($val){ return sanitize_text_field($val); }
+            ]),
+            // New canonical duration in hours (allows fractional values e.g., 1.5)
+            'event_duration_hours' => array_merge($meta_args_public, [
+                'type' => 'number',
+                'default' => 0,
+                'sanitize_callback' => function($val){ $v = floatval($val); return $v < 0 ? 0 : $v; }
+            ]),
+            // Legacy minutes field retained (read-only conceptually) for older code paths; kept synchronized on save.
+            'event_duration_minutes' => array_merge($meta_args_public, [
+                'type' => 'integer',
+                'default' => 0,
+                'sanitize_callback' => function($val){ return max(0, intval($val)); }
+            ]),
+            'event_location' => array_merge($meta_args_public, [
+                'type' => 'string',
+                'default' => '',
+                'sanitize_callback' => function($val){ return sanitize_text_field($val); }
+            ]),
+            'event_recurrence_interval' => array_merge($meta_args_public, ['type' => 'integer']),
+            // Store weekdays as canonical bracketed comma string (e.g., "[0,1,3]"). We expose as string in REST.
+            'event_recurrence_weekdays' => array_merge($meta_args_public, [
+                'type' => 'string',
+                'sanitize_callback' => function($val){
+                    // Accept either string or legacy array; normalize to bracketed list
+                    if (is_array($val)) {
+                        $ints = array_values(array_intersect(array_map('intval',$val), range(0,6)));
+                        sort($ints);
+                        return '[' . implode(',', $ints) . ']';
+                    }
+                    $parsed = self::parse_weekday_string($val);
+                    return $parsed ? ('[' . implode(',', $parsed) . ']') : '[]';
+                }
+            ]),
+            'event_recurrence_end_type' => array_merge($meta_args_public, ['type' => 'string']),
+            'event_recurrence_end_date' => array_merge($meta_args_public, ['type' => 'string']),
+            'event_recurrence_count' => array_merge($meta_args_public, ['type' => 'integer']),
+        ];
+
+        foreach ($meta_defs as $suffix => $args) {
+            // Canonical key written by this plugin for new/updated posts.
+            register_post_meta('post', AWECAL_META_PREFIX . $suffix, $args);
+            // Legacy key kept registered so existing posts stay exposed in REST.
+            register_post_meta('post', AWECAL_LEGACY_META_PREFIX . $suffix, $args);
+        }
     }
 
     public function add_meta_box() {
@@ -139,36 +152,36 @@ class Awesome_Calendar_Events_Event_Meta {
     }
 
     private function get_meta($post_id, $key, $default = '') {
-        $val = get_post_meta($post_id, $key, true);
+        $val = awecal_get_post_meta($post_id, $key, true);
         return $val === '' ? $default : $val;
     }
 
     public function render_meta_box($post) {
         wp_nonce_field('icob_event_meta_save', 'icob_event_meta_nonce');
-    $enabled = (bool) $this->get_meta($post->ID, '_icob_event_date_enabled', 0);
-        $event_date = esc_attr($this->get_meta($post->ID, '_icob_event_date'));
-        $recurrence_type = esc_attr($this->get_meta($post->ID, '_icob_event_recurrence_type', 'none'));
-        $interval = intval($this->get_meta($post->ID, '_icob_event_recurrence_interval', 1));
+    $enabled = (bool) $this->get_meta($post->ID, '_awecal_event_date_enabled', 0);
+        $event_date = esc_attr($this->get_meta($post->ID, '_awecal_event_date'));
+        $recurrence_type = esc_attr($this->get_meta($post->ID, '_awecal_event_recurrence_type', 'none'));
+        $interval = intval($this->get_meta($post->ID, '_awecal_event_recurrence_interval', 1));
         // Parse stored weekday string (or legacy array) for UI checkbox state
-        $weekdays_raw = $this->get_meta($post->ID, '_icob_event_recurrence_weekdays', []);
+        $weekdays_raw = $this->get_meta($post->ID, '_awecal_event_recurrence_weekdays', []);
         if (is_string($weekdays_raw)) {
             $weekdays = self::parse_weekday_string($weekdays_raw);
         } else {
             $weekdays = array_values(array_intersect(array_map('intval', (array)$weekdays_raw), range(0,6)));
         }
-        $end_type = esc_attr($this->get_meta($post->ID, '_icob_event_recurrence_end_type', 'none'));
-        $end_date = esc_attr($this->get_meta($post->ID, '_icob_event_recurrence_end_date'));
-        $count = intval($this->get_meta($post->ID, '_icob_event_recurrence_count', 0));
-    $start_time = $this->get_meta($post->ID, '_icob_event_start_time', '');
-    $custom_time_label = $this->get_meta($post->ID, '_icob_event_custom_time_label', '');
-    $duration_hours = $this->get_meta($post->ID, '_icob_event_duration_hours', '');
+        $end_type = esc_attr($this->get_meta($post->ID, '_awecal_event_recurrence_end_type', 'none'));
+        $end_date = esc_attr($this->get_meta($post->ID, '_awecal_event_recurrence_end_date'));
+        $count = intval($this->get_meta($post->ID, '_awecal_event_recurrence_count', 0));
+    $start_time = $this->get_meta($post->ID, '_awecal_event_start_time', '');
+    $custom_time_label = $this->get_meta($post->ID, '_awecal_event_custom_time_label', '');
+    $duration_hours = $this->get_meta($post->ID, '_awecal_event_duration_hours', '');
     if ($duration_hours === '' || $duration_hours === '0') {
         // Fallback convert legacy minutes if present
-        $legacy_minutes = intval($this->get_meta($post->ID, '_icob_event_duration_minutes', 0));
+        $legacy_minutes = intval($this->get_meta($post->ID, '_awecal_event_duration_minutes', 0));
         $duration_hours = $legacy_minutes > 0 ? round($legacy_minutes / 60, 2) : 0;
     }
     $duration_hours = floatval($duration_hours);
-    $location = $this->get_meta($post->ID, '_icob_event_location', '');
+    $location = $this->get_meta($post->ID, '_awecal_event_location', '');
 
     // Weekday labels aligned to new Monday=0..Sunday=6 indexing
     $weekday_labels = [__('Mon','awesome-calendar-events'),__('Tue','awesome-calendar-events'),__('Wed','awesome-calendar-events'),__('Thu','awesome-calendar-events'),__('Fri','awesome-calendar-events'),__('Sat','awesome-calendar-events'),__('Sun','awesome-calendar-events')];
@@ -327,54 +340,54 @@ class Awesome_Calendar_Events_Event_Meta {
         }
     // Enabled flag
     $enabled = isset($_POST['icob_event_date_enabled']) ? 1 : 0;
-    update_post_meta($post_id, '_icob_event_date_enabled', $enabled);
-    update_post_meta($post_id, '_icob_event_date', $enabled ? $event_date : '');
+    update_post_meta($post_id, '_awecal_event_date_enabled', $enabled);
+    update_post_meta($post_id, '_awecal_event_date', $enabled ? $event_date : '');
 
     $rec_type = isset($_POST['icob_event_recurrence_type']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_type'])) : 'none';
         $valid_types = ['none','daily','weekly','monthly','yearly'];
         if (!in_array($rec_type, $valid_types, true)) { $rec_type='none'; }
-    update_post_meta($post_id, '_icob_event_recurrence_type', $enabled ? $rec_type : 'none');
+    update_post_meta($post_id, '_awecal_event_recurrence_type', $enabled ? $rec_type : 'none');
 
     $interval = isset($_POST['icob_event_recurrence_interval']) ? max(1, intval(wp_unslash($_POST['icob_event_recurrence_interval']))) : 1;
-    update_post_meta($post_id, '_icob_event_recurrence_interval', $enabled ? $interval : 1);
+    update_post_meta($post_id, '_awecal_event_recurrence_interval', $enabled ? $interval : 1);
 
     $weekdays = isset($_POST['icob_event_recurrence_weekdays']) ? array_map('intval', (array)wp_unslash($_POST['icob_event_recurrence_weekdays'])) : [];
     $weekdays = array_values(array_intersect($weekdays, range(0,6)));
     sort($weekdays);
     $weekday_string = '[' . implode(',', $weekdays) . ']';
-    update_post_meta($post_id, '_icob_event_recurrence_weekdays', $enabled ? $weekday_string : '[]');
+    update_post_meta($post_id, '_awecal_event_recurrence_weekdays', $enabled ? $weekday_string : '[]');
 
     $end_type = isset($_POST['icob_event_recurrence_end_type']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_end_type'])) : 'none';
     if (!in_array($end_type, ['none','date','count'], true)) { $end_type='none'; }
-    update_post_meta($post_id, '_icob_event_recurrence_end_type', $enabled ? $end_type : 'none');
+    update_post_meta($post_id, '_awecal_event_recurrence_end_type', $enabled ? $end_type : 'none');
 
     $end_date = isset($_POST['icob_event_recurrence_end_date']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_end_date'])) : '';
-    update_post_meta($post_id, '_icob_event_recurrence_end_date', ($enabled && $end_type==='date') ? $end_date : '');
+    update_post_meta($post_id, '_awecal_event_recurrence_end_date', ($enabled && $end_type==='date') ? $end_date : '');
 
     $count = isset($_POST['icob_event_recurrence_count']) ? intval(wp_unslash($_POST['icob_event_recurrence_count'])) : 0;
-    update_post_meta($post_id, '_icob_event_recurrence_count', ($enabled && $end_type==='count') ? $count : 0);
+    update_post_meta($post_id, '_awecal_event_recurrence_count', ($enabled && $end_type==='count') ? $count : 0);
 
     // Start time (HH:MM 24h)
     $start_time = isset($_POST['icob_event_start_time']) ? trim(sanitize_text_field(wp_unslash($_POST['icob_event_start_time']))) : '';
     if ($start_time && !preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $start_time)) { $start_time=''; }
-    update_post_meta($post_id, '_icob_event_start_time', $enabled ? $start_time : '');
+    update_post_meta($post_id, '_awecal_event_start_time', $enabled ? $start_time : '');
 
     // Custom time label
     $custom_time_label = isset($_POST['icob_event_custom_time_label']) ? sanitize_text_field(wp_unslash($_POST['icob_event_custom_time_label'])) : '';
-    update_post_meta($post_id, '_icob_event_custom_time_label', $enabled ? $custom_time_label : '');
+    update_post_meta($post_id, '_awecal_event_custom_time_label', $enabled ? $custom_time_label : '');
 
     // Duration hours (canonical) & sync legacy minutes
     $duration_hours = isset($_POST['icob_event_duration_hours']) ? floatval(wp_unslash($_POST['icob_event_duration_hours'])) : 0;
     if ($duration_hours < 0) { $duration_hours = 0; }
     $duration_hours = $enabled ? $duration_hours : 0;
-    update_post_meta($post_id, '_icob_event_duration_hours', $duration_hours);
+    update_post_meta($post_id, '_awecal_event_duration_hours', $duration_hours);
     // Keep legacy minutes updated for any older code referencing it.
     $legacy_minutes = $duration_hours > 0 ? (int) round($duration_hours * 60) : 0;
-    update_post_meta($post_id, '_icob_event_duration_minutes', $legacy_minutes);
+    update_post_meta($post_id, '_awecal_event_duration_minutes', $legacy_minutes);
 
     // Location
     $location = isset($_POST['icob_event_location']) ? sanitize_text_field(wp_unslash($_POST['icob_event_location'])) : '';
-    update_post_meta($post_id, '_icob_event_location', $enabled ? $location : '');
+    update_post_meta($post_id, '_awecal_event_location', $enabled ? $location : '');
     }
 
     /**
@@ -382,21 +395,21 @@ class Awesome_Calendar_Events_Event_Meta {
      * Returns null if no more upcoming occurrences.
      */
     public static function get_next_occurrence($post_id, $from_time = null) {
-    $enabled = get_post_meta($post_id, '_icob_event_date_enabled', true);
+    $enabled = awecal_get_post_meta($post_id, '_awecal_event_date_enabled', true);
     if (!$enabled) { return null; }
         $from = $from_time ? strtotime($from_time) : current_time('timestamp');
-        $event_date_raw = get_post_meta($post_id, '_icob_event_date', true);
+        $event_date_raw = awecal_get_post_meta($post_id, '_awecal_event_date', true);
         if (!$event_date_raw) { return null; }
     // Treat stored date as local site date (midnight)
     $start = strtotime(gmdate('Y-m-d', strtotime($event_date_raw)) . ' 00:00:00');
         if ($start === false) { return null; }
 
-        $type = get_post_meta($post_id, '_icob_event_recurrence_type', true) ?: 'none';
-        $interval = max(1, intval(get_post_meta($post_id, '_icob_event_recurrence_interval', true) ?: 1));
+        $type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_type', true) ?: 'none';
+        $interval = max(1, intval(awecal_get_post_meta($post_id, '_awecal_event_recurrence_interval', true) ?: 1));
         $weekdays = self::get_weekdays($post_id);
-        $end_type = get_post_meta($post_id, '_icob_event_recurrence_end_type', true) ?: 'none';
-        $end_date = get_post_meta($post_id, '_icob_event_recurrence_end_date', true);
-        $count_limit = intval(get_post_meta($post_id, '_icob_event_recurrence_count', true));
+        $end_type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_end_type', true) ?: 'none';
+        $end_date = awecal_get_post_meta($post_id, '_awecal_event_recurrence_end_date', true);
+        $count_limit = intval(awecal_get_post_meta($post_id, '_awecal_event_recurrence_count', true));
 
         // If single event
         if ($type === 'none') {
@@ -478,23 +491,23 @@ class Awesome_Calendar_Events_Event_Meta {
 
         if (!class_exists(__CLASS__)) { return $result; }
 
-    $enabled = get_post_meta($post_id, '_icob_event_date_enabled', true);
+    $enabled = awecal_get_post_meta($post_id, '_awecal_event_date_enabled', true);
     if (!$enabled) { return $result; }
 
     // Add ancillary fields even if no date (consumer can decide usage)
-    $start_time = get_post_meta($post_id, '_icob_event_start_time', true);
-    $duration_hours = floatval(get_post_meta($post_id, '_icob_event_duration_hours', true));
+    $start_time = awecal_get_post_meta($post_id, '_awecal_event_start_time', true);
+    $duration_hours = floatval(awecal_get_post_meta($post_id, '_awecal_event_duration_hours', true));
     if ($duration_hours <= 0) {
-        $legacy_minutes = intval(get_post_meta($post_id, '_icob_event_duration_minutes', true));
+        $legacy_minutes = intval(awecal_get_post_meta($post_id, '_awecal_event_duration_minutes', true));
         if ($legacy_minutes > 0) { $duration_hours = round($legacy_minutes / 60, 2); }
     }
-    $location = get_post_meta($post_id, '_icob_event_location', true);
+    $location = awecal_get_post_meta($post_id, '_awecal_event_location', true);
     $result['start_time'] = $start_time;
     $result['duration_minutes'] = $duration_hours > 0 ? (int) round($duration_hours * 60) : 0; // maintain legacy
     $result['duration_hours'] = $duration_hours;
     $result['location'] = $location;
 
-        $rec_type = get_post_meta($post_id, '_icob_event_recurrence_type', true);
+        $rec_type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_type', true);
 
         $next = self::get_next_occurrence($post_id);
         if ($next) {
@@ -508,7 +521,7 @@ class Awesome_Calendar_Events_Event_Meta {
             // New behavior: For non-recurring events (recurrence type 'none'), show the original event date
             // even if it is in the past. This supports blocks wanting to always display when the event occurred.
             if ($rec_type === 'none') {
-                $original_raw = get_post_meta($post_id, '_icob_event_date', true);
+                $original_raw = awecal_get_post_meta($post_id, '_awecal_event_date', true);
                 if ($original_raw) {
                     $orig_ts = strtotime($original_raw . ' 00:00:00');
                     if ($orig_ts) {
@@ -598,7 +611,7 @@ class Awesome_Calendar_Events_Event_Meta {
      * Supports new canonical string format "[0,2,5]" and legacy array storage.
      */
     public static function get_weekdays($post_id){
-        $raw = get_post_meta($post_id, '_icob_event_recurrence_weekdays', true);
+        $raw = awecal_get_post_meta($post_id, '_awecal_event_recurrence_weekdays', true);
         if (is_array($raw)) {
             $ints = array_values(array_intersect(array_map('intval',$raw), range(0,6)));
             sort($ints);

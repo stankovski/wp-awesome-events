@@ -22,6 +22,8 @@ wp-content/upgrade/*
 wp-content/plugins/awesome-calendar-events/.phpunit.result.cache
 wp-content/plugins/awesome-calendar-events/coverage/
 wp-content/plugins/awesome-calendar-events/phpunit.xml
+.phpunit.cache/
+.phpunit.result.cache
 
 # Deployment artifacts
 dist/*

@@ -121,18 +121,18 @@ class Awesome_Calendar_Events_ICS_Generator {
             return; // Skip if no event date
         }
 
-        $rec_type = get_post_meta($post->ID, '_icob_event_recurrence_type', true) ?: 'none';
-        $interval = max(1, intval(get_post_meta($post->ID, '_icob_event_recurrence_interval', true) ?: 1));
-        $end_type = get_post_meta($post->ID, '_icob_event_recurrence_end_type', true) ?: 'none';
-        $end_date = get_post_meta($post->ID, '_icob_event_recurrence_end_date', true);
-        $count = intval(get_post_meta($post->ID, '_icob_event_recurrence_count', true));
+        $rec_type = awecal_get_post_meta($post->ID, '_awecal_event_recurrence_type', true) ?: 'none';
+        $interval = max(1, intval(awecal_get_post_meta($post->ID, '_awecal_event_recurrence_interval', true) ?: 1));
+        $end_type = awecal_get_post_meta($post->ID, '_awecal_event_recurrence_end_type', true) ?: 'none';
+        $end_date = awecal_get_post_meta($post->ID, '_awecal_event_recurrence_end_date', true);
+        $count = intval(awecal_get_post_meta($post->ID, '_awecal_event_recurrence_count', true));
         $weekdays = Awesome_Calendar_Events_Event_Meta::get_weekdays($post->ID);
-        $start_time = get_post_meta($post->ID, '_icob_event_start_time', true);
-        $duration_hours = floatval(get_post_meta($post->ID, '_icob_event_duration_hours', true));
-        $location = get_post_meta($post->ID, '_icob_event_location', true);
+        $start_time = awecal_get_post_meta($post->ID, '_awecal_event_start_time', true);
+        $duration_hours = floatval(awecal_get_post_meta($post->ID, '_awecal_event_duration_hours', true));
+        $location = awecal_get_post_meta($post->ID, '_awecal_event_location', true);
         
         if ($duration_hours <= 0) {
-            $legacy_minutes = intval(get_post_meta($post->ID, '_icob_event_duration_minutes', true));
+            $legacy_minutes = intval(awecal_get_post_meta($post->ID, '_awecal_event_duration_minutes', true));
             if ($legacy_minutes > 0) {
                 $duration_hours = $legacy_minutes / 60.0;
             }
@@ -232,15 +232,15 @@ class Awesome_Calendar_Events_ICS_Generator {
             return null;
         }
 
-        $rec_type = get_post_meta($post_id, '_icob_event_recurrence_type', true) ?: 'none';
+        $rec_type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_type', true) ?: 'none';
         if ($rec_type === 'none') {
             return null;
         }
 
-        $interval = max(1, intval(get_post_meta($post_id, '_icob_event_recurrence_interval', true) ?: 1));
-        $end_type = get_post_meta($post_id, '_icob_event_recurrence_end_type', true) ?: 'none';
-        $end_date = get_post_meta($post_id, '_icob_event_recurrence_end_date', true);
-        $count = intval(get_post_meta($post_id, '_icob_event_recurrence_count', true));
+        $interval = max(1, intval(awecal_get_post_meta($post_id, '_awecal_event_recurrence_interval', true) ?: 1));
+        $end_type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_end_type', true) ?: 'none';
+        $end_date = awecal_get_post_meta($post_id, '_awecal_event_recurrence_end_date', true);
+        $count = intval(awecal_get_post_meta($post_id, '_awecal_event_recurrence_count', true));
         $weekdays = Awesome_Calendar_Events_Event_Meta::get_weekdays($post_id);
 
         $rrule = $this->build_rrule($rec_type, $interval, $weekdays, $end_type, $end_date, $count);

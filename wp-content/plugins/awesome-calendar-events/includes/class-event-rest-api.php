@@ -48,11 +48,7 @@ class Awesome_Calendar_Events_Event_REST_API {
             'orderby' => 'title',
             'order' => 'ASC',
             'meta_query' => [
-                [
-                    'key' => '_icob_event_date_enabled',
-                    'value' => '1',
-                    'compare' => '='
-                ]
+                awecal_event_date_enabled_meta_query(),
             ],
         ];
 
@@ -77,9 +73,9 @@ class Awesome_Calendar_Events_Event_REST_API {
                 $posts[] = [
                     'id' => $post_id,
                     'title' => get_the_title(),
-                    'event_date' => get_post_meta($post_id, '_icob_event_date', true),
+                    'event_date' => awecal_get_post_meta($post_id, '_awecal_event_date', true),
                     'next_occurrence' => $next_occurrence,
-                    'recurrence_type' => get_post_meta($post_id, '_icob_event_recurrence_type', true),
+                    'recurrence_type' => awecal_get_post_meta($post_id, '_awecal_event_recurrence_type', true),
                 ];
             }
             wp_reset_postdata();

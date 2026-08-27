@@ -10,5 +10,6 @@ if (!defined('WP_UNINSTALL_PLUGIN')) {
     exit;
 }
 
-// No cleanup performed: event post meta (_icob_event_*) is intentionally
-// preserved so it remains available if the plugin is reinstalled.
+// No cleanup performed: event post meta (including data written before the
+// current `_awecal_` prefix) is intentionally preserved so it remains
+// available if the plugin is reinstalled.

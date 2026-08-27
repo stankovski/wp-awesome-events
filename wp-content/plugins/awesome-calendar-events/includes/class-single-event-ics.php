@@ -36,13 +36,13 @@ class Awesome_Calendar_Events_Single_Event_ICS {
         }
 
         // Check if event is enabled
-        $event_enabled = get_post_meta($post_id, '_icob_event_date_enabled', true);
+        $event_enabled = awecal_get_post_meta($post_id, '_awecal_event_date_enabled', true);
         if (!$event_enabled) {
             return;
         }
 
         // Check if event has a date
-        $event_date = get_post_meta($post_id, '_icob_event_date', true);
+        $event_date = awecal_get_post_meta($post_id, '_awecal_event_date', true);
         if (!$event_date) {
             return;
         }
