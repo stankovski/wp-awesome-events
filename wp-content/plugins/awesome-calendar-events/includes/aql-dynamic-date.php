@@ -8,7 +8,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-if (!function_exists('awesome_events_aql_replace_dynamic_dates')) {
+if (!function_exists('awesome_calendar_events_aql_replace_dynamic_dates')) {
     /**
      * Filter callback for 'aql_query_vars'.
      *
@@ -17,7 +17,7 @@ if (!function_exists('awesome_events_aql_replace_dynamic_dates')) {
      * @param bool  $inherited   Whether the query vars were inherited.
      * @return array Modified args.
      */
-    function awesome_events_aql_replace_dynamic_dates($query_args, $block_query, $inherited) {
+    function awesome_calendar_events_aql_replace_dynamic_dates($query_args, $block_query, $inherited) {
         if (isset($query_args['meta_query']) && is_array($query_args['meta_query'])) {
             $today = current_time('Y-m-d');
             $yesterday = gmdate('Y-m-d', strtotime('-1 day', current_time('timestamp')));
@@ -46,5 +46,5 @@ if (!function_exists('awesome_events_aql_replace_dynamic_dates')) {
         return $query_args;
     }
 
-    add_filter('aql_query_vars', 'awesome_events_aql_replace_dynamic_dates', 10, 3);
+    add_filter('aql_query_vars', 'awesome_calendar_events_aql_replace_dynamic_dates', 10, 3);
 }

@@ -4,7 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-PLUGIN_DIR="$PROJECT_ROOT/wp-content/plugins/awesome-events"
+PLUGIN_DIR="$PROJECT_ROOT/wp-content/plugins/awesome-calendar-events"
 PLUGIN_CHECK_DIR="${PLUGIN_CHECK_DIR:-$PROJECT_ROOT/wp-content/plugins/plugin-check}"
 PHPCS="$PLUGIN_CHECK_DIR/vendor/bin/phpcs"
 RULESET="$PLUGIN_CHECK_DIR/phpcs-rulesets/plugin-review.xml"

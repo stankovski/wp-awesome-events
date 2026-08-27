@@ -1,4 +1,4 @@
-=== Awesome Events ===
+=== Awesome Calendar Events ===
 Contributors: stankovski
 Tags: events, calendar, ics, recurrence, countdown
 Requires at least: 6.0
@@ -12,7 +12,7 @@ Manage event dates and recurring schedules, publish calendar feeds, display coun
 
 == Description ==
 
-Awesome Events turns ordinary posts into full-featured events. Give a post a date, time, and optional recurrence rule, and Awesome Events takes care of the rest: subscribable calendar feeds, downloadable single-event invites, live countdowns, and one-click "Add to Calendar" links.
+Awesome Calendar Events turns ordinary posts into full-featured events. Give a post a date, time, and optional recurrence rule, and Awesome Calendar Events takes care of the rest: subscribable calendar feeds, downloadable single-event invites, live countdowns, and one-click "Add to Calendar" links.
 
 = Features =
 * Event date field with optional start/end time, added to any post
@@ -37,7 +37,7 @@ Both values work as a single meta-query value or within a `BETWEEN` value array.
 
 == Installation ==
 
-1. Upload the `awesome-events` folder to the `/wp-content/plugins/` directory
+1. Upload the `awesome-calendar-events` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Edit a post and set an event date (and optional recurrence) in the Event Date panel
 4. Subscribe to `yourdomain.com/events.ics` in a calendar app to see all events
@@ -58,7 +58,7 @@ Yes, each event with a date has a downloadable `.ics` file that can be linked to
 
 = How do I add an Add to Calendar button to an event? =
 
-In the block editor, open the Awesome Events category and insert "Add to Calendar." It automatically creates a Buttons block containing the configured calendar button. On the published event, the button offers Google Calendar, Apple Calendar, Outlook, Office 365, Yahoo Calendar, and an iCal download using the event's date, time, location, and title.
+In the block editor, open the Awesome Calendar Events category and insert "Add to Calendar." It automatically creates a Buttons block containing the configured calendar button. On the published event, the button offers Google Calendar, Apple Calendar, Outlook, Office 365, Yahoo Calendar, and an iCal download using the event's date, time, location, and title.
 
 == Changelog ==
 

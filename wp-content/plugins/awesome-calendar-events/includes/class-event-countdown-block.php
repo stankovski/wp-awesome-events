@@ -3,53 +3,53 @@
  * Event Countdown Block
  *
  * Displays a live JavaScript countdown timer to the next event occurrence.
- * Uses event metadata from Awesome_Events_Event_Meta to determine target date/time.
+ * Uses event metadata from Awesome_Calendar_Events_Event_Meta to determine target date/time.
  */
 
 if (!defined('ABSPATH')) { exit; }
 
-class Awesome_Events_Event_Countdown_Block {
+class Awesome_Calendar_Events_Event_Countdown_Block {
     public function __construct() {
         $this->register_block();
     }
 
     private function register_block() {
         // Register assets
-        $ver = defined('AWESOME_EVENTS_VERSION') ? AWESOME_EVENTS_VERSION : '1.0.0';
+        $ver = defined('AWESOME_CALENDAR_EVENTS_VERSION') ? AWESOME_CALENDAR_EVENTS_VERSION : '1.0.0';
 
-        if (!wp_script_is('awesome-events-event-countdown-block-editor', 'registered')) {
+        if (!wp_script_is('awesome-calendar-events-event-countdown-block-editor', 'registered')) {
             wp_register_script(
-                'awesome-events-event-countdown-block-editor',
-                AWESOME_EVENTS_PLUGIN_URL . 'assets/js/event-countdown-block.js',
+                'awesome-calendar-events-event-countdown-block-editor',
+                AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-countdown-block.js',
                 ['wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data'],
                 $ver,
                 true
             );
         }
 
-        if (!wp_script_is('awesome-events-event-countdown-frontend', 'registered')) {
+        if (!wp_script_is('awesome-calendar-events-event-countdown-frontend', 'registered')) {
             wp_register_script(
-                'awesome-events-event-countdown-frontend',
-                AWESOME_EVENTS_PLUGIN_URL . 'assets/js/event-countdown-frontend.js',
+                'awesome-calendar-events-event-countdown-frontend',
+                AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-countdown-frontend.js',
                 [],
                 $ver,
                 true
             );
         }
 
-        if (!wp_style_is('awesome-events-event-countdown-block-style', 'registered')) {
+        if (!wp_style_is('awesome-calendar-events-event-countdown-block-style', 'registered')) {
             wp_register_style(
-                'awesome-events-event-countdown-block-style',
-                AWESOME_EVENTS_PLUGIN_URL . 'assets/css/event-countdown-block.css',
+                'awesome-calendar-events-event-countdown-block-style',
+                AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/css/event-countdown-block.css',
                 [],
                 $ver
             );
         }
 
-        if (!wp_style_is('awesome-events-event-countdown-block-editor-style', 'registered')) {
+        if (!wp_style_is('awesome-calendar-events-event-countdown-block-editor-style', 'registered')) {
             wp_register_style(
-                'awesome-events-event-countdown-block-editor-style',
-                AWESOME_EVENTS_PLUGIN_URL . 'assets/css/event-countdown-block-editor.css',
+                'awesome-calendar-events-event-countdown-block-editor-style',
+                AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/css/event-countdown-block-editor.css',
                 [],
                 $ver
             );
@@ -59,25 +59,25 @@ class Awesome_Events_Event_Countdown_Block {
 
         register_block_type('icob/event-countdown', [
             'api_version' => 3,
-            'editor_script' => 'awesome-events-event-countdown-block-editor',
-            'script' => 'awesome-events-event-countdown-frontend',
-            'style' => 'awesome-events-event-countdown-block-style',
-            'editor_style' => 'awesome-events-event-countdown-block-editor-style',
+            'editor_script' => 'awesome-calendar-events-event-countdown-block-editor',
+            'script' => 'awesome-calendar-events-event-countdown-frontend',
+            'style' => 'awesome-calendar-events-event-countdown-block-style',
+            'editor_style' => 'awesome-calendar-events-event-countdown-block-editor-style',
             'render_callback' => [$this, 'render'],
             'attributes' => [
                 'postId' => ['type' => 'integer', 'default' => 0],
                 'showLabel' => ['type' => 'boolean', 'default' => true],
-                'labelText' => ['type' => 'string', 'default' => __('Countdown to Event:', 'awesome-events')],
+                'labelText' => ['type' => 'string', 'default' => __('Countdown to Event:', 'awesome-calendar-events')],
                 'showDays' => ['type' => 'boolean', 'default' => true],
                 'showHours' => ['type' => 'boolean', 'default' => true],
                 'showMinutes' => ['type' => 'boolean', 'default' => true],
                 'showSeconds' => ['type' => 'boolean', 'default' => false],
                 'separator' => ['type' => 'string', 'default' => ':'],
-                'completedText' => ['type' => 'string', 'default' => __('Event has started!', 'awesome-events')],
-                'daysLabel' => ['type' => 'string', 'default' => __('d', 'awesome-events')],
-                'hoursLabel' => ['type' => 'string', 'default' => __('h', 'awesome-events')],
-                'minutesLabel' => ['type' => 'string', 'default' => __('m', 'awesome-events')],
-                'secondsLabel' => ['type' => 'string', 'default' => __('s', 'awesome-events')],
+                'completedText' => ['type' => 'string', 'default' => __('Event has started!', 'awesome-calendar-events')],
+                'daysLabel' => ['type' => 'string', 'default' => __('d', 'awesome-calendar-events')],
+                'hoursLabel' => ['type' => 'string', 'default' => __('h', 'awesome-calendar-events')],
+                'minutesLabel' => ['type' => 'string', 'default' => __('m', 'awesome-calendar-events')],
+                'secondsLabel' => ['type' => 'string', 'default' => __('s', 'awesome-calendar-events')],
             ],
             'supports' => [
                 'html' => false,
@@ -89,8 +89,8 @@ class Awesome_Events_Event_Countdown_Block {
                 'spacing' => ['margin' => true, 'padding' => true]
             ],
             'category' => 'icob',
-            'title' => __('Event Countdown', 'awesome-events'),
-            'description' => __('Displays a live countdown timer to the next event occurrence.', 'awesome-events'),
+            'title' => __('Event Countdown', 'awesome-calendar-events'),
+            'description' => __('Displays a live countdown timer to the next event occurrence.', 'awesome-calendar-events'),
             'keywords' => ['event', 'countdown', 'timer', 'clock', 'icob']
         ]);
     }
@@ -101,7 +101,7 @@ class Awesome_Events_Event_Countdown_Block {
         // If no post selected, show placeholder in editor context only
         if (!$post_id) {
             return '<div class="icob-event-countdown-placeholder">' .
-                   esc_html__('Please select a post with event metadata.', 'awesome-events') .
+                   esc_html__('Please select a post with event metadata.', 'awesome-calendar-events') .
                    '</div>';
         }
 
@@ -117,11 +117,11 @@ class Awesome_Events_Event_Countdown_Block {
         }
 
         // Get next occurrence timestamp
-        if (!class_exists('Awesome_Events_Event_Meta')) {
+        if (!class_exists('Awesome_Calendar_Events_Event_Meta')) {
             return '';
         }
 
-        $next_occurrence = Awesome_Events_Event_Meta::get_next_occurrence($post_id);
+        $next_occurrence = Awesome_Calendar_Events_Event_Meta::get_next_occurrence($post_id);
         if (!$next_occurrence) {
             return '';
         }
@@ -141,7 +141,7 @@ class Awesome_Events_Event_Countdown_Block {
         // If event is in the past, don't render (or show completed text)
         $now = current_time('timestamp');
         if ($event_timestamp <= $now) {
-            $completed_text = isset($attributes['completedText']) ? $attributes['completedText'] : __('Event has started!', 'awesome-events');
+            $completed_text = isset($attributes['completedText']) ? $attributes['completedText'] : __('Event has started!', 'awesome-calendar-events');
             if (!$completed_text) {
                 return '';
             }
@@ -155,17 +155,17 @@ class Awesome_Events_Event_Countdown_Block {
 
         // Extract attributes
         $show_label = !empty($attributes['showLabel']);
-        $label_text = isset($attributes['labelText']) ? $attributes['labelText'] : __('Countdown to Event:', 'awesome-events');
+        $label_text = isset($attributes['labelText']) ? $attributes['labelText'] : __('Countdown to Event:', 'awesome-calendar-events');
         $show_days = isset($attributes['showDays']) ? (bool)$attributes['showDays'] : true;
         $show_hours = isset($attributes['showHours']) ? (bool)$attributes['showHours'] : true;
         $show_minutes = isset($attributes['showMinutes']) ? (bool)$attributes['showMinutes'] : true;
         $show_seconds = isset($attributes['showSeconds']) ? (bool)$attributes['showSeconds'] : false;
         $separator = isset($attributes['separator']) ? $attributes['separator'] : ':';
-        $completed_text = isset($attributes['completedText']) ? $attributes['completedText'] : __('Event has started!', 'awesome-events');
-        $days_label = isset($attributes['daysLabel']) ? $attributes['daysLabel'] : __('d', 'awesome-events');
-        $hours_label = isset($attributes['hoursLabel']) ? $attributes['hoursLabel'] : __('h', 'awesome-events');
-        $minutes_label = isset($attributes['minutesLabel']) ? $attributes['minutesLabel'] : __('m', 'awesome-events');
-        $seconds_label = isset($attributes['secondsLabel']) ? $attributes['secondsLabel'] : __('s', 'awesome-events');
+        $completed_text = isset($attributes['completedText']) ? $attributes['completedText'] : __('Event has started!', 'awesome-calendar-events');
+        $days_label = isset($attributes['daysLabel']) ? $attributes['daysLabel'] : __('d', 'awesome-calendar-events');
+        $hours_label = isset($attributes['hoursLabel']) ? $attributes['hoursLabel'] : __('h', 'awesome-calendar-events');
+        $minutes_label = isset($attributes['minutesLabel']) ? $attributes['minutesLabel'] : __('m', 'awesome-calendar-events');
+        $seconds_label = isset($attributes['secondsLabel']) ? $attributes['secondsLabel'] : __('s', 'awesome-calendar-events');
 
         // Build data attributes for JavaScript
         $data_attrs = sprintf(

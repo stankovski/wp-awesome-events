@@ -7,8 +7,8 @@
     const apiFetch = wp.apiFetch;
 
     registerBlockType('icob/event-countdown', {
-        title: __('Event Countdown', 'awesome-events'),
-        description: __('Displays a live countdown timer to the next event occurrence.', 'awesome-events'),
+        title: __('Event Countdown', 'awesome-calendar-events'),
+        description: __('Displays a live countdown timer to the next event occurrence.', 'awesome-calendar-events'),
         icon: 'clock',
         category: 'icob',
         supports: {
@@ -23,17 +23,17 @@
         attributes: {
             postId: { type: 'integer', default: 0 },
             showLabel: { type: 'boolean', default: true },
-            labelText: { type: 'string', default: __('Countdown to Event:', 'awesome-events') },
+            labelText: { type: 'string', default: __('Countdown to Event:', 'awesome-calendar-events') },
             showDays: { type: 'boolean', default: true },
             showHours: { type: 'boolean', default: true },
             showMinutes: { type: 'boolean', default: true },
             showSeconds: { type: 'boolean', default: false },
             separator: { type: 'string', default: ':' },
-            completedText: { type: 'string', default: __('Event has started!', 'awesome-events') },
-            daysLabel: { type: 'string', default: __('d', 'awesome-events') },
-            hoursLabel: { type: 'string', default: __('h', 'awesome-events') },
-            minutesLabel: { type: 'string', default: __('m', 'awesome-events') },
-            secondsLabel: { type: 'string', default: __('s', 'awesome-events') }
+            completedText: { type: 'string', default: __('Event has started!', 'awesome-calendar-events') },
+            daysLabel: { type: 'string', default: __('d', 'awesome-calendar-events') },
+            hoursLabel: { type: 'string', default: __('h', 'awesome-calendar-events') },
+            minutesLabel: { type: 'string', default: __('m', 'awesome-calendar-events') },
+            secondsLabel: { type: 'string', default: __('s', 'awesome-calendar-events') }
         },
         edit: function EditComponent(props) {
             const { attributes, setAttributes } = props;
@@ -140,100 +140,100 @@
                     null,
                     wp.element.createElement(
                         PanelBody,
-                        { title: __('Event Selection', 'awesome-events'), initialOpen: true },
+                        { title: __('Event Selection', 'awesome-calendar-events'), initialOpen: true },
                         wp.element.createElement(
                             'p',
                             { style: { marginBottom: '8px', fontSize: '12px', color: '#757575' } },
-                            __('Select a post with event metadata:', 'awesome-events')
+                            __('Select a post with event metadata:', 'awesome-calendar-events')
                         ),
                         wp.element.createElement(FormTokenField, {
-                            label: __('Search Events', 'awesome-events'),
+                            label: __('Search Events', 'awesome-calendar-events'),
                             value: selectedPostTitle ? [selectedPostTitle] : [],
                             suggestions: suggestions.map(s => s.value),
                             onChange: handlePostSelection,
                             maxSuggestions: 20,
-                            placeholder: __('Type to search for events...', 'awesome-events'),
+                            placeholder: __('Type to search for events...', 'awesome-calendar-events'),
                             __experimentalShowHowTo: false,
                             __experimentalExpandOnFocus: true
                         }),
                         isLoadingPosts && wp.element.createElement(
                             'p',
                             { style: { fontSize: '12px', fontStyle: 'italic' } },
-                            __('Loading posts...', 'awesome-events')
+                            __('Loading posts...', 'awesome-calendar-events')
                         ),
                         posts.length === 0 && !isLoadingPosts && wp.element.createElement(
                             'p',
                             { style: { fontSize: '12px', color: '#d63638' } },
-                            __('No posts found.', 'awesome-events')
+                            __('No posts found.', 'awesome-calendar-events')
                         )
                     ),
                     wp.element.createElement(
                         PanelBody,
-                        { title: __('Display Settings', 'awesome-events'), initialOpen: true },
+                        { title: __('Display Settings', 'awesome-calendar-events'), initialOpen: true },
                         wp.element.createElement(ToggleControl, {
-                            label: __('Show Label', 'awesome-events'),
+                            label: __('Show Label', 'awesome-calendar-events'),
                             checked: showLabel,
                             onChange: (value) => setAttributes({ showLabel: value })
                         }),
                         showLabel && wp.element.createElement(TextControl, {
-                            label: __('Label Text', 'awesome-events'),
+                            label: __('Label Text', 'awesome-calendar-events'),
                             value: labelText,
                             onChange: (value) => setAttributes({ labelText: value })
                         }),
                         wp.element.createElement(ToggleControl, {
-                            label: __('Show Days', 'awesome-events'),
+                            label: __('Show Days', 'awesome-calendar-events'),
                             checked: showDays,
                             onChange: (value) => setAttributes({ showDays: value })
                         }),
                         wp.element.createElement(ToggleControl, {
-                            label: __('Show Hours', 'awesome-events'),
+                            label: __('Show Hours', 'awesome-calendar-events'),
                             checked: showHours,
                             onChange: (value) => setAttributes({ showHours: value })
                         }),
                         wp.element.createElement(ToggleControl, {
-                            label: __('Show Minutes', 'awesome-events'),
+                            label: __('Show Minutes', 'awesome-calendar-events'),
                             checked: showMinutes,
                             onChange: (value) => setAttributes({ showMinutes: value })
                         }),
                         wp.element.createElement(ToggleControl, {
-                            label: __('Show Seconds', 'awesome-events'),
+                            label: __('Show Seconds', 'awesome-calendar-events'),
                             checked: showSeconds,
-                            help: __('Updates every second (may impact performance)', 'awesome-events'),
+                            help: __('Updates every second (may impact performance)', 'awesome-calendar-events'),
                             onChange: (value) => setAttributes({ showSeconds: value })
                         }),
                         wp.element.createElement(TextControl, {
-                            label: __('Separator', 'awesome-events'),
-                            help: __('Character between time units (if using compact labels)', 'awesome-events'),
+                            label: __('Separator', 'awesome-calendar-events'),
+                            help: __('Character between time units (if using compact labels)', 'awesome-calendar-events'),
                             value: separator,
                             onChange: (value) => setAttributes({ separator: value })
                         }),
                         wp.element.createElement(TextControl, {
-                            label: __('Completed Text', 'awesome-events'),
-                            help: __('Shown when countdown reaches zero', 'awesome-events'),
+                            label: __('Completed Text', 'awesome-calendar-events'),
+                            help: __('Shown when countdown reaches zero', 'awesome-calendar-events'),
                             value: completedText,
                             onChange: (value) => setAttributes({ completedText: value })
                         })
                     ),
                     wp.element.createElement(
                         PanelBody,
-                        { title: __('Unit Labels', 'awesome-events'), initialOpen: false },
+                        { title: __('Unit Labels', 'awesome-calendar-events'), initialOpen: false },
                         wp.element.createElement(TextControl, {
-                            label: __('Days Label', 'awesome-events'),
+                            label: __('Days Label', 'awesome-calendar-events'),
                             value: daysLabel,
                             onChange: (value) => setAttributes({ daysLabel: value })
                         }),
                         wp.element.createElement(TextControl, {
-                            label: __('Hours Label', 'awesome-events'),
+                            label: __('Hours Label', 'awesome-calendar-events'),
                             value: hoursLabel,
                             onChange: (value) => setAttributes({ hoursLabel: value })
                         }),
                         wp.element.createElement(TextControl, {
-                            label: __('Minutes Label', 'awesome-events'),
+                            label: __('Minutes Label', 'awesome-calendar-events'),
                             value: minutesLabel,
                             onChange: (value) => setAttributes({ minutesLabel: value })
                         }),
                         wp.element.createElement(TextControl, {
-                            label: __('Seconds Label', 'awesome-events'),
+                            label: __('Seconds Label', 'awesome-calendar-events'),
                             value: secondsLabel,
                             onChange: (value) => setAttributes({ secondsLabel: value })
                         })
@@ -245,8 +245,8 @@
                     !postId && wp.element.createElement(
                         'div',
                         { className: 'icob-countdown-placeholder' },
-                        wp.element.createElement('p', null, __('⏱️ Event Countdown', 'awesome-events')),
-                        wp.element.createElement('p', { style: { fontSize: '13px', opacity: 0.7 } }, __('Select an event post from the sidebar to display a countdown timer.', 'awesome-events'))
+                        wp.element.createElement('p', null, __('⏱️ Event Countdown', 'awesome-calendar-events')),
+                        wp.element.createElement('p', { style: { fontSize: '13px', opacity: 0.7 } }, __('Select an event post from the sidebar to display a countdown timer.', 'awesome-calendar-events'))
                     ),
                     postId && wp.element.createElement(
                         'div',
@@ -287,12 +287,12 @@
                         wp.element.createElement(
                             'p',
                             { style: { marginTop: '8px', fontSize: '11px', opacity: 0.6, fontStyle: 'italic' } },
-                            __('Preview - Live countdown will appear on the frontend', 'awesome-events')
+                            __('Preview - Live countdown will appear on the frontend', 'awesome-calendar-events')
                         ),
                         selectedPostTitle && wp.element.createElement(
                             'p',
                             { style: { marginTop: '4px', fontSize: '12px', opacity: 0.7 } },
-                            __('Event: ', 'awesome-events') + selectedPostTitle
+                            __('Event: ', 'awesome-calendar-events') + selectedPostTitle
                         )
                     )
                 )

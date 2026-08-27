@@ -48,7 +48,7 @@ jobs:
       - name: Get Composer cache directory
         id: composer-cache
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
-        working-directory: wp-content/plugins/awesome-events
+        working-directory: wp-content/plugins/awesome-calendar-events
       
       - name: Cache Composer dependencies
         uses: actions/cache@v3
@@ -59,39 +59,39 @@ jobs:
       
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-suggest
-        working-directory: wp-content/plugins/awesome-events
+        working-directory: wp-content/plugins/awesome-calendar-events
       
       - name: Install WordPress test suite
         run: |
           bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1 ${{ matrix.wordpress }}
-        working-directory: wp-content/plugins/awesome-events
+        working-directory: wp-content/plugins/awesome-calendar-events
         env:
           WP_VERSION: ${{ matrix.wordpress }}
       
       - name: Run unit tests
         run: composer test-unit
-        working-directory: wp-content/plugins/awesome-events
+        working-directory: wp-content/plugins/awesome-calendar-events
         env:
           TEST_SUITE: unit
       
       - name: Run integration tests
         run: composer test-integration
-        working-directory: wp-content/plugins/awesome-events
+        working-directory: wp-content/plugins/awesome-calendar-events
         env:
           TEST_SUITE: integration
       
       - name: Generate code coverage
         if: matrix.php == '8.2' && matrix.wordpress == 'latest'
         run: vendor/bin/phpunit --coverage-clover coverage.xml
-        working-directory: wp-content/plugins/awesome-events
+        working-directory: wp-content/plugins/awesome-calendar-events
       
       - name: Upload coverage to Codecov
         if: matrix.php == '8.2' && matrix.wordpress == 'latest'
         uses: codecov/codecov-action@v3
         with:
-          file: ./wp-content/plugins/awesome-events/coverage.xml
+          file: ./wp-content/plugins/awesome-calendar-events/coverage.xml
           flags: unittests
-          name: codecov-awesome-events
+          name: codecov-awesome-calendar-events
           fail_ci_if_error: false
 
   lint:
@@ -109,9 +109,9 @@ jobs:
       
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
-        working-directory: wp-content/plugins/awesome-events
+        working-directory: wp-content/plugins/awesome-calendar-events
       
       - name: Run PHPCS
         run: composer phpcs
-        working-directory: wp-content/plugins/awesome-events
+        working-directory: wp-content/plugins/awesome-calendar-events
         continue-on-error: true

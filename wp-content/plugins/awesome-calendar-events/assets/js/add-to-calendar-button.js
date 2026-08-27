@@ -8,17 +8,17 @@
     const { PanelBody } = wp.components;
 
     const getAddToCalendarButtonAttributes = () => ({
-        text: __('Add to Calendar', 'awesome-events'),
+        text: __('Add to Calendar', 'awesome-calendar-events'),
         className: 'is-style-add-to-calendar',
         url: '#add-to-calendar',
         metadata: {
-            name: __('Add to Calendar', 'awesome-events')
+            name: __('Add to Calendar', 'awesome-calendar-events')
         }
     });
 
     registerBlockType('icob/add-to-calendar', {
-        title: __('Add to Calendar', 'awesome-events'),
-        description: __('Button that opens a calendar selection dialog for the event', 'awesome-events'),
+        title: __('Add to Calendar', 'awesome-calendar-events'),
+        description: __('Button that opens a calendar selection dialog for the event', 'awesome-calendar-events'),
         icon: 'calendar-alt',
         category: 'icob',
         keywords: ['event', 'calendar', 'ical'],
@@ -47,8 +47,8 @@
     // Retain the button variation for adding the calendar button to existing Buttons blocks.
     registerBlockVariation('core/button', {
         name: 'icob-add-to-calendar',
-        title: __('Add to Calendar', 'awesome-events'),
-        description: __('Button that opens a calendar selection dialog for the event', 'awesome-events'),
+        title: __('Add to Calendar', 'awesome-calendar-events'),
+        description: __('Button that opens a calendar selection dialog for the event', 'awesome-calendar-events'),
         icon: 'calendar-alt',
         attributes: getAddToCalendarButtonAttributes(),
         isActive: (blockAttributes) => {
@@ -82,18 +82,18 @@
                     wp.element.createElement(
                         PanelBody,
                         {
-                            title: __('Calendar Settings', 'awesome-events'),
+                            title: __('Calendar Settings', 'awesome-calendar-events'),
                             initialOpen: true
                         },
                         wp.element.createElement(
                             'p',
                             { style: { fontStyle: 'italic', color: '#666' } },
-                            __('This button will automatically generate calendar links based on the post event metadata (date, time, location, and title).', 'awesome-events')
+                            __('This button will automatically generate calendar links based on the post event metadata (date, time, location, and title).', 'awesome-calendar-events')
                         ),
                         wp.element.createElement(
                             'p',
                             { style: { fontStyle: 'italic', color: '#666' } },
-                            __('When clicked, it will show a dialog with options for Google, Apple, Outlook, Yahoo, and iCal.', 'awesome-events')
+                            __('When clicked, it will show a dialog with options for Google, Apple, Outlook, Yahoo, and iCal.', 'awesome-calendar-events')
                         )
                     )
                 )
@@ -103,7 +103,7 @@
 
     addFilter(
         'editor.BlockEdit',
-        'awesome-events/add-to-calendar-controls',
+        'awesome-calendar-events/add-to-calendar-controls',
         withAddToCalendarControls
     );
 

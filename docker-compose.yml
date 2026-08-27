@@ -1,4 +1,4 @@
-# Docker Compose configuration for Awesome Events development
+# Docker Compose configuration for Awesome Calendar Events development
 
 services:
   wordpress:

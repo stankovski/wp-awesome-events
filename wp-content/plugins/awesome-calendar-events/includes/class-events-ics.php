@@ -17,14 +17,14 @@
  *
  * NOTE: We expose base DTSTART date only; no timezone shifting beyond site timezone. We export floating times, or if site timezone string available we append TZID param.
  *
- * NOTE: Uses the shared Awesome_Events_ICS_Generator that lives in this plugin
+ * NOTE: Uses the shared Awesome_Calendar_Events_ICS_Generator that lives in this plugin
  * (see class-ics-generator.php). The pledge ICS feature in icob has its own
  * independent inline generation logic and does not use this class.
  */
 
 if (!defined('ABSPATH')) { exit; }
 
-class Awesome_Events_Events_ICS {
+class Awesome_Calendar_Events_Events_ICS {
     public function __construct() {
         $this->add_rewrite();
         add_action('template_redirect', [$this, 'maybe_output']);
@@ -73,11 +73,11 @@ class Awesome_Events_Events_ICS {
         $posts = get_posts($args);
 
         // Use the shared ICS generator (lives in this plugin).
-        if (!class_exists('Awesome_Events_ICS_Generator')) {
-            require_once AWESOME_EVENTS_PLUGIN_DIR . 'includes/class-ics-generator.php';
+        if (!class_exists('Awesome_Calendar_Events_ICS_Generator')) {
+            require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-ics-generator.php';
         }
 
-        $generator = new Awesome_Events_ICS_Generator();
+        $generator = new Awesome_Calendar_Events_ICS_Generator();
         $ics_content = $generator->generate_calendar($posts);
 
         // Headers

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Bootstrap script for Awesome Events Development Environment
+# Bootstrap script for Awesome Calendar Events Development Environment
 # Sets up Docker containers, WordPress test environment, and dependencies
 
 set -e  # Exit on error
@@ -13,7 +13,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}=========================================${NC}"
-echo -e "${BLUE}Awesome Events - Bootstrap${NC}"
+echo -e "${BLUE}Awesome Calendar Events - Bootstrap${NC}"
 echo -e "${BLUE}=========================================${NC}"
 echo ""
 

@@ -94,7 +94,7 @@
     // Create and show the modal dialog
     function showCalendarDialog(postId, eventData) {
         // Get plugin URL for icon paths
-        const pluginUrl = icobCalendarData?.pluginUrl || '/wp-content/plugins/awesome-events';
+        const pluginUrl = icobCalendarData?.pluginUrl || '/wp-content/plugins/awesome-calendar-events';
         const iconPath = pluginUrl + '/assets/images/calendar-icons';
 
         // For recurring events, all services will download ICS files

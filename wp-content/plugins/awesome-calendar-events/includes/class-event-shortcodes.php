@@ -14,7 +14,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-class Awesome_Events_Event_Shortcodes {
+class Awesome_Calendar_Events_Event_Shortcodes {
 
     public function __construct() {
         // Register shortcodes immediately - don't wait for init
@@ -83,12 +83,12 @@ class Awesome_Events_Event_Shortcodes {
             return $atts['fallback'];
         }
 
-        if (!class_exists('Awesome_Events_Event_Meta')) {
+        if (!class_exists('Awesome_Calendar_Events_Event_Meta')) {
             return $atts['fallback'];
         }
 
         $format = $atts['format'] ?: get_option('date_format');
-        $display = Awesome_Events_Event_Meta::get_event_date_display($post_id, $format, false, false);
+        $display = Awesome_Calendar_Events_Event_Meta::get_event_date_display($post_id, $format, false, false);
 
         if (!empty($display['date'])) {
             return esc_html($display['date']);
@@ -121,7 +121,7 @@ class Awesome_Events_Event_Shortcodes {
             return $atts['fallback'];
         }
 
-        if (!class_exists('Awesome_Events_Event_Meta')) {
+        if (!class_exists('Awesome_Calendar_Events_Event_Meta')) {
             return $atts['fallback'];
         }
 
@@ -132,14 +132,14 @@ class Awesome_Events_Event_Shortcodes {
 
         if ($rec_type === 'weekly') {
             // For weekly events, get singular weekday names and prepend "Every"
-            $display = Awesome_Events_Event_Meta::get_event_date_display($post_id, $format, false, false);
+            $display = Awesome_Calendar_Events_Event_Meta::get_event_date_display($post_id, $format, false, false);
             if (!empty($display['weekdays'])) {
                 return esc_html('Every ' . $display['weekdays']);
             }
         }
 
         // For non-weekly events, get display without relative output to avoid "Today", "Tomorrow", etc.
-        $display = Awesome_Events_Event_Meta::get_event_date_display($post_id, $format, false, false);
+        $display = Awesome_Calendar_Events_Event_Meta::get_event_date_display($post_id, $format, false, false);
 
         // For non-weekly events, just show the date
         if (!empty($display['date'])) {

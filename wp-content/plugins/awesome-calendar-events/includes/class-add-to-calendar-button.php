@@ -2,11 +2,11 @@
 /**
  * Add to Calendar Block
  *
- * Creates an Awesome Events block that wraps a configured core/button in a
+ * Creates an Awesome Calendar Events block that wraps a configured core/button in a
  * core/buttons container and generates calendar links based on post event metadata.
  *
  * Usage:
- * 1. In the block editor, insert the "Add to Calendar" block from Awesome Events
+ * 1. In the block editor, insert the "Add to Calendar" block from Awesome Calendar Events
  * 2. It automatically creates a Buttons container with the configured button
  * 3. The button will automatically use event metadata from the current post:
  *    - Event date and time (_icob_event_date, _icob_event_start_time)
@@ -25,7 +25,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-class Awesome_Events_Add_To_Calendar_Button {
+class Awesome_Calendar_Events_Add_To_Calendar_Button {
     public function __construct() {
         $this->register_block();
         add_action('enqueue_block_editor_assets', [$this, 'enqueue_editor_assets']);
@@ -46,10 +46,10 @@ class Awesome_Events_Add_To_Calendar_Button {
             return;
         }
 
-        $ver = defined('AWESOME_EVENTS_VERSION') ? AWESOME_EVENTS_VERSION : '1.0.0';
+        $ver = defined('AWESOME_CALENDAR_EVENTS_VERSION') ? AWESOME_CALENDAR_EVENTS_VERSION : '1.0.0';
         wp_register_script(
-            'awesome-events-add-to-calendar-button',
-            AWESOME_EVENTS_PLUGIN_URL . 'assets/js/add-to-calendar-button.js',
+            'awesome-calendar-events-add-to-calendar-button',
+            AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/add-to-calendar-button.js',
             ['wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-data', 'wp-block-editor'],
             $ver,
             true
@@ -57,10 +57,10 @@ class Awesome_Events_Add_To_Calendar_Button {
 
         register_block_type('icob/add-to-calendar', [
             'api_version' => 3,
-            'editor_script' => 'awesome-events-add-to-calendar-button',
+            'editor_script' => 'awesome-calendar-events-add-to-calendar-button',
             'category' => 'icob',
-            'title' => __('Add to Calendar', 'awesome-events'),
-            'description' => __('Button that opens a calendar selection dialog for the event', 'awesome-events'),
+            'title' => __('Add to Calendar', 'awesome-calendar-events'),
+            'description' => __('Button that opens a calendar selection dialog for the event', 'awesome-calendar-events'),
             'keywords' => ['event', 'calendar', 'ical'],
             'supports' => [
                 'html' => false,
@@ -107,7 +107,7 @@ class Awesome_Events_Add_To_Calendar_Button {
     }
 
     public function enqueue_editor_assets() {
-        wp_enqueue_script('awesome-events-add-to-calendar-button');
+        wp_enqueue_script('awesome-calendar-events-add-to-calendar-button');
     }
 
     /**
@@ -116,10 +116,10 @@ class Awesome_Events_Add_To_Calendar_Button {
      */
     public function enqueue_editor_iframe_styles() {
         if (!is_admin()) { return; }
-        $ver = defined('AWESOME_EVENTS_VERSION') ? AWESOME_EVENTS_VERSION : '1.0.0';
+        $ver = defined('AWESOME_CALENDAR_EVENTS_VERSION') ? AWESOME_CALENDAR_EVENTS_VERSION : '1.0.0';
         wp_enqueue_style(
-            'awesome-events-add-to-calendar-button-editor',
-            AWESOME_EVENTS_PLUGIN_URL . 'assets/css/add-to-calendar-button.css',
+            'awesome-calendar-events-add-to-calendar-button-editor',
+            AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/css/add-to-calendar-button.css',
             [],
             $ver
         );
@@ -127,28 +127,28 @@ class Awesome_Events_Add_To_Calendar_Button {
 
     public function enqueue_frontend_assets() {
         if (!is_admin()) {
-            $ver = defined('AWESOME_EVENTS_VERSION') ? AWESOME_EVENTS_VERSION : '1.0.0';
+            $ver = defined('AWESOME_CALENDAR_EVENTS_VERSION') ? AWESOME_CALENDAR_EVENTS_VERSION : '1.0.0';
 
             wp_enqueue_script(
-                'awesome-events-add-to-calendar-frontend',
-                AWESOME_EVENTS_PLUGIN_URL . 'assets/js/add-to-calendar-frontend.js',
+                'awesome-calendar-events-add-to-calendar-frontend',
+                AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/add-to-calendar-frontend.js',
                 [],
                 $ver,
                 true
             );
 
             wp_enqueue_style(
-                'awesome-events-add-to-calendar-frontend',
-                AWESOME_EVENTS_PLUGIN_URL . 'assets/css/add-to-calendar-button.css',
+                'awesome-calendar-events-add-to-calendar-frontend',
+                AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/css/add-to-calendar-button.css',
                 [],
                 $ver
             );
 
             // Pass plugin URL and calendar data to frontend
-            wp_localize_script('awesome-events-add-to-calendar-frontend', 'icobCalendarData', [
+            wp_localize_script('awesome-calendar-events-add-to-calendar-frontend', 'icobCalendarData', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('icob_calendar_nonce'),
-                'pluginUrl' => AWESOME_EVENTS_PLUGIN_URL
+                'pluginUrl' => AWESOME_CALENDAR_EVENTS_PLUGIN_URL
             ]);
         }
     }

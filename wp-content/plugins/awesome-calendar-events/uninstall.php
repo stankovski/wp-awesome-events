@@ -1,6 +1,6 @@
 <?php
 /**
- * Uninstall script for Awesome Events Plugin
+ * Uninstall script for Awesome Calendar Events Plugin
  *
  * This file is called when the plugin is uninstalled
  */

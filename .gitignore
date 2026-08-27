@@ -19,9 +19,9 @@ wp-content/plugins/updraftplus/*
 wp-content/upgrade/*
 
 # Testing artifacts
-wp-content/plugins/awesome-events/.phpunit.result.cache
-wp-content/plugins/awesome-events/coverage/
-wp-content/plugins/awesome-events/phpunit.xml
+wp-content/plugins/awesome-calendar-events/.phpunit.result.cache
+wp-content/plugins/awesome-calendar-events/coverage/
+wp-content/plugins/awesome-calendar-events/phpunit.xml
 
 # Deployment artifacts
 dist/*

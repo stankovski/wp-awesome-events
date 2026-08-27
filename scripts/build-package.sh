@@ -4,7 +4,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
-PLUGIN_SLUG="awesome-events"
+PLUGIN_SLUG="awesome-calendar-events"
 PLUGIN_DIR="$PROJECT_ROOT/wp-content/plugins/$PLUGIN_SLUG"
 PACKAGE_PATH="$PROJECT_ROOT/package.zip"
 STAGING_DIR="$(mktemp -d)"

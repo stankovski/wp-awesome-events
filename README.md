@@ -1,8 +1,8 @@
-# Awesome Events
+# Awesome Calendar Events
 
 ## About
 
-Awesome Events is a WordPress plugin for turning ordinary posts into scheduled events. It adds event date, time, duration, location, and recurrence fields without introducing a separate event post type.
+Awesome Calendar Events is a WordPress plugin for turning ordinary posts into scheduled events. It adds event date, time, duration, location, and recurrence fields without introducing a separate event post type.
 
 The plugin provides:
 
@@ -13,11 +13,11 @@ The plugin provides:
 - An authenticated `GET /wp-json/icob/v1/event-posts` endpoint for editor integrations.
 - Advanced Query Loop (AQL) date placeholders for dynamic event meta queries.
 
-Awesome Events requires WordPress 6.0 or newer and PHP 8.0 or newer.
+Awesome Calendar Events requires WordPress 6.0 or newer and PHP 8.0 or newer.
 
 ## Advanced Query Loop Integration
 
-When the [Advanced Query Loop](https://wordpress.org/plugins/advanced-query-loop/) plugin builds a meta query, Awesome Events replaces these values with site-local dates:
+When the [Advanced Query Loop](https://wordpress.org/plugins/advanced-query-loop/) plugin builds a meta query, Awesome Calendar Events replaces these values with site-local dates:
 
 - `todays_date`: the current date in `Y-m-d` format.
 - `today_minus_1`: the previous date in `Y-m-d` format.
@@ -44,7 +44,7 @@ Once setup completes, open:
 - WordPress: <http://localhost:8000>
 - phpMyAdmin: <http://localhost:8080>
 
-Activate **Awesome Events** from the WordPress Plugins screen if it is not already active. Plugin source is bind-mounted from `wp-content/plugins/awesome-events`, so PHP, JavaScript, and CSS edits are reflected in the running container.
+Activate **Awesome Calendar Events** from the WordPress Plugins screen if it is not already active. Plugin source is bind-mounted from `wp-content/plugins/awesome-calendar-events`, so PHP, JavaScript, and CSS edits are reflected in the running container.
 
 Useful commands:
 
@@ -63,11 +63,11 @@ The validation script uses the official [Plugin Check](https://wordpress.org/plu
 
 ## Design
 
-`awesome-events.php` is the plugin bootstrap. It loads the feature classes from `wp-content/plugins/awesome-events/includes` during WordPress initialization and registers the plugin lifecycle and block-category hooks.
+`awesome-calendar-events.php` is the plugin bootstrap. It loads the feature classes from `wp-content/plugins/awesome-calendar-events/includes` during WordPress initialization and registers the plugin lifecycle and block-category hooks.
 
 The plugin is organized around these responsibilities:
 
-- **Event model:** `Awesome_Events_Event_Meta` registers post metadata, renders and saves the editor controls, and calculates upcoming recurring occurrences. Existing `_icob_event_*` meta keys are intentionally retained for backward compatibility.
+- **Event model:** `Awesome_Calendar_Events_Event_Meta` registers post metadata, renders and saves the editor controls, and calculates upcoming recurring occurrences. Existing `_icob_event_*` meta keys are intentionally retained for backward compatibility.
 - **Presentation:** server-registered event date and countdown blocks are paired with editor and frontend assets under `assets`. Shortcodes expose the same event data to classic content and templates.
 - **Calendar output:** the ICS generator is shared by the site-wide `/events.ics` feed, single-event downloads, and add-to-calendar links.
 - **Editor integration:** the `icob/v1/event-posts` REST route returns published event posts to authenticated users who can edit posts. The historical namespace is retained for existing consumers.

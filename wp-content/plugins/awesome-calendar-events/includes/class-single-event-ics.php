@@ -10,7 +10,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-class Awesome_Events_Single_Event_ICS {
+class Awesome_Calendar_Events_Single_Event_ICS {
     public function __construct() {
         add_action('template_redirect', [$this, 'maybe_output']);
     }
@@ -53,11 +53,11 @@ class Awesome_Events_Single_Event_ICS {
 
     private function output_ics($post) {
         // Generate ICS content using the shared generator that lives in this plugin.
-        if (!class_exists('Awesome_Events_ICS_Generator')) {
-            require_once AWESOME_EVENTS_PLUGIN_DIR . 'includes/class-ics-generator.php';
+        if (!class_exists('Awesome_Calendar_Events_ICS_Generator')) {
+            require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-ics-generator.php';
         }
 
-        $generator = new Awesome_Events_ICS_Generator();
+        $generator = new Awesome_Calendar_Events_ICS_Generator();
         $ics_content = $generator->generate_single_event_calendar($post);
 
         if (empty($ics_content)) {

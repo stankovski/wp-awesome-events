@@ -9,7 +9,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-class Awesome_Events_Event_REST_API {
+class Awesome_Calendar_Events_Event_REST_API {
     public function __construct() {
         add_action('rest_api_init', [$this, 'register_routes']);
     }
@@ -70,8 +70,8 @@ class Awesome_Events_Event_REST_API {
 
                 // Get next occurrence for additional context
                 $next_occurrence = null;
-                if (class_exists('Awesome_Events_Event_Meta')) {
-                    $next_occurrence = Awesome_Events_Event_Meta::get_next_occurrence($post_id);
+                if (class_exists('Awesome_Calendar_Events_Event_Meta')) {
+                    $next_occurrence = Awesome_Calendar_Events_Event_Meta::get_next_occurrence($post_id);
                 }
 
                 $posts[] = [

@@ -15,7 +15,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-class Awesome_Events_ICS_Generator {
+class Awesome_Calendar_Events_ICS_Generator {
     private $timezone;
     private $timezone_string;
     private $use_named_timezone;
@@ -72,7 +72,7 @@ class Awesome_Events_ICS_Generator {
         $lines = [];
         $lines[] = 'BEGIN:VCALENDAR';
         $lines[] = 'VERSION:2.0';
-        $lines[] = 'PRODID:-//ICOB//Events ' . (defined('AWESOME_EVENTS_VERSION') ? AWESOME_EVENTS_VERSION : '1.0') . '//EN';
+        $lines[] = 'PRODID:-//ICOB//Events ' . (defined('AWESOME_CALENDAR_EVENTS_VERSION') ? AWESOME_CALENDAR_EVENTS_VERSION : '1.0') . '//EN';
         $lines[] = 'CALSCALE:GREGORIAN';
         $lines[] = 'METHOD:PUBLISH';
 
@@ -116,7 +116,7 @@ class Awesome_Events_ICS_Generator {
      */
     private function add_event_to_calendar(&$lines, $post) {
         // Get event metadata
-        $meta = Awesome_Events_Event_Meta::get_event_date_display($post->ID, 'Y-m-d');
+        $meta = Awesome_Calendar_Events_Event_Meta::get_event_date_display($post->ID, 'Y-m-d');
         if (empty($meta['iso'])) {
             return; // Skip if no event date
         }
@@ -126,7 +126,7 @@ class Awesome_Events_ICS_Generator {
         $end_type = get_post_meta($post->ID, '_icob_event_recurrence_end_type', true) ?: 'none';
         $end_date = get_post_meta($post->ID, '_icob_event_recurrence_end_date', true);
         $count = intval(get_post_meta($post->ID, '_icob_event_recurrence_count', true));
-        $weekdays = Awesome_Events_Event_Meta::get_weekdays($post->ID);
+        $weekdays = Awesome_Calendar_Events_Event_Meta::get_weekdays($post->ID);
         $start_time = get_post_meta($post->ID, '_icob_event_start_time', true);
         $duration_hours = floatval(get_post_meta($post->ID, '_icob_event_duration_hours', true));
         $location = get_post_meta($post->ID, '_icob_event_location', true);
@@ -241,7 +241,7 @@ class Awesome_Events_ICS_Generator {
         $end_type = get_post_meta($post_id, '_icob_event_recurrence_end_type', true) ?: 'none';
         $end_date = get_post_meta($post_id, '_icob_event_recurrence_end_date', true);
         $count = intval(get_post_meta($post_id, '_icob_event_recurrence_count', true));
-        $weekdays = Awesome_Events_Event_Meta::get_weekdays($post_id);
+        $weekdays = Awesome_Calendar_Events_Event_Meta::get_weekdays($post_id);
 
         $rrule = $this->build_rrule($rec_type, $interval, $weekdays, $end_type, $end_date, $count);
 

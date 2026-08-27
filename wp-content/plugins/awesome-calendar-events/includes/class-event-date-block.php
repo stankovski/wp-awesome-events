@@ -8,7 +8,7 @@
 
 if (!defined('ABSPATH')) { exit; }
 
-class Awesome_Events_Event_Date_Block {
+class Awesome_Calendar_Events_Event_Date_Block {
     public function __construct() {
         // Register immediately so block is available on the same init cycle when instantiated inside another init hook.
         $this->register_block();
@@ -16,20 +16,20 @@ class Awesome_Events_Event_Date_Block {
 
     private function register_block() {
         // Register assets first
-        $ver = defined('AWESOME_EVENTS_VERSION') ? AWESOME_EVENTS_VERSION : '1.0.0';
-        if (!wp_script_is('awesome-events-event-date-block-editor', 'registered')) {
+        $ver = defined('AWESOME_CALENDAR_EVENTS_VERSION') ? AWESOME_CALENDAR_EVENTS_VERSION : '1.0.0';
+        if (!wp_script_is('awesome-calendar-events-event-date-block-editor', 'registered')) {
             wp_register_script(
-                'awesome-events-event-date-block-editor',
-                AWESOME_EVENTS_PLUGIN_URL . 'assets/js/event-date-block.js',
+                'awesome-calendar-events-event-date-block-editor',
+                AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-date-block.js',
                 ['wp-blocks','wp-element','wp-i18n','wp-block-editor','wp-components','wp-data'],
                 $ver,
                 true
             );
         }
-        if (!wp_style_is('awesome-events-event-date-block-style', 'registered')) {
+        if (!wp_style_is('awesome-calendar-events-event-date-block-style', 'registered')) {
             wp_register_style(
-                'awesome-events-event-date-block-style',
-                AWESOME_EVENTS_PLUGIN_URL . 'assets/css/event-date-block.css',
+                'awesome-calendar-events-event-date-block-style',
+                AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/css/event-date-block.css',
                 [],
                 $ver
             );
@@ -38,8 +38,8 @@ class Awesome_Events_Event_Date_Block {
     if (!function_exists('register_block_type')) { return; }
     register_block_type('icob/event-date', [
             'api_version' => 3,
-            'editor_script' => 'awesome-events-event-date-block-editor',
-            'style' => 'awesome-events-event-date-block-style',
+            'editor_script' => 'awesome-calendar-events-event-date-block-editor',
+            'style' => 'awesome-calendar-events-event-date-block-style',
             'render_callback' => [$this, 'render'],
             'attributes' => [
                 'format' => [ 'type' => 'string', 'default' => 'F j, Y' ],
@@ -49,7 +49,7 @@ class Awesome_Events_Event_Date_Block {
                 'dataType' => [ 'type' => 'string', 'default' => 'date' ],
                 'fallbackText' => [ 'type' => 'string', 'default' => '' ],
                 'showLabel' => [ 'type' => 'boolean', 'default' => false ],
-                'labelText' => [ 'type' => 'string', 'default' => __('Event Date:', 'awesome-events') ],
+                'labelText' => [ 'type' => 'string', 'default' => __('Event Date:', 'awesome-calendar-events') ],
                 'showWeekdaysWhenMissing' => [ 'type' => 'boolean', 'default' => true ],
                 'wrapTag' => [ 'type' => 'string', 'default' => 'div' ],
                 'className' => [ 'type' => 'string', 'default' => '' ],
@@ -70,8 +70,8 @@ class Awesome_Events_Event_Date_Block {
                 'spacing' => ['margin'=>true,'padding'=>true]
             ],
             'category' => 'icob',
-            'title' => __('Event Date', 'awesome-events'),
-            'description' => __('Displays the upcoming event date or recurring weekdays for the current post.', 'awesome-events'),
+            'title' => __('Event Date', 'awesome-calendar-events'),
+            'description' => __('Displays the upcoming event date or recurring weekdays for the current post.', 'awesome-calendar-events'),
             'keywords' => ['event','date','recurring','icob']
         ]);
     }
@@ -102,12 +102,12 @@ class Awesome_Events_Event_Date_Block {
         $showLabel     = !empty($attributes['showLabel']);
         $labelTextAttr = isset($attributes['labelText']) ? $attributes['labelText'] : '';
         // Auto default label if user toggles showLabel but hasn't customized.
-        if ($labelTextAttr === '' || in_array($labelTextAttr, [__('Event Date:', 'awesome-events'), __('Event Time:', 'awesome-events'), __('Event Location:', 'awesome-events')], true)) {
+        if ($labelTextAttr === '' || in_array($labelTextAttr, [__('Event Date:', 'awesome-calendar-events'), __('Event Time:', 'awesome-calendar-events'), __('Event Location:', 'awesome-calendar-events')], true)) {
             switch($dataType) {
-                case 'time': $labelText = __('Event Time:', 'awesome-events'); break;
-                case 'location': $labelText = __('Event Location:', 'awesome-events'); break;
+                case 'time': $labelText = __('Event Time:', 'awesome-calendar-events'); break;
+                case 'location': $labelText = __('Event Location:', 'awesome-calendar-events'); break;
                 case 'date':
-                default: $labelText = __('Event Date:', 'awesome-events');
+                default: $labelText = __('Event Date:', 'awesome-calendar-events');
             }
         } else {
             $labelText = $labelTextAttr;
@@ -119,8 +119,8 @@ class Awesome_Events_Event_Date_Block {
         // Use unified helper for date / weekday fallback logic.
         $output = '';
         if ($dataType === 'date') {
-            if (class_exists('Awesome_Events_Event_Meta')) {
-                $display = Awesome_Events_Event_Meta::get_event_date_display($post_ID, $format, true, $relativeWeek);
+            if (class_exists('Awesome_Calendar_Events_Event_Meta')) {
+                $display = Awesome_Calendar_Events_Event_Meta::get_event_date_display($post_ID, $format, true, $relativeWeek);
                 if ($relativeWeek && !empty($display['relative'])) {
                     $output = esc_html($display['relative']);
                 } elseif (!empty($display['date'])) {
