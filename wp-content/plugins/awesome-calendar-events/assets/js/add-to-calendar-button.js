@@ -16,11 +16,11 @@
         }
     });
 
-    registerBlockType('icob/add-to-calendar', {
+    registerBlockType('awesome-calendar-events/add-to-calendar', {
         title: __('Add to Calendar', 'awesome-calendar-events'),
         description: __('Button that opens a calendar selection dialog for the event', 'awesome-calendar-events'),
         icon: 'calendar-alt',
-        category: 'icob',
+        category: 'awesome-calendar-events',
         keywords: ['event', 'calendar', 'ical'],
         supports: {
             html: false
@@ -46,7 +46,7 @@
 
     // Retain the button variation for adding the calendar button to existing Buttons blocks.
     registerBlockVariation('core/button', {
-        name: 'icob-add-to-calendar',
+        name: 'awecal-add-to-calendar',
         title: __('Add to Calendar', 'awesome-calendar-events'),
         description: __('Button that opens a calendar selection dialog for the event', 'awesome-calendar-events'),
         icon: 'calendar-alt',

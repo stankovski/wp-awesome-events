@@ -5,7 +5,7 @@
      * Initialize all countdown timers on the page
      */
     function initCountdowns() {
-        const countdowns = document.querySelectorAll('.icob-event-countdown');
+        const countdowns = document.querySelectorAll('.awecal-event-countdown');
 
         countdowns.forEach(function(countdown) {
             // Skip if already initialized
@@ -39,7 +39,7 @@
             const hoursEl = countdown.querySelector('[data-unit="hours"]');
             const minutesEl = countdown.querySelector('[data-unit="minutes"]');
             const secondsEl = countdown.querySelector('[data-unit="seconds"]');
-            const timerContainer = countdown.querySelector('.icob-countdown-timer');
+            const timerContainer = countdown.querySelector('.awecal-countdown-timer');
 
             /**
              * Update the countdown display
@@ -51,9 +51,9 @@
                 // Check if countdown has completed
                 if (timeDiff <= 0) {
                     // Show completed message
-                    countdown.classList.add('icob-countdown-completed');
+                    countdown.classList.add('awecal-countdown-completed');
                     if (timerContainer) {
-                        timerContainer.innerHTML = '<span class="icob-countdown-completed-text">' +
+                        timerContainer.innerHTML = '<span class="awecal-countdown-completed-text">' +
                             escapeHtml(completedText) + '</span>';
                     }
 
@@ -121,7 +121,7 @@
      * Clean up intervals when page is unloaded
      */
     function cleanupCountdowns() {
-        const countdowns = document.querySelectorAll('.icob-event-countdown');
+        const countdowns = document.querySelectorAll('.awecal-event-countdown');
         countdowns.forEach(function(countdown) {
             if (countdown.dataset.intervalId) {
                 clearInterval(parseInt(countdown.dataset.intervalId));
@@ -147,9 +147,9 @@
             mutations.forEach(function(mutation) {
                 mutation.addedNodes.forEach(function(node) {
                     if (node.nodeType === 1) { // Element node
-                        if (node.classList && node.classList.contains('icob-event-countdown')) {
+                        if (node.classList && node.classList.contains('awecal-event-countdown')) {
                             shouldInit = true;
-                        } else if (node.querySelector && node.querySelector('.icob-event-countdown')) {
+                        } else if (node.querySelector && node.querySelector('.awecal-event-countdown')) {
                             shouldInit = true;
                         }
                     }

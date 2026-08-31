@@ -1,5 +1,5 @@
-.icob-event-date-block { display:inline-flex; align-items:baseline; gap:4px; }
-.icob-event-date-block .icob-event-date-label { font-weight:600; }
-.icob-event-date-block-editor { padding:8px; border:1px dashed #ccc; background:#f8f8f8; font-size:13px; }
-.icob-event-date-block { font-weight:400; }
-.icob-event-date-value { font-weight:100; }
+.awecal-event-date-block { display:inline-flex; align-items:baseline; gap:4px; }
+.awecal-event-date-block .awecal-event-date-label { font-weight:600; }
+.awecal-event-date-block-editor { padding:8px; border:1px dashed #ccc; background:#f8f8f8; font-size:13px; }
+.awecal-event-date-block { font-weight:400; }
+.awecal-event-date-value { font-weight:100; }

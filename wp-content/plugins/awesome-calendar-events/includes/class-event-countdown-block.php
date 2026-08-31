@@ -57,28 +57,14 @@ class Awesome_Calendar_Events_Event_Countdown_Block {
 
         if (!function_exists('register_block_type')) { return; }
 
-        register_block_type('icob/event-countdown', [
+        register_block_type('awesome-calendar-events/event-countdown', [
             'api_version' => 3,
             'editor_script' => 'awesome-calendar-events-event-countdown-block-editor',
             'script' => 'awesome-calendar-events-event-countdown-frontend',
             'style' => 'awesome-calendar-events-event-countdown-block-style',
             'editor_style' => 'awesome-calendar-events-event-countdown-block-editor-style',
             'render_callback' => [$this, 'render'],
-            'attributes' => [
-                'postId' => ['type' => 'integer', 'default' => 0],
-                'showLabel' => ['type' => 'boolean', 'default' => true],
-                'labelText' => ['type' => 'string', 'default' => __('Countdown to Event:', 'awesome-calendar-events')],
-                'showDays' => ['type' => 'boolean', 'default' => true],
-                'showHours' => ['type' => 'boolean', 'default' => true],
-                'showMinutes' => ['type' => 'boolean', 'default' => true],
-                'showSeconds' => ['type' => 'boolean', 'default' => false],
-                'separator' => ['type' => 'string', 'default' => ':'],
-                'completedText' => ['type' => 'string', 'default' => __('Event has started!', 'awesome-calendar-events')],
-                'daysLabel' => ['type' => 'string', 'default' => __('d', 'awesome-calendar-events')],
-                'hoursLabel' => ['type' => 'string', 'default' => __('h', 'awesome-calendar-events')],
-                'minutesLabel' => ['type' => 'string', 'default' => __('m', 'awesome-calendar-events')],
-                'secondsLabel' => ['type' => 'string', 'default' => __('s', 'awesome-calendar-events')],
-            ],
+            'attributes' => $this->get_attributes(),
             'supports' => [
                 'html' => false,
                 'anchor' => true,
@@ -88,11 +74,46 @@ class Awesome_Calendar_Events_Event_Countdown_Block {
                 'typography' => ['fontSize' => true, 'lineHeight' => true, 'fontWeight' => true, 'fontFamily' => true],
                 'spacing' => ['margin' => true, 'padding' => true]
             ],
-            'category' => 'icob',
+            'category' => 'awesome-calendar-events',
             'title' => __('Event Countdown', 'awesome-calendar-events'),
             'description' => __('Displays a live countdown timer to the next event occurrence.', 'awesome-calendar-events'),
-            'keywords' => ['event', 'countdown', 'timer', 'clock', 'icob']
+            'keywords' => ['event', 'countdown', 'timer', 'clock', 'calendar']
         ]);
+
+        // DEPRECATED: legacy "icob/event-countdown" block name, kept for backwards
+        // compatibility with content created before the plugin was renamed to
+        // Awesome Calendar Events. Registered server-side only (no editor
+        // script) so existing posts keep rendering on the frontend, but the
+        // block never appears in the block inserter. New content must use
+        // "awesome-calendar-events/event-countdown". Plan removal in a future release.
+        register_block_type('icob/event-countdown', [
+            'api_version' => 3,
+            'script' => 'awesome-calendar-events-event-countdown-frontend',
+            'style' => 'awesome-calendar-events-event-countdown-block-style',
+            'render_callback' => [$this, 'render'],
+            'attributes' => $this->get_attributes(),
+        ]);
+    }
+
+    /**
+     * Shared attribute definitions for the current and legacy block names.
+     */
+    private function get_attributes() {
+        return [
+            'postId' => ['type' => 'integer', 'default' => 0],
+            'showLabel' => ['type' => 'boolean', 'default' => true],
+            'labelText' => ['type' => 'string', 'default' => __('Countdown to Event:', 'awesome-calendar-events')],
+            'showDays' => ['type' => 'boolean', 'default' => true],
+            'showHours' => ['type' => 'boolean', 'default' => true],
+            'showMinutes' => ['type' => 'boolean', 'default' => true],
+            'showSeconds' => ['type' => 'boolean', 'default' => false],
+            'separator' => ['type' => 'string', 'default' => ':'],
+            'completedText' => ['type' => 'string', 'default' => __('Event has started!', 'awesome-calendar-events')],
+            'daysLabel' => ['type' => 'string', 'default' => __('d', 'awesome-calendar-events')],
+            'hoursLabel' => ['type' => 'string', 'default' => __('h', 'awesome-calendar-events')],
+            'minutesLabel' => ['type' => 'string', 'default' => __('m', 'awesome-calendar-events')],
+            'secondsLabel' => ['type' => 'string', 'default' => __('s', 'awesome-calendar-events')],
+        ];
     }
 
     public function render($attributes, $content = '', $block = null) {
@@ -100,7 +121,7 @@ class Awesome_Calendar_Events_Event_Countdown_Block {
 
         // If no post selected, show placeholder in editor context only
         if (!$post_id) {
-            return '<div class="icob-event-countdown-placeholder">' .
+            return '<div class="awecal-event-countdown-placeholder">' .
                    esc_html__('Please select a post with event metadata.', 'awesome-calendar-events') .
                    '</div>';
         }
@@ -145,8 +166,8 @@ class Awesome_Calendar_Events_Event_Countdown_Block {
             if (!$completed_text) {
                 return '';
             }
-            $wrapper_attrs = get_block_wrapper_attributes(['class' => 'icob-event-countdown-completed']);
-            return '<div ' . $wrapper_attrs . '><span class="icob-countdown-completed-text">' .
+            $wrapper_attrs = get_block_wrapper_attributes(['class' => 'awecal-event-countdown-completed']);
+            return '<div ' . $wrapper_attrs . '><span class="awecal-countdown-completed-text">' .
                    esc_html($completed_text) . '</span></div>';
         }
 
@@ -184,7 +205,7 @@ class Awesome_Calendar_Events_Event_Countdown_Block {
         );
 
         $wrapper_attrs = get_block_wrapper_attributes([
-            'class' => 'icob-event-countdown',
+            'class' => 'awecal-event-countdown',
             'data-target-timestamp' => $target_iso,
             'data-show-days' => $show_days ? '1' : '0',
             'data-show-hours' => $show_hours ? '1' : '0',
@@ -202,51 +223,51 @@ class Awesome_Calendar_Events_Event_Countdown_Block {
         ?>
         <div <?php echo $wrapper_attrs; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_block_wrapper_attributes() returns a complete core-escaped attribute string. ?>>
             <?php if ($show_label) : ?>
-                <span class="icob-countdown-label"><?php echo esc_html($label_text); ?></span>
+                <span class="awecal-countdown-label"><?php echo esc_html($label_text); ?></span>
             <?php endif; ?>
-            <div class="icob-countdown-timer">
+            <div class="awecal-countdown-timer">
                 <?php
                 $units_shown = 0;
                 if ($show_days) :
                     if ($units_shown > 0 && $separator) : ?>
-                        <span class="icob-countdown-separator"><?php echo esc_html($separator); ?></span>
+                        <span class="awecal-countdown-separator"><?php echo esc_html($separator); ?></span>
                     <?php endif; ?>
-                    <div class="icob-countdown-unit icob-countdown-days">
-                        <span class="icob-countdown-value" data-unit="days">--</span>
-                        <span class="icob-countdown-unit-label"><?php echo esc_html($days_label); ?></span>
+                    <div class="awecal-countdown-unit awecal-countdown-days">
+                        <span class="awecal-countdown-value" data-unit="days">--</span>
+                        <span class="awecal-countdown-unit-label"><?php echo esc_html($days_label); ?></span>
                     </div>
                 <?php
                     $units_shown++;
                 endif;
                 if ($show_hours) :
                     if ($units_shown > 0 && $separator) : ?>
-                        <span class="icob-countdown-separator"><?php echo esc_html($separator); ?></span>
+                        <span class="awecal-countdown-separator"><?php echo esc_html($separator); ?></span>
                     <?php endif; ?>
-                    <div class="icob-countdown-unit icob-countdown-hours">
-                        <span class="icob-countdown-value" data-unit="hours">--</span>
-                        <span class="icob-countdown-unit-label"><?php echo esc_html($hours_label); ?></span>
+                    <div class="awecal-countdown-unit awecal-countdown-hours">
+                        <span class="awecal-countdown-value" data-unit="hours">--</span>
+                        <span class="awecal-countdown-unit-label"><?php echo esc_html($hours_label); ?></span>
                     </div>
                 <?php
                     $units_shown++;
                 endif;
                 if ($show_minutes) :
                     if ($units_shown > 0 && $separator) : ?>
-                        <span class="icob-countdown-separator"><?php echo esc_html($separator); ?></span>
+                        <span class="awecal-countdown-separator"><?php echo esc_html($separator); ?></span>
                     <?php endif; ?>
-                    <div class="icob-countdown-unit icob-countdown-minutes">
-                        <span class="icob-countdown-value" data-unit="minutes">--</span>
-                        <span class="icob-countdown-unit-label"><?php echo esc_html($minutes_label); ?></span>
+                    <div class="awecal-countdown-unit awecal-countdown-minutes">
+                        <span class="awecal-countdown-value" data-unit="minutes">--</span>
+                        <span class="awecal-countdown-unit-label"><?php echo esc_html($minutes_label); ?></span>
                     </div>
                 <?php
                     $units_shown++;
                 endif;
                 if ($show_seconds) :
                     if ($units_shown > 0 && $separator) : ?>
-                        <span class="icob-countdown-separator"><?php echo esc_html($separator); ?></span>
+                        <span class="awecal-countdown-separator"><?php echo esc_html($separator); ?></span>
                     <?php endif; ?>
-                    <div class="icob-countdown-unit icob-countdown-seconds">
-                        <span class="icob-countdown-value" data-unit="seconds">--</span>
-                        <span class="icob-countdown-unit-label"><?php echo esc_html($seconds_label); ?></span>
+                    <div class="awecal-countdown-unit awecal-countdown-seconds">
+                        <span class="awecal-countdown-value" data-unit="seconds">--</span>
+                        <span class="awecal-countdown-unit-label"><?php echo esc_html($seconds_label); ?></span>
                     </div>
                 <?php
                     $units_shown++;

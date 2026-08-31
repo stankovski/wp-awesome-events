@@ -4,11 +4,11 @@
     const { InspectorControls, useBlockProps } = wp.blockEditor || wp.editor;
     const { PanelBody, TextControl, ToggleControl, SelectControl } = wp.components;
 
-    registerBlockType('icob/event-date', {
+    registerBlockType('awesome-calendar-events/event-date', {
         title: __('Event Date','awesome-calendar-events'),
         description: __('Displays the upcoming event date or recurring weekdays for the current post.','awesome-calendar-events'),
         icon: 'calendar-alt',
-        category: 'icob',
+        category: 'awesome-calendar-events',
         supports: { html: false, color: { text: true, background: true }, typography: { fontSize: true, lineHeight: true } },
         attributes: {
             format: { type: 'string', default: 'F j, Y' },
@@ -25,7 +25,7 @@
         edit: (props) => {
             const { attributes, setAttributes } = props;
             const { format, timeFormat, dataType, fallbackText, showLabel, labelText, showWeekdaysWhenMissing, wrapTag, locationMetaKey, relativeCurrentWeek } = attributes;
-            const blockProps = useBlockProps({ className: 'icob-event-date-block-editor' });
+            const blockProps = useBlockProps({ className: 'awecal-event-date-block-editor' });
 
             // Adjust default label automatically when type changes if label was one of defaults.
             function onChangeDataType(v){

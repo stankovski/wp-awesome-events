@@ -94,7 +94,7 @@
     // Create and show the modal dialog
     function showCalendarDialog(postId, eventData) {
         // Get plugin URL for icon paths
-        const pluginUrl = icobCalendarData?.pluginUrl || '/wp-content/plugins/awesome-calendar-events';
+        const pluginUrl = awecalCalendarData?.pluginUrl || '/wp-content/plugins/awesome-calendar-events';
         const iconPath = pluginUrl + '/assets/images/calendar-icons';
 
         // For recurring events, all services will download ICS files
@@ -104,34 +104,34 @@
 
         // Create modal overlay
         const modal = document.createElement('div');
-        modal.className = 'icob-calendar-modal';
+        modal.className = 'awecal-calendar-modal';
         modal.innerHTML = `
-            <div class="icob-calendar-modal-content">
-                <div class="icob-calendar-modal-header">
+            <div class="awecal-calendar-modal-content">
+                <div class="awecal-calendar-modal-header">
                     <h3>${eventData.title || 'Add to Calendar'}</h3>
-                    <button class="icob-calendar-modal-close" aria-label="Close">&times;</button>
+                    <button class="awecal-calendar-modal-close" aria-label="Close">&times;</button>
                 </div>
-                <div class="icob-calendar-modal-body">
-                    ${isRecurring ? '<p class="icob-calendar-modal-description">This is a recurring event. Download the calendar file to add it to your calendar app:</p>' : '<p class="icob-calendar-modal-description">Choose your calendar service:</p>'}
-                    <div class="icob-calendar-options">
-                        <a href="${eventData.urls.google}" ${linkTarget} ${linkType} class="icob-calendar-option">
-                            <img src="${iconPath}/google-calendar.svg" alt="Google Calendar" width="24" height="24" class="icob-calendar-icon">
+                <div class="awecal-calendar-modal-body">
+                    ${isRecurring ? '<p class="awecal-calendar-modal-description">This is a recurring event. Download the calendar file to add it to your calendar app:</p>' : '<p class="awecal-calendar-modal-description">Choose your calendar service:</p>'}
+                    <div class="awecal-calendar-options">
+                        <a href="${eventData.urls.google}" ${linkTarget} ${linkType} class="awecal-calendar-option">
+                            <img src="${iconPath}/google-calendar.svg" alt="Google Calendar" width="24" height="24" class="awecal-calendar-icon">
                             <span>Google Calendar${isRecurring ? ' (.ics)' : ''}</span>
                         </a>
-                        <a href="${eventData.urls.outlook}" ${linkTarget} ${linkType} class="icob-calendar-option">
-                            <img src="${iconPath}/outlook-calendar.svg" alt="Outlook.com" width="24" height="24" class="icob-calendar-icon">
+                        <a href="${eventData.urls.outlook}" ${linkTarget} ${linkType} class="awecal-calendar-option">
+                            <img src="${iconPath}/outlook-calendar.svg" alt="Outlook.com" width="24" height="24" class="awecal-calendar-icon">
                             <span>Outlook.com${isRecurring ? ' (.ics)' : ''}</span>
                         </a>
-                        <a href="${eventData.urls.office365}" ${linkTarget} ${linkType} class="icob-calendar-option">
-                            <img src="${iconPath}/office-calendar.svg" alt="Office 365" width="24" height="24" class="icob-calendar-icon">
+                        <a href="${eventData.urls.office365}" ${linkTarget} ${linkType} class="awecal-calendar-option">
+                            <img src="${iconPath}/office-calendar.svg" alt="Office 365" width="24" height="24" class="awecal-calendar-icon">
                             <span>Office 365${isRecurring ? ' (.ics)' : ''}</span>
                         </a>
-                        <a href="${eventData.urls.apple}" download="event.ics" class="icob-calendar-option">
-                            <img src="${iconPath}/apple-calendar.svg" alt="Apple Calendar" width="24" height="24" class="icob-calendar-icon">
+                        <a href="${eventData.urls.apple}" download="event.ics" class="awecal-calendar-option">
+                            <img src="${iconPath}/apple-calendar.svg" alt="Apple Calendar" width="24" height="24" class="awecal-calendar-icon">
                             <span>Apple Calendar (.ics)</span>
                         </a>
-                        <a href="${eventData.urls.ical}" download="event.ics" class="icob-calendar-option">
-                            <svg class="icob-calendar-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <a href="${eventData.urls.ical}" download="event.ics" class="awecal-calendar-option">
+                            <svg class="awecal-calendar-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                 <line x1="16" y1="2" x2="16" y2="6"></line>
                                 <line x1="8" y1="2" x2="8" y2="6"></line>
@@ -148,7 +148,7 @@
 
         // Close handlers
         const closeModal = () => {
-            modal.classList.add('icob-calendar-modal-closing');
+            modal.classList.add('awecal-calendar-modal-closing');
             setTimeout(() => {
                 if (modal.parentNode) {
                     modal.parentNode.removeChild(modal);
@@ -156,7 +156,7 @@
             }, 300);
         };
 
-        modal.querySelector('.icob-calendar-modal-close').addEventListener('click', closeModal);
+        modal.querySelector('.awecal-calendar-modal-close').addEventListener('click', closeModal);
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeModal();
@@ -174,14 +174,14 @@
 
         // Animate in
         setTimeout(() => {
-            modal.classList.add('icob-calendar-modal-open');
+            modal.classList.add('awecal-calendar-modal-open');
         }, 10);
     }
 
     // Get event data from post meta
     function getEventData() {
         // Get data from hidden element
-        const eventDataEl = document.getElementById('icob-event-data');
+        const eventDataEl = document.getElementById('awecal-event-data');
 
         if (!eventDataEl) {
             console.warn('Event data not found in page');

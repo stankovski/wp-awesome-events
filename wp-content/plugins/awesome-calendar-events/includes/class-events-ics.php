@@ -18,7 +18,7 @@
  * NOTE: We expose base DTSTART date only; no timezone shifting beyond site timezone. We export floating times, or if site timezone string available we append TZID param.
  *
  * NOTE: Uses the shared Awesome_Calendar_Events_ICS_Generator that lives in this plugin
- * (see class-ics-generator.php). The pledge ICS feature in icob has its own
+ * (see class-ics-generator.php). The pledge ICS feature in the original icob plugin has its own
  * independent inline generation logic and does not use this class.
  */
 

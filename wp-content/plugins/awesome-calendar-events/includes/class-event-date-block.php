@@ -36,12 +36,46 @@ class Awesome_Calendar_Events_Event_Date_Block {
         }
 
     if (!function_exists('register_block_type')) { return; }
-    register_block_type('icob/event-date', [
+    register_block_type('awesome-calendar-events/event-date', [
             'api_version' => 3,
             'editor_script' => 'awesome-calendar-events-event-date-block-editor',
             'style' => 'awesome-calendar-events-event-date-block-style',
             'render_callback' => [$this, 'render'],
-            'attributes' => [
+            'attributes' => $this->get_attributes(),
+            'supports' => [
+                'html' => false,
+                'anchor' => true,
+                'className' => true,
+                // Allow user to set text/background colors & typography in editor
+                'color' => [ 'text' => true, 'background' => true ],
+                'typography' => [ 'fontSize' => true, 'lineHeight' => true ],
+                'spacing' => ['margin'=>true,'padding'=>true]
+            ],
+            'category' => 'awesome-calendar-events',
+            'title' => __('Event Date', 'awesome-calendar-events'),
+            'description' => __('Displays the upcoming event date or recurring weekdays for the current post.', 'awesome-calendar-events'),
+            'keywords' => ['event','date','recurring','calendar']
+        ]);
+
+        // DEPRECATED: legacy "icob/event-date" block name, kept for backwards
+        // compatibility with content created before the plugin was renamed to
+        // Awesome Calendar Events. Registered server-side only (no editor
+        // script) so existing posts keep rendering on the frontend, but the
+        // block never appears in the block inserter. New content must use
+        // "awesome-calendar-events/event-date". Plan removal in a future release.
+        register_block_type('icob/event-date', [
+            'api_version' => 3,
+            'style' => 'awesome-calendar-events-event-date-block-style',
+            'render_callback' => [$this, 'render'],
+            'attributes' => $this->get_attributes(),
+        ]);
+    }
+
+    /**
+     * Shared attribute definitions for the current and legacy block names.
+     */
+    private function get_attributes() {
+        return [
                 'format' => [ 'type' => 'string', 'default' => 'F j, Y' ],
                 // For time output (if selected)
                 'timeFormat' => [ 'type' => 'string', 'default' => 'g:i A' ],
@@ -59,21 +93,7 @@ class Awesome_Calendar_Events_Event_Date_Block {
                 'locationMetaKey' => [ 'type' => 'string', 'default' => '_awecal_event_location' ],
                 // When showing a Date, optionally output relative forms (weekdays plural for weekly recurrence, or "This Monday" for single events this week)
                 'relativeCurrentWeek' => [ 'type' => 'boolean', 'default' => false ],
-            ],
-            'supports' => [
-                'html' => false,
-                'anchor' => true,
-                'className' => true,
-                // Allow user to set text/background colors & typography in editor
-                'color' => [ 'text' => true, 'background' => true ],
-                'typography' => [ 'fontSize' => true, 'lineHeight' => true ],
-                'spacing' => ['margin'=>true,'padding'=>true]
-            ],
-            'category' => 'icob',
-            'title' => __('Event Date', 'awesome-calendar-events'),
-            'description' => __('Displays the upcoming event date or recurring weekdays for the current post.', 'awesome-calendar-events'),
-            'keywords' => ['event','date','recurring','icob']
-        ]);
+        ];
     }
 
     public function render($attributes, $content = '', $block = null) {
@@ -146,12 +166,12 @@ class Awesome_Calendar_Events_Event_Date_Block {
         if ($output === '' && $fallbackText === '') { return ''; }
         if ($output === '') { $output = esc_html($fallbackText); }
 
-        $wrapper_attrs = get_block_wrapper_attributes(['class' => 'icob-event-date-block']);
+        $wrapper_attrs = get_block_wrapper_attributes(['class' => 'awecal-event-date-block']);
         $inner  = '';
         if ($showLabel) {
-            $inner .= '<span class="icob-event-date-label">' . esc_html($labelText) . ' </span>';
+            $inner .= '<span class="awecal-event-date-label">' . esc_html($labelText) . ' </span>';
         }
-        $inner .= '<span class="icob-event-date-value">' . $output . '</span>';
+        $inner .= '<span class="awecal-event-date-value">' . $output . '</span>';
 
         // get_block_wrapper_attributes always assumes a div; if user chose span/p we'll adjust outer tag.
         if ($wrapTag !== 'div') {

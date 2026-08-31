@@ -270,7 +270,7 @@ class Awesome_Calendar_Events_Event_Meta {
                 <tbody>
                     <tr style="border-bottom: 1px solid #ddd;">
                         <td style="padding: 8px 8px 8px 0; font-family: monospace; color: #d63638; white-space: nowrap; vertical-align: top;">
-                            [event_date]
+                            [awecal_event_date]
                         </td>
                         <td style="padding: 8px 0;">
                             <?php esc_html_e('Event date in site format', 'awesome-calendar-events'); ?>
@@ -281,7 +281,7 @@ class Awesome_Calendar_Events_Event_Meta {
                     </tr>
                     <tr style="border-bottom: 1px solid #ddd;">
                         <td style="padding: 8px 8px 8px 0; font-family: monospace; color: #d63638; white-space: nowrap; vertical-align: top;">
-                            [event_friendly_date]
+                            [awecal_event_friendly_date]
                         </td>
                         <td style="padding: 8px 0;">
                             <?php esc_html_e('Friendly date (Today, Tomorrow, This Monday)', 'awesome-calendar-events'); ?>
@@ -289,7 +289,7 @@ class Awesome_Calendar_Events_Event_Meta {
                     </tr>
                     <tr style="border-bottom: 1px solid #ddd;">
                         <td style="padding: 8px 8px 8px 0; font-family: monospace; color: #d63638; white-space: nowrap; vertical-align: top;">
-                            [event_time]
+                            [awecal_event_time]
                         </td>
                         <td style="padding: 8px 0;">
                             <?php esc_html_e('Event start time', 'awesome-calendar-events'); ?>
@@ -300,7 +300,7 @@ class Awesome_Calendar_Events_Event_Meta {
                     </tr>
                     <tr style="border-bottom: 1px solid #ddd;">
                         <td style="padding: 8px 8px 8px 0; font-family: monospace; color: #d63638; white-space: nowrap; vertical-align: top;">
-                            [event_full_time]
+                            [awecal_event_full_time]
                         </td>
                         <td style="padding: 8px 0;">
                             <?php esc_html_e('Event time range (start - end)', 'awesome-calendar-events'); ?>
@@ -311,7 +311,7 @@ class Awesome_Calendar_Events_Event_Meta {
                     </tr>
                     <tr>
                         <td style="padding: 8px 8px 8px 0; font-family: monospace; color: #d63638; white-space: nowrap; vertical-align: top;">
-                            [event_location]
+                            [awecal_event_location]
                         </td>
                         <td style="padding: 8px 0;">
                             <?php esc_html_e('Event location', 'awesome-calendar-events'); ?>
@@ -321,7 +321,7 @@ class Awesome_Calendar_Events_Event_Meta {
             </table>
             <p style="margin-top: 12px; margin-bottom: 0; font-size: 12px; color: #666;">
                 <strong><?php esc_html_e('Example:', 'awesome-calendar-events'); ?></strong>
-                <span style="font-family: monospace; color: #333;">Join us on [event_friendly_date] at [event_time] in [event_location]</span>
+                <span style="font-family: monospace; color: #333;">Join us on [awecal_event_friendly_date] at [awecal_event_time] in [awecal_event_location]</span>
             </p>
         </div>
         <?php

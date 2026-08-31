@@ -6,11 +6,11 @@
     const { useState, useEffect } = wp.element;
     const apiFetch = wp.apiFetch;
 
-    registerBlockType('icob/event-countdown', {
+    registerBlockType('awesome-calendar-events/event-countdown', {
         title: __('Event Countdown', 'awesome-calendar-events'),
         description: __('Displays a live countdown timer to the next event occurrence.', 'awesome-calendar-events'),
         icon: 'clock',
-        category: 'icob',
+        category: 'awesome-calendar-events',
         supports: {
             html: false,
             anchor: true,
@@ -129,7 +129,7 @@
             };
 
             const blockProps = useBlockProps({
-                className: 'icob-event-countdown-editor'
+                className: 'awecal-event-countdown-editor'
             });
 
             return wp.element.createElement(
@@ -244,42 +244,42 @@
                     blockProps,
                     !postId && wp.element.createElement(
                         'div',
-                        { className: 'icob-countdown-placeholder' },
+                        { className: 'awecal-countdown-placeholder' },
                         wp.element.createElement('p', null, __('⏱️ Event Countdown', 'awesome-calendar-events')),
                         wp.element.createElement('p', { style: { fontSize: '13px', opacity: 0.7 } }, __('Select an event post from the sidebar to display a countdown timer.', 'awesome-calendar-events'))
                     ),
                     postId && wp.element.createElement(
                         'div',
-                        { className: 'icob-countdown-preview' },
+                        { className: 'awecal-countdown-preview' },
                         showLabel && wp.element.createElement(
                             'div',
-                            { className: 'icob-countdown-label', style: { marginBottom: '8px', fontWeight: 'bold' } },
+                            { className: 'awecal-countdown-label', style: { marginBottom: '8px', fontWeight: 'bold' } },
                             labelText
                         ),
                         wp.element.createElement(
                             'div',
-                            { className: 'icob-countdown-timer-preview', style: { display: 'flex', gap: '12px', alignItems: 'center' } },
+                            { className: 'awecal-countdown-timer-preview', style: { display: 'flex', gap: '12px', alignItems: 'center' } },
                             showDays && wp.element.createElement(
                                 'div',
-                                { className: 'icob-countdown-unit' },
+                                { className: 'awecal-countdown-unit' },
                                 wp.element.createElement('span', { className: 'value', style: { fontSize: '24px', fontWeight: 'bold' } }, '__'),
                                 wp.element.createElement('span', { className: 'label', style: { fontSize: '12px', opacity: 0.7 } }, daysLabel)
                             ),
                             showHours && wp.element.createElement(
                                 'div',
-                                { className: 'icob-countdown-unit' },
+                                { className: 'awecal-countdown-unit' },
                                 wp.element.createElement('span', { className: 'value', style: { fontSize: '24px', fontWeight: 'bold' } }, '__'),
                                 wp.element.createElement('span', { className: 'label', style: { fontSize: '12px', opacity: 0.7 } }, hoursLabel)
                             ),
                             showMinutes && wp.element.createElement(
                                 'div',
-                                { className: 'icob-countdown-unit' },
+                                { className: 'awecal-countdown-unit' },
                                 wp.element.createElement('span', { className: 'value', style: { fontSize: '24px', fontWeight: 'bold' } }, '__'),
                                 wp.element.createElement('span', { className: 'label', style: { fontSize: '12px', opacity: 0.7 } }, minutesLabel)
                             ),
                             showSeconds && wp.element.createElement(
                                 'div',
-                                { className: 'icob-countdown-unit' },
+                                { className: 'awecal-countdown-unit' },
                                 wp.element.createElement('span', { className: 'value', style: { fontSize: '24px', fontWeight: 'bold' } }, '__'),
                                 wp.element.createElement('span', { className: 'label', style: { fontSize: '12px', opacity: 0.7 } }, secondsLabel)
                             )

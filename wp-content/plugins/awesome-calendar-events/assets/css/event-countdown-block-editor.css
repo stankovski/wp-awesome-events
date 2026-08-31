@@ -1,29 +1,29 @@
 /* Event Countdown Block - Editor Styles */
 
-.icob-event-countdown-editor {
+.awecal-event-countdown-editor {
     padding: 20px;
     border: 2px dashed #e0e0e0;
     border-radius: 4px;
     background: #f9f9f9;
 }
 
-.icob-countdown-placeholder {
+.awecal-countdown-placeholder {
     text-align: center;
     padding: 40px 20px;
 }
 
-.icob-countdown-placeholder p:first-child {
+.awecal-countdown-placeholder p:first-child {
     font-size: 24px;
     margin-bottom: 8px;
 }
 
-.icob-countdown-preview {
+.awecal-countdown-preview {
     padding: 12px;
     background: white;
     border-radius: 4px;
 }
 
-.icob-countdown-timer-preview {
+.awecal-countdown-timer-preview {
     display: flex;
     gap: 16px;
     align-items: center;
@@ -31,7 +31,7 @@
     flex-wrap: wrap;
 }
 
-.icob-countdown-timer-preview .icob-countdown-unit {
+.awecal-countdown-timer-preview .awecal-countdown-unit {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -42,14 +42,14 @@
     min-width: 60px;
 }
 
-.icob-countdown-timer-preview .value {
+.awecal-countdown-timer-preview .value {
     font-size: 28px;
     font-weight: 700;
     line-height: 1;
     color: #1e1e1e;
 }
 
-.icob-countdown-timer-preview .label {
+.awecal-countdown-timer-preview .label {
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -58,11 +58,11 @@
 }
 
 /* Make editor controls more readable */
-.icob-event-countdown-editor .components-base-control {
+.awecal-event-countdown-editor .components-base-control {
     margin-bottom: 16px;
 }
 
-.icob-event-countdown-editor .components-base-control__label {
+.awecal-event-countdown-editor .components-base-control__label {
     font-weight: 600;
     margin-bottom: 4px;
 }

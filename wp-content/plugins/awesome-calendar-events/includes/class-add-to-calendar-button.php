@@ -42,6 +42,12 @@ class Awesome_Calendar_Events_Add_To_Calendar_Button {
     }
 
     private function register_block() {
+        // DEPRECATED: content saved under the legacy "icob/add-to-calendar" block
+        // name (before the plugin was renamed to Awesome Calendar Events) keeps
+        // working without any registration: it is a static block whose saved
+        // markup is rendered as-is, and the frontend assets it needs are
+        // enqueued globally on wp_enqueue_scripts. New content must use
+        // "awesome-calendar-events/add-to-calendar". Plan removal in a future release.
         if (!function_exists('register_block_type')) {
             return;
         }
@@ -55,10 +61,10 @@ class Awesome_Calendar_Events_Add_To_Calendar_Button {
             true
         );
 
-        register_block_type('icob/add-to-calendar', [
+        register_block_type('awesome-calendar-events/add-to-calendar', [
             'api_version' => 3,
             'editor_script' => 'awesome-calendar-events-add-to-calendar-button',
-            'category' => 'icob',
+            'category' => 'awesome-calendar-events',
             'title' => __('Add to Calendar', 'awesome-calendar-events'),
             'description' => __('Button that opens a calendar selection dialog for the event', 'awesome-calendar-events'),
             'keywords' => ['event', 'calendar', 'ical'],
@@ -97,7 +103,7 @@ class Awesome_Calendar_Events_Add_To_Calendar_Button {
         }
 
         // Output hidden data attributes for JavaScript
-        echo '<div id="icob-event-data" style="display:none;"
+        echo '<div id="awecal-event-data" style="display:none;"
             data-post-id="' . esc_attr($post->ID) . '"
             data-event-date="' . esc_attr($event_date) . '"
             data-event-time="' . esc_attr($start_time ?: '00:00') . '"
@@ -145,7 +151,7 @@ class Awesome_Calendar_Events_Add_To_Calendar_Button {
             );
 
             // Pass plugin URL and calendar data to frontend
-            wp_localize_script('awesome-calendar-events-add-to-calendar-frontend', 'icobCalendarData', [
+            wp_localize_script('awesome-calendar-events-add-to-calendar-frontend', 'awecalCalendarData', [
                 'ajaxUrl' => admin_url('admin-ajax.php'),
                 'nonce' => wp_create_nonce('icob_calendar_nonce'),
                 'pluginUrl' => AWESOME_CALENDAR_EVENTS_PLUGIN_URL

@@ -1,7 +1,7 @@
 /* Add to Calendar Button Styles */
 
 /* Modal Overlay */
-.icob-calendar-modal {
+.awecal-calendar-modal {
     position: fixed;
     top: 0;
     left: 0;
@@ -16,17 +16,17 @@
     transition: opacity 0.3s ease, background-color 0.3s ease;
 }
 
-.icob-calendar-modal.icob-calendar-modal-open {
+.awecal-calendar-modal.awecal-calendar-modal-open {
     opacity: 1;
     background-color: rgba(0, 0, 0, 0.75);
 }
 
-.icob-calendar-modal.icob-calendar-modal-closing {
+.awecal-calendar-modal.awecal-calendar-modal-closing {
     opacity: 0;
 }
 
 /* Modal Content */
-.icob-calendar-modal-content {
+.awecal-calendar-modal-content {
     background: #fff;
     border-radius: 8px;
     max-width: 500px;
@@ -38,16 +38,16 @@
     transition: transform 0.3s ease;
 }
 
-.icob-calendar-modal-open .icob-calendar-modal-content {
+.awecal-calendar-modal-open .awecal-calendar-modal-content {
     transform: scale(1);
 }
 
-.icob-calendar-modal-closing .icob-calendar-modal-content {
+.awecal-calendar-modal-closing .awecal-calendar-modal-content {
     transform: scale(0.9);
 }
 
 /* Modal Header */
-.icob-calendar-modal-header {
+.awecal-calendar-modal-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -55,14 +55,14 @@
     border-bottom: 1px solid #e0e0e0;
 }
 
-.icob-calendar-modal-header h3 {
+.awecal-calendar-modal-header h3 {
     margin: 0;
     font-size: 1.5rem;
     font-weight: 600;
     color: #1a1a1a;
 }
 
-.icob-calendar-modal-close {
+.awecal-calendar-modal-close {
     background: none;
     border: none;
     font-size: 28px;
@@ -79,30 +79,30 @@
     transition: background-color 0.2s, color 0.2s;
 }
 
-.icob-calendar-modal-close:hover {
+.awecal-calendar-modal-close:hover {
     background-color: #f0f0f0;
     color: #1a1a1a;
 }
 
 /* Modal Body */
-.icob-calendar-modal-body {
+.awecal-calendar-modal-body {
     padding: 24px;
 }
 
-.icob-calendar-modal-description {
+.awecal-calendar-modal-description {
     margin: 0 0 20px 0;
     color: #666;
     font-size: 0.95rem;
 }
 
 /* Calendar Options */
-.icob-calendar-options {
+.awecal-calendar-options {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.icob-calendar-option {
+.awecal-calendar-option {
     display: flex;
     align-items: center;
     gap: 16px;
@@ -116,48 +116,48 @@
     cursor: pointer;
 }
 
-.icob-calendar-option:hover {
+.awecal-calendar-option:hover {
     border-color: #0073aa;
     background-color: #f5f9fc;
     transform: translateX(4px);
 }
 
-.icob-calendar-icon {
+.awecal-calendar-icon {
     width: 24px;
     height: 24px;
     flex-shrink: 0;
     object-fit: contain;
 }
 
-.icob-calendar-option svg.icob-calendar-icon {
+.awecal-calendar-option svg.awecal-calendar-icon {
     color: #0073aa;
 }
 
-.icob-calendar-option span {
+.awecal-calendar-option span {
     flex: 1;
     font-size: 1rem;
 }
 
 /* Responsive */
 @media (max-width: 600px) {
-    .icob-calendar-modal-content {
+    .awecal-calendar-modal-content {
         width: 95%;
         margin: 20px;
     }
 
-    .icob-calendar-modal-header {
+    .awecal-calendar-modal-header {
         padding: 16px;
     }
 
-    .icob-calendar-modal-header h3 {
+    .awecal-calendar-modal-header h3 {
         font-size: 1.25rem;
     }
 
-    .icob-calendar-modal-body {
+    .awecal-calendar-modal-body {
         padding: 16px;
     }
 
-    .icob-calendar-option {
+    .awecal-calendar-option {
         padding: 12px 16px;
     }
 }

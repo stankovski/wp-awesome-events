@@ -5,11 +5,10 @@
  * Provides shortcodes to output event metadata in paragraphs, lists, buttons, etc.
  *
  * Available Shortcodes:
- * - [event_date] - Outputs formatted event date
- * - [event_friendly_date] - Outputs friendly/relative date (Today, Tomorrow, This Monday, or weekday names)
- * - [event_time] - Outputs event start time
- * - [event_location] - Outputs event location
- * - [event_calendar_url] - Generates addcal.co URL for adding event to calendar
+ * - [awecal_event_date] - Outputs formatted event date
+ * - [awecal_event_friendly_date] - Outputs friendly/relative date (Today, Tomorrow, This Monday, or weekday names)
+ * - [awecal_event_time] - Outputs event start time
+ * - [awecal_event_location] - Outputs event location
  */
 
 if (!defined('ABSPATH')) { exit; }
@@ -24,11 +23,11 @@ class Awesome_Calendar_Events_Event_Shortcodes {
     }
 
     public function register_shortcodes() {
-        add_shortcode('event_date', [$this, 'event_date_shortcode']);
-        add_shortcode('event_friendly_date', [$this, 'event_friendly_date_shortcode']);
-        add_shortcode('event_time', [$this, 'event_time_shortcode']);
-        add_shortcode('event_full_time', [$this, 'event_full_time_shortcode']);
-        add_shortcode('event_location', [$this, 'event_location_shortcode']);
+        add_shortcode('awecal_event_date', [$this, 'event_date_shortcode']);
+        add_shortcode('awecal_event_friendly_date', [$this, 'event_friendly_date_shortcode']);
+        add_shortcode('awecal_event_time', [$this, 'event_time_shortcode']);
+        add_shortcode('awecal_event_full_time', [$this, 'event_full_time_shortcode']);
+        add_shortcode('awecal_event_location', [$this, 'event_location_shortcode']);
     }
 
     /**
@@ -37,8 +36,8 @@ class Awesome_Calendar_Events_Event_Shortcodes {
      */
     public function process_shortcodes_in_blocks($block_content, $block) {
         // Only process if content contains our shortcodes
-        if (is_string($block_content) && strpos($block_content, '[event_') !== false) {
-            return do_shortcode($block_content);
+        if (is_string($block_content) && strpos($block_content, '[awecal_event_') !== false) {
+            return wp_kses_post(do_shortcode($block_content));
         }
         return $block_content;
     }
@@ -61,7 +60,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
     }
 
     /**
-     * [event_date] shortcode
+     * [awecal_event_date] shortcode
      * Outputs the event date in specified format
      *
      * Attributes:
@@ -69,7 +68,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
      * - post_id: Specific post ID (default: current post)
      * - fallback: Text to show if no date available
      *
-     * Example: [event_date format="F j, Y"]
+     * Example: [awecal_event_date format="F j, Y"]
      */
     public function event_date_shortcode($atts, $content = null) {
         $atts = shortcode_atts([
@@ -98,7 +97,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
     }
 
     /**
-     * [event_friendly_date] shortcode
+     * [awecal_event_friendly_date] shortcode
      * Outputs a friendly/relative date string based on the event date block logic
      * Shows weekday names for recurring events with next occurrence date
      *
@@ -107,7 +106,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
      * - fallback: Text to show if no date available
      * - format: PHP date format for fallback non-relative display (default: site date format)
      *
-     * Example: [event_friendly_date]
+     * Example: [awecal_event_friendly_date]
      */
     public function event_friendly_date_shortcode($atts, $content = null) {
         $atts = shortcode_atts([
@@ -155,7 +154,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
     }
 
     /**
-     * [event_time] shortcode
+     * [awecal_event_time] shortcode
      * Outputs the event start time or custom time label
      *
      * Attributes:
@@ -163,7 +162,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
      * - post_id: Specific post ID (default: current post)
      * - fallback: Text to show if no time available
      *
-     * Example: [event_time format="H:i"]
+     * Example: [awecal_event_time format="H:i"]
      */
     public function event_time_shortcode($atts, $content = null) {
         $atts = shortcode_atts([
@@ -198,7 +197,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
     }
 
     /**
-     * [event_full_time] shortcode
+     * [awecal_event_full_time] shortcode
      * Outputs the event time range (start time - end time) or custom time label
      *
      * Attributes:
@@ -207,7 +206,7 @@ class Awesome_Calendar_Events_Event_Shortcodes {
      * - post_id: Specific post ID (default: current post)
      * - fallback: Text to show if no time available
      *
-     * Example: [event_full_time format="H:i" separator=" to "]
+     * Example: [awecal_event_full_time format="H:i" separator=" to "]
      */
     public function event_full_time_shortcode($atts, $content = null) {
         $atts = shortcode_atts([
@@ -260,14 +259,14 @@ class Awesome_Calendar_Events_Event_Shortcodes {
     }
 
     /**
-     * [event_location] shortcode
+     * [awecal_event_location] shortcode
      * Outputs the event location
      *
      * Attributes:
      * - post_id: Specific post ID (default: current post)
      * - fallback: Text to show if no location available
      *
-     * Example: [event_location]
+     * Example: [awecal_event_location]
      */
     public function event_location_shortcode($atts, $content = null) {
         $atts = shortcode_atts([

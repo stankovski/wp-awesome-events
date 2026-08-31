@@ -63,6 +63,10 @@ class Awesome_Calendar_Events_Plugin {
         // Activation and deactivation hooks
         register_activation_hook(__FILE__, array($this, 'activate'));
         register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+
+        // Ensure rewrite rules (e.g. /events.ics) survive DB restores or
+        // updates that bypass the activation hook.
+        add_action('admin_init', array($this, 'maybe_flush_rewrite_rules'));
     }
 
     /**
@@ -127,17 +131,17 @@ class Awesome_Calendar_Events_Plugin {
      * Add custom block category.
      *
      * Registered as a fallback so event blocks are grouped correctly even if
-     * another plugin hasn't already registered the 'icob' category slug.
+     * the 'awesome-calendar-events' category slug is already registered.
      */
     public function add_block_category($categories, $post) {
         foreach ($categories as $category) {
-            if (isset($category['slug']) && $category['slug'] === 'icob') {
-                // Already registered (e.g. by the icob plugin); avoid duplicates.
+            if (isset($category['slug']) && $category['slug'] === 'awesome-calendar-events') {
+                // Already registered; avoid duplicates.
                 return $categories;
             }
         }
         array_unshift($categories, array(
-            'slug'  => 'icob',
+            'slug'  => 'awesome-calendar-events',
             'title' => __('Awesome Calendar Events', 'awesome-calendar-events'),
             'icon'  => 'slides',
         ));
@@ -149,6 +153,19 @@ class Awesome_Calendar_Events_Plugin {
      */
     public function activate() {
         flush_rewrite_rules();
+    }
+
+    /**
+     * Flush rewrite rules once per plugin version so the /events.ics rule is
+     * always present, even after DB restores or file-level updates that
+     * bypass register_activation_hook().
+     */
+    public function maybe_flush_rewrite_rules() {
+        $stored_version = get_option('awesome_calendar_events_rewrite_version');
+        if ($stored_version !== AWESOME_CALENDAR_EVENTS_VERSION) {
+            flush_rewrite_rules();
+            update_option('awesome_calendar_events_rewrite_version', AWESOME_CALENDAR_EVENTS_VERSION);
+        }
     }
 
     /**
