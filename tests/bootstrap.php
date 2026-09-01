@@ -25,22 +25,35 @@ if (!defined('AWESOME_CALENDAR_EVENTS_PLUGIN_DIR')) {
 $GLOBALS['__awecal_meta'] = [];       // [post_id][meta_key] => mixed
 $GLOBALS['__awecal_registered_meta'] = []; // [meta_key] => args
 $GLOBALS['__awecal_posts'] = [];      // [post_id] => [title, content, excerpt]
+$GLOBALS['__awecal_options'] = [];    // option overrides
+$GLOBALS['__awecal_transients'] = []; // transient store
+
+date_default_timezone_set('UTC');
+
+if (!defined('HOUR_IN_SECONDS')) {
+    define('HOUR_IN_SECONDS', 3600);
+}
 
 /* -------------------------------------------------------------------------
  * Test helpers
  * ---------------------------------------------------------------------- */
 
-function awecal_test_create_post($id, $title = 'Test Event', $content = '') {
+function awecal_test_create_post($id, $title = 'Test Event', $content = '', $post_date_gmt = '2026-08-20 14:05:00') {
     $GLOBALS['__awecal_posts'][$id] = [
         'title' => $title,
         'content' => $content,
         'excerpt' => '',
+        'post_date_gmt' => $post_date_gmt,
+        'thumbnail_url' => null,
+        'thumbnail_id' => 0,
+        'terms' => [],
     ];
     return (object) [
         'ID' => $id,
         'post_title' => $title,
         'post_content' => $content,
         'post_excerpt' => '',
+        'post_date_gmt' => $post_date_gmt,
     ];
 }
 
@@ -106,12 +119,19 @@ function sanitize_text_field($str) {
 function wp_unslash($value) { return $value; }
 function wp_verify_nonce($nonce, $action = -1) { return 1; }
 function absint($value) { return abs((int) $value); }
+function sanitize_title($str) {
+    $str = strtolower(trim(strip_tags((string) $str)));
+    return preg_replace('/[^a-z0-9]+/', '-', $str);
+}
 
 /* -------------------------------------------------------------------------
  * Options / locale / time stubs
  * ---------------------------------------------------------------------- */
 
 function get_option($name, $default = false) {
+    if (isset($GLOBALS['__awecal_options'][$name])) {
+        return $GLOBALS['__awecal_options'][$name];
+    }
     $options = [
         'date_format' => 'F j, Y',
         'start_of_week' => 1,
@@ -119,6 +139,25 @@ function get_option($name, $default = false) {
         'gmt_offset' => 0,
     ];
     return $options[$name] ?? $default;
+}
+
+function update_option($name, $value) {
+    $GLOBALS['__awecal_options'][$name] = $value;
+    return true;
+}
+
+function get_transient($key) {
+    return $GLOBALS['__awecal_transients'][$key] ?? false;
+}
+
+function set_transient($key, $value, $expiration = 0) {
+    $GLOBALS['__awecal_transients'][$key] = $value;
+    return true;
+}
+
+function delete_transient($key) {
+    unset($GLOBALS['__awecal_transients'][$key]);
+    return true;
 }
 
 function current_time($type) {
@@ -171,7 +210,50 @@ function get_post($post = null) {
         'post_title' => $data['title'],
         'post_content' => $data['content'],
         'post_excerpt' => $data['excerpt'],
+        'post_date_gmt' => $data['post_date_gmt'],
     ];
+}
+
+function get_the_excerpt($post = null) {
+    $id = is_object($post) ? $post->ID : (int) $post;
+    $excerpt = $GLOBALS['__awecal_posts'][$id]['excerpt'] ?? '';
+    if ($excerpt !== '') {
+        return $excerpt;
+    }
+    $content = $GLOBALS['__awecal_posts'][$id]['content'] ?? '';
+    return wp_trim_words(wp_strip_all_tags($content));
+}
+
+function wp_trim_words($text, $num_words = 55, $more = '…') {
+    $words = preg_split('/\s+/', trim((string) $text));
+    if (count($words) <= $num_words) {
+        return trim((string) $text);
+    }
+    return implode(' ', array_slice($words, 0, $num_words)) . $more;
+}
+
+function get_the_post_thumbnail_url($post = null, $size = 'post-thumbnail') {
+    $id = is_object($post) ? $post->ID : (int) $post;
+    return $GLOBALS['__awecal_posts'][$id]['thumbnail_url'] ?? false;
+}
+
+function get_post_thumbnail_id($post = null) {
+    $id = is_object($post) ? $post->ID : (int) $post;
+    return $GLOBALS['__awecal_posts'][$id]['thumbnail_id'] ?? 0;
+}
+
+function get_the_terms($post_id, $taxonomy) {
+    $terms = $GLOBALS['__awecal_posts'][$post_id]['terms'][$taxonomy] ?? false;
+    return $terms;
+}
+
+function mysql2date($format, $value, $translate = true) {
+    $ts = strtotime((string) $value);
+    return $ts ? date($format, $ts) : false;
+}
+
+function wp_json_encode($data, $flags = 0) {
+    return json_encode($data, $flags);
 }
 
 /* -------------------------------------------------------------------------
@@ -182,6 +264,7 @@ $plugin_includes = [
     'includes/class-meta-helper.php',
     'includes/class-event-meta.php',
     'includes/class-ics-generator.php',
+    'includes/class-events-query-api.php',
 ];
 
 foreach ($plugin_includes as $relative) {

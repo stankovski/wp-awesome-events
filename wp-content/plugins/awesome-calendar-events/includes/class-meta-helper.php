@@ -119,3 +119,99 @@ function awecal_event_date_present_meta_query() {
         ],
     ];
 }
+
+/**
+ * Meta query clause filtering posts by event date range.
+ *
+ * Event dates are stored as Y-m-d strings (site timezone), which compare
+ * correctly lexicographically, so a CHAR BETWEEN is used instead of a
+ * DATE comparison. Matches both canonical and legacy keys.
+ *
+ * @param string $from Inclusive lower bound (Y-m-d). Empty string = unbounded.
+ * @param string $to   Inclusive upper bound (Y-m-d). Empty string = unbounded.
+ * @return array
+ */
+function awecal_event_date_range_meta_query($from = '', $to = '') {
+    $from = (string) $from;
+    $to = (string) $to;
+
+    if ($from !== '' && $to !== '') {
+        $value = [$from, $to];
+        $compare = 'BETWEEN';
+    } elseif ($from !== '') {
+        $value = $from;
+        $compare = '>=';
+    } else {
+        $value = $to;
+        $compare = '<=';
+    }
+
+    $canonical_key = awecal_meta_key('_icob_event_date');
+    $legacy_key = AWECAL_LEGACY_META_PREFIX . substr($canonical_key, strlen(AWECAL_META_PREFIX));
+
+    return [
+        'relation' => 'OR',
+        [
+            'key'     => $canonical_key,
+            'value'   => $value,
+            'compare' => $compare,
+            'type'    => 'CHAR',
+        ],
+        [
+            'key'     => $legacy_key,
+            'value'   => $value,
+            'compare' => $compare,
+            'type'    => 'CHAR',
+        ],
+    ];
+}
+
+/**
+ * Meta query clause matching posts flagged as announcements,
+ * regardless of which prefix their meta was stored under.
+ *
+ * @return array
+ */
+function awecal_event_announcement_enabled_meta_query() {
+    return [
+        'relation' => 'OR',
+        [
+            'key'     => awecal_meta_key('_icob_announcement'),
+            'value'   => '1',
+            'compare' => '=',
+        ],
+        [
+            'key'     => '_icob_announcement',
+            'value'   => '1',
+            'compare' => '=',
+        ],
+    ];
+}
+
+/**
+ * Meta query clause filtering posts by announcement expiration datetime.
+ *
+ * @param string $compare WP meta compare operator (e.g. '>=', '<=', 'BETWEEN').
+ * @param string|array $value Value(s) to compare against.
+ * @return array
+ */
+function awecal_event_announcement_expiration_meta_query($compare, $value) {
+    $canonical_key = awecal_meta_key('_icob_announcement_expiration');
+    $legacy_key = AWECAL_LEGACY_META_PREFIX . substr($canonical_key, strlen(AWECAL_META_PREFIX));
+
+    return [
+        'relation' => 'OR',
+        [
+            'key'     => $canonical_key,
+            'value'   => $value,
+            'compare' => $compare,
+            'type'    => 'CHAR',
+        ],
+        [
+            'key'     => $legacy_key,
+            'value'   => $value,
+            'compare' => $compare,
+            'type'    => 'CHAR',
+        ],
+    ];
+}

@@ -19,6 +19,8 @@
  *  - _awecal_event_recurrence_end_type (string: none|date|count)
  *  - _awecal_event_recurrence_end_date (string: Y-m-d)
  *  - _awecal_event_recurrence_count (int: max number of occurrences)
+ *  - _awecal_announcement (bool) marks the post as an announcement
+ *  - _awecal_announcement_expiration (string: Y-m-d H:i:s site-local) when the announcement stops being shown
  *
  * NOTE: Posts written before the `_awecal_` prefix migration store their meta
  * under the historical prefix. Those keys are still registered (read-only for
@@ -122,6 +124,18 @@ class Awesome_Calendar_Events_Event_Meta {
             'event_recurrence_end_type' => array_merge($meta_args_public, ['type' => 'string']),
             'event_recurrence_end_date' => array_merge($meta_args_public, ['type' => 'string']),
             'event_recurrence_count' => array_merge($meta_args_public, ['type' => 'integer']),
+            // Announcement flag (legacy sites store `_icob_announcement`; reads fall back via awecal_get_post_meta()).
+            'announcement' => array_merge($meta_args_public, [
+                'type' => 'boolean',
+                'default' => false,
+                'sanitize_callback' => function($val){ return (bool)$val; }
+            ]),
+            // Announcement expiration (site-local datetime, empty = runs indefinitely).
+            'announcement_expiration' => array_merge($meta_args_public, [
+                'type' => 'string',
+                'default' => '',
+                'sanitize_callback' => function($val){ return self::normalize_datetime_input($val); }
+            ]),
         ];
 
         foreach ($meta_defs as $suffix => $args) {
@@ -182,6 +196,10 @@ class Awesome_Calendar_Events_Event_Meta {
     }
     $duration_hours = floatval($duration_hours);
     $location = $this->get_meta($post->ID, '_awecal_event_location', '');
+    $announcement = (bool) $this->get_meta($post->ID, '_awecal_announcement', 0);
+    $announcement_expiration = $this->get_meta($post->ID, '_awecal_announcement_expiration', '');
+    // datetime-local inputs expect Y-m-d\TH:i
+    $announcement_expiration_local = $announcement_expiration ? esc_attr(gmdate('Y-m-d\TH:i', strtotime($announcement_expiration))) : '';
 
     // Weekday labels aligned to new Monday=0..Sunday=6 indexing
     $weekday_labels = [__('Mon','awesome-calendar-events'),__('Tue','awesome-calendar-events'),__('Wed','awesome-calendar-events'),__('Thu','awesome-calendar-events'),__('Fri','awesome-calendar-events'),__('Sat','awesome-calendar-events'),__('Sun','awesome-calendar-events')];
@@ -257,6 +275,16 @@ class Awesome_Calendar_Events_Event_Meta {
             <small><?php esc_html_e('0 or blank = unlimited', 'awesome-calendar-events'); ?></small>
         </p>
         </div>
+        <p>
+            <label style="display:inline-flex;align-items:center;gap:4px;">
+                <input type="checkbox" id="icob_announcement" name="icob_announcement" value="1" <?php checked($announcement); ?> /> <?php esc_html_e('Announcement','awesome-calendar-events'); ?>
+            </label>
+        </p>
+        <p id="icob_announcement_expiration_wrap">
+            <label for="icob_announcement_expiration"><strong><?php esc_html_e('Announcement Ends','awesome-calendar-events'); ?></strong></label>
+            <input type="datetime-local" id="icob_announcement_expiration" name="icob_announcement_expiration" value="<?php echo $announcement_expiration_local; ?>" style="width:100%;" />
+            <small><?php esc_html_e('Leave empty to run indefinitely.', 'awesome-calendar-events'); ?></small>
+        </p>
         <?php
     }
 
@@ -338,56 +366,80 @@ class Awesome_Calendar_Events_Event_Meta {
             $ts = strtotime($date_raw);
             if ($ts) { $event_date = gmdate('Y-m-d', $ts); }
         }
-    // Enabled flag
-    $enabled = isset($_POST['icob_event_date_enabled']) ? 1 : 0;
-    update_post_meta($post_id, '_awecal_event_date_enabled', $enabled);
-    update_post_meta($post_id, '_awecal_event_date', $enabled ? $event_date : '');
+        // Enabled flag
+        $enabled = isset($_POST['icob_event_date_enabled']) ? 1 : 0;
+        update_post_meta($post_id, '_awecal_event_date_enabled', $enabled);
+        update_post_meta($post_id, '_awecal_event_date', $enabled ? $event_date : '');
 
-    $rec_type = isset($_POST['icob_event_recurrence_type']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_type'])) : 'none';
-        $valid_types = ['none','daily','weekly','monthly','yearly'];
-        if (!in_array($rec_type, $valid_types, true)) { $rec_type='none'; }
-    update_post_meta($post_id, '_awecal_event_recurrence_type', $enabled ? $rec_type : 'none');
+        $rec_type = isset($_POST['icob_event_recurrence_type']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_type'])) : 'none';
+            $valid_types = ['none','daily','weekly','monthly','yearly'];
+            if (!in_array($rec_type, $valid_types, true)) { $rec_type='none'; }
+        update_post_meta($post_id, '_awecal_event_recurrence_type', $enabled ? $rec_type : 'none');
 
-    $interval = isset($_POST['icob_event_recurrence_interval']) ? max(1, intval(wp_unslash($_POST['icob_event_recurrence_interval']))) : 1;
-    update_post_meta($post_id, '_awecal_event_recurrence_interval', $enabled ? $interval : 1);
+        $interval = isset($_POST['icob_event_recurrence_interval']) ? max(1, intval(wp_unslash($_POST['icob_event_recurrence_interval']))) : 1;
+        update_post_meta($post_id, '_awecal_event_recurrence_interval', $enabled ? $interval : 1);
 
-    $weekdays = isset($_POST['icob_event_recurrence_weekdays']) ? array_map('intval', (array)wp_unslash($_POST['icob_event_recurrence_weekdays'])) : [];
-    $weekdays = array_values(array_intersect($weekdays, range(0,6)));
-    sort($weekdays);
-    $weekday_string = '[' . implode(',', $weekdays) . ']';
-    update_post_meta($post_id, '_awecal_event_recurrence_weekdays', $enabled ? $weekday_string : '[]');
+        $weekdays = isset($_POST['icob_event_recurrence_weekdays']) ? array_map('intval', (array)wp_unslash($_POST['icob_event_recurrence_weekdays'])) : [];
+        $weekdays = array_values(array_intersect($weekdays, range(0,6)));
+        sort($weekdays);
+        $weekday_string = '[' . implode(',', $weekdays) . ']';
+        update_post_meta($post_id, '_awecal_event_recurrence_weekdays', $enabled ? $weekday_string : '[]');
 
-    $end_type = isset($_POST['icob_event_recurrence_end_type']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_end_type'])) : 'none';
-    if (!in_array($end_type, ['none','date','count'], true)) { $end_type='none'; }
-    update_post_meta($post_id, '_awecal_event_recurrence_end_type', $enabled ? $end_type : 'none');
+        $end_type = isset($_POST['icob_event_recurrence_end_type']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_end_type'])) : 'none';
+        if (!in_array($end_type, ['none','date','count'], true)) { $end_type='none'; }
+        update_post_meta($post_id, '_awecal_event_recurrence_end_type', $enabled ? $end_type : 'none');
 
-    $end_date = isset($_POST['icob_event_recurrence_end_date']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_end_date'])) : '';
-    update_post_meta($post_id, '_awecal_event_recurrence_end_date', ($enabled && $end_type==='date') ? $end_date : '');
+        $end_date = isset($_POST['icob_event_recurrence_end_date']) ? sanitize_text_field(wp_unslash($_POST['icob_event_recurrence_end_date'])) : '';
+        update_post_meta($post_id, '_awecal_event_recurrence_end_date', ($enabled && $end_type==='date') ? $end_date : '');
 
-    $count = isset($_POST['icob_event_recurrence_count']) ? intval(wp_unslash($_POST['icob_event_recurrence_count'])) : 0;
-    update_post_meta($post_id, '_awecal_event_recurrence_count', ($enabled && $end_type==='count') ? $count : 0);
+        $count = isset($_POST['icob_event_recurrence_count']) ? intval(wp_unslash($_POST['icob_event_recurrence_count'])) : 0;
+        update_post_meta($post_id, '_awecal_event_recurrence_count', ($enabled && $end_type==='count') ? $count : 0);
 
-    // Start time (HH:MM 24h)
-    $start_time = isset($_POST['icob_event_start_time']) ? trim(sanitize_text_field(wp_unslash($_POST['icob_event_start_time']))) : '';
-    if ($start_time && !preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $start_time)) { $start_time=''; }
-    update_post_meta($post_id, '_awecal_event_start_time', $enabled ? $start_time : '');
+        // Start time (HH:MM 24h)
+        $start_time = isset($_POST['icob_event_start_time']) ? trim(sanitize_text_field(wp_unslash($_POST['icob_event_start_time']))) : '';
+        if ($start_time && !preg_match('/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/', $start_time)) { $start_time=''; }
+        update_post_meta($post_id, '_awecal_event_start_time', $enabled ? $start_time : '');
 
-    // Custom time label
-    $custom_time_label = isset($_POST['icob_event_custom_time_label']) ? sanitize_text_field(wp_unslash($_POST['icob_event_custom_time_label'])) : '';
-    update_post_meta($post_id, '_awecal_event_custom_time_label', $enabled ? $custom_time_label : '');
+        // Custom time label
+        $custom_time_label = isset($_POST['icob_event_custom_time_label']) ? sanitize_text_field(wp_unslash($_POST['icob_event_custom_time_label'])) : '';
+        update_post_meta($post_id, '_awecal_event_custom_time_label', $enabled ? $custom_time_label : '');
 
-    // Duration hours (canonical) & sync legacy minutes
-    $duration_hours = isset($_POST['icob_event_duration_hours']) ? floatval(wp_unslash($_POST['icob_event_duration_hours'])) : 0;
-    if ($duration_hours < 0) { $duration_hours = 0; }
-    $duration_hours = $enabled ? $duration_hours : 0;
-    update_post_meta($post_id, '_awecal_event_duration_hours', $duration_hours);
-    // Keep legacy minutes updated for any older code referencing it.
-    $legacy_minutes = $duration_hours > 0 ? (int) round($duration_hours * 60) : 0;
-    update_post_meta($post_id, '_awecal_event_duration_minutes', $legacy_minutes);
+        // Duration hours (canonical) & sync legacy minutes
+        $duration_hours = isset($_POST['icob_event_duration_hours']) ? floatval(wp_unslash($_POST['icob_event_duration_hours'])) : 0;
+        if ($duration_hours < 0) { $duration_hours = 0; }
+        $duration_hours = $enabled ? $duration_hours : 0;
+        update_post_meta($post_id, '_awecal_event_duration_hours', $duration_hours);
+        // Keep legacy minutes updated for any older code referencing it.
+        $legacy_minutes = $duration_hours > 0 ? (int) round($duration_hours * 60) : 0;
+        update_post_meta($post_id, '_awecal_event_duration_minutes', $legacy_minutes);
 
-    // Location
-    $location = isset($_POST['icob_event_location']) ? sanitize_text_field(wp_unslash($_POST['icob_event_location'])) : '';
-    update_post_meta($post_id, '_awecal_event_location', $enabled ? $location : '');
+        // Location
+        $location = isset($_POST['icob_event_location']) ? sanitize_text_field(wp_unslash($_POST['icob_event_location'])) : '';
+        update_post_meta($post_id, '_awecal_event_location', $enabled ? $location : '');
+
+        // Announcement (independent of the event date enabled flag)
+        $announcement = isset($_POST['icob_announcement']) ? 1 : 0;
+        update_post_meta($post_id, '_awecal_announcement', $announcement);
+
+        $expiration_raw = isset($_POST['icob_announcement_expiration']) ? sanitize_text_field(wp_unslash($_POST['icob_announcement_expiration'])) : '';
+        $expiration = $announcement ? self::normalize_datetime_input($expiration_raw) : '';
+        update_post_meta($post_id, '_awecal_announcement_expiration', $expiration);
+    }
+
+    /**
+     * Normalize a user-supplied announcement expiration value to a
+     * site-local `Y-m-d H:i:s` string. Accepts datetime-local input
+     * (Y-m-d\TH:i), MySQL datetimes and plain dates. Returns '' for
+     * missing or unparseable values.
+     *
+     * @param mixed $val Raw input.
+     * @return string
+     */
+    public static function normalize_datetime_input($val) {
+        $val = trim((string) $val);
+        if ($val === '') { return ''; }
+        $ts = strtotime($val);
+        return $ts ? date('Y-m-d H:i:s', $ts) : '';
     }
 
     /**

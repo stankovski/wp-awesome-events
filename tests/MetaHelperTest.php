@@ -76,4 +76,58 @@ class MetaHelperTest extends TestCase {
         $this->assertContains('_awecal_event_date', $keys);
         $this->assertContains('_icob_event_date', $keys);
     }
+
+    public function test_date_range_meta_query_uses_between_for_full_range() {
+        $clause = awecal_event_date_range_meta_query('2030-01-01', '2030-12-31');
+        $this->assertSame('OR', $clause['relation']);
+        $inner = array_values(array_filter($clause, 'is_array'));
+        $this->assertCount(2, $inner);
+        foreach ($inner as $part) {
+            $this->assertSame(['2030-01-01', '2030-12-31'], $part['value']);
+            $this->assertSame('BETWEEN', $part['compare']);
+        }
+        $keys = array_column($inner, 'key');
+        $this->assertContains('_awecal_event_date', $keys);
+        $this->assertContains('_icob_event_date', $keys);
+    }
+
+    public function test_date_range_meta_query_from_only_uses_gte() {
+        $clause = awecal_event_date_range_meta_query('2030-01-01');
+        $inner = array_values(array_filter($clause, 'is_array'));
+        foreach ($inner as $part) {
+            $this->assertSame('2030-01-01', $part['value']);
+            $this->assertSame('>=', $part['compare']);
+        }
+    }
+
+    public function test_date_range_meta_query_to_only_uses_lte() {
+        $clause = awecal_event_date_range_meta_query('', '2030-12-31');
+        $inner = array_values(array_filter($clause, 'is_array'));
+        foreach ($inner as $part) {
+            $this->assertSame('2030-12-31', $part['value']);
+            $this->assertSame('<=', $part['compare']);
+        }
+    }
+
+    public function test_announcement_enabled_meta_query_matches_both_prefixes() {
+        $clause = awecal_event_announcement_enabled_meta_query();
+        $this->assertSame('OR', $clause['relation']);
+        $keys = array_column(array_filter($clause, 'is_array'), 'key');
+        $this->assertContains('_awecal_announcement', $keys);
+        $this->assertContains('_icob_announcement', $keys);
+    }
+
+    public function test_announcement_expiration_meta_query_matches_both_prefixes() {
+        $clause = awecal_event_announcement_expiration_meta_query('>=', '2030-01-01 00:00:00');
+        $this->assertSame('OR', $clause['relation']);
+        $inner = array_values(array_filter($clause, 'is_array'));
+        $this->assertCount(2, $inner);
+        $keys = array_column($inner, 'key');
+        $this->assertContains('_awecal_announcement_expiration', $keys);
+        $this->assertContains('_icob_announcement_expiration', $keys);
+        foreach ($inner as $part) {
+            $this->assertSame('>=', $part['compare']);
+            $this->assertSame('2030-01-01 00:00:00', $part['value']);
+        }
+    }
 }
