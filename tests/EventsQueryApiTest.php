@@ -100,16 +100,16 @@ class EventsQueryApiTest extends TestCase {
             private array $params;
             public function __construct(array $params) { $this->params = $params; }
             public function get_param($name) { return $this->params[$name] ?? null; }
+            public function get_params() { return $this->params; }
         };
     }
 
     public function test_build_query_args_base() {
         $args = $this->api->build_query_args($this->make_request([
             'per_page' => 50,
-            'page' => 2,
             'orderby' => 'event_date',
             'order' => 'desc',
-        ]));
+        ]), 2);
 
         $this->assertSame('post', $args['post_type']);
         $this->assertSame('publish', $args['post_status']);
@@ -121,6 +121,25 @@ class EventsQueryApiTest extends TestCase {
         $this->assertSame('AND', $args['meta_query']['relation']);
         $this->assertArrayNotHasKey('tax_query', $args);
         $this->assertArrayNotHasKey('s', $args);
+    }
+
+    public function test_build_query_args_includes_recurrence_end_date_clause() {
+        $args = $this->api->build_query_args($this->make_request([]));
+        $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
+        // [0] = enabled clause, [1] = recurrence-not-ended clause
+        $this->assertCount(2, $clauses);
+        $this->assertSame('AND', $clauses[1]['relation']);
+
+        $keys = [];
+        $compares = [];
+        array_walk_recursive($clauses[1], function($v, $k) use (&$keys, &$compares) {
+            if ($k === 'key') { $keys[] = $v; }
+            if ($k === 'compare') { $compares[] = $v; }
+        });
+        $this->assertContains('_awecal_event_recurrence_end_date', $keys);
+        $this->assertContains('_icob_event_recurrence_end_date', $keys);
+        $this->assertContains('NOT EXISTS', $compares);
+        $this->assertContains('>=', $compares);
     }
 
     public function test_build_query_args_date_range_uses_helper() {
@@ -139,8 +158,14 @@ class EventsQueryApiTest extends TestCase {
     public function test_build_query_args_no_date_filter_has_no_range_clause() {
         $args = $this->api->build_query_args($this->make_request([]));
         $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
-        $this->assertCount(1, $clauses);
+        // [0] = enabled clause, [1] = recurrence-not-ended clause; no date range.
+        $this->assertCount(2, $clauses);
         $this->assertSame('AND', $args['meta_query']['relation']);
+        $compares = [];
+        array_walk_recursive($args['meta_query'], function($v, $k) use (&$compares) {
+            if ($k === 'compare') { $compares[] = $v; }
+        });
+        $this->assertNotContains('BETWEEN', $compares);
     }
 
     public function test_build_query_args_taxonomy_filters() {

@@ -215,3 +215,43 @@ function awecal_event_announcement_expiration_meta_query($compare, $value) {
         ],
     ];
 }
+
+/**
+ * Meta query clause excluding posts whose recurrence has already ended
+ * on or before the given reference date.
+ *
+ * A post matches when, for BOTH meta keys (canonical and legacy), the
+ * recurrence end date is absent (NOT EXISTS) or is on/after the
+ * reference date. The per-key OR grouping is required because a plain
+ * value comparison only matches posts that actually have the meta key,
+ * which would wrongly exclude events without an end date.
+ *
+ * @param string $reference_date Y-m-d reference date.
+ * @return array
+ */
+function awecal_event_recurrence_not_ended_meta_query($reference_date) {
+    $canonical_key = awecal_meta_key('_icob_event_recurrence_end_date');
+    $legacy_key = AWECAL_LEGACY_META_PREFIX . substr($canonical_key, strlen(AWECAL_META_PREFIX));
+
+    $group_for = function($key) use ($reference_date) {
+        return [
+            'relation' => 'OR',
+            [
+                'key'     => $key,
+                'compare' => 'NOT EXISTS',
+            ],
+            [
+                'key'     => $key,
+                'value'   => $reference_date,
+                'compare' => '>=',
+                'type'    => 'CHAR',
+            ],
+        ];
+    };
+
+    return [
+        'relation' => 'AND',
+        $group_for($canonical_key),
+        $group_for($legacy_key),
+    ];
+}

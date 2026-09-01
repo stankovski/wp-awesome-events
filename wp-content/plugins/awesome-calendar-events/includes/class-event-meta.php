@@ -447,14 +447,55 @@ class Awesome_Calendar_Events_Event_Meta {
      * Returns null if no more upcoming occurrences.
      */
     public static function get_next_occurrence($post_id, $from_time = null) {
-    $enabled = awecal_get_post_meta($post_id, '_awecal_event_date_enabled', true);
-    if (!$enabled) { return null; }
         $from = $from_time ? strtotime($from_time) : current_time('timestamp');
+        $from_ymd = $from ? gmdate('Y-m-d', $from) : '';
+        if ($from_ymd === '') { return null; }
+        $occurrences = self::get_occurrences_between($post_id, $from_ymd, '9999-12-31', 1);
+        return $occurrences ? $occurrences[0] : null;
+    }
+
+    /**
+     * Enumerate occurrence dates (Y-m-d) of an event within an inclusive
+     * window, without expanding beyond it.
+     *
+     * Recurrence math mirrors the ICS RRULE mapping and the historical
+     * get_next_occurrence() behavior:
+     *  - occurrence #1 is always the original event date (even for weekly
+     *    recurrences whose weekday list does not include it),
+     *  - end conditions (date / count) are honored while enumerating,
+     *  - count-limited events enumerate from the original first occurrence,
+     *    so occurrences before the window still consume the COUNT budget.
+     *
+     * @param int    $post_id         Post ID.
+     * @param string $from            Inclusive window start (Y-m-d or parseable date).
+     * @param string $to              Inclusive window end.
+     * @param int    $limit           Max occurrences to materialize. Default 366.
+     * @param string $materialize_from Optional cursor (Y-m-d): occurrences before
+     *                                 this date are counted for end-condition
+     *                                 bookkeeping but not returned. Used by the
+     *                                 API's cursor pagination.
+     * @return string[] List of Y-m-d dates, ascending.
+     */
+    public static function get_occurrences_between($post_id, $from, $to, $limit = 366, $materialize_from = null) {
+        $limit = max(1, (int) $limit);
+        $from_ymd = self::normalize_ymd($from);
+        $to_ymd = self::normalize_ymd($to);
+        if ($from_ymd === '' || $to_ymd === '' || $from_ymd > $to_ymd) { return []; }
+
+        $enabled = awecal_get_post_meta($post_id, '_awecal_event_date_enabled', true);
+        if (!$enabled) { return []; }
+
         $event_date_raw = awecal_get_post_meta($post_id, '_awecal_event_date', true);
-        if (!$event_date_raw) { return null; }
-    // Treat stored date as local site date (midnight)
-    $start = strtotime(gmdate('Y-m-d', strtotime($event_date_raw)) . ' 00:00:00');
-        if ($start === false) { return null; }
+        if (!$event_date_raw) { return []; }
+        // Treat stored date as local site date (midnight)
+        $start = strtotime(gmdate('Y-m-d', strtotime($event_date_raw)) . ' 00:00:00');
+        if ($start === false) { return []; }
+
+        $from_ts = strtotime($from_ymd . ' 00:00:00');
+        $to_ts = strtotime($to_ymd . ' 23:59:59');
+        $mat_ymd = self::normalize_ymd($materialize_from);
+        $mat_ts = $mat_ymd !== '' ? strtotime($mat_ymd . ' 00:00:00') : $from_ts;
+        if ($mat_ts < $from_ts) { $mat_ts = $from_ts; }
 
         $type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_type', true) ?: 'none';
         $interval = max(1, intval(awecal_get_post_meta($post_id, '_awecal_event_recurrence_interval', true) ?: 1));
@@ -463,58 +504,129 @@ class Awesome_Calendar_Events_Event_Meta {
         $end_date = awecal_get_post_meta($post_id, '_awecal_event_recurrence_end_date', true);
         $count_limit = intval(awecal_get_post_meta($post_id, '_awecal_event_recurrence_count', true));
 
-        // If single event
+        $occurrences = [];
+        $occurrence = $start;
+        $occurrence_index = 1; // first occurrence is the original event date
+        $max_iterations = 5000; // safety
+        while ($max_iterations-- > 0) {
+            // End conditions (checked before including/advancing).
+            if ($end_type === 'count' && $count_limit > 0 && $occurrence_index > $count_limit) { break; }
+            if ($end_type === 'date' && $end_date && strtotime($end_date . ' 23:59:59') < $occurrence) { break; }
+            if ($occurrence > $to_ts) { break; }
+
+            if ($occurrence >= $mat_ts && count($occurrences) < $limit) {
+                $occurrences[] = gmdate('Y-m-d', $occurrence);
+            }
+            if (count($occurrences) >= $limit) { break; }
+
+            $next = self::advance_occurrence($occurrence, $type, $interval, $weekdays);
+            if ($next === false || $next <= $occurrence) { break; }
+            $occurrence = $next;
+            $occurrence_index++;
+        }
+        return $occurrences;
+    }
+
+    /**
+     * Advance an occurrence timestamp to the next one according to the
+     * recurrence pattern. Returns false when the pattern cannot advance.
+     *
+     * @param int    $occurrence Current occurrence timestamp (midnight).
+     * @param string $type       daily|weekly|monthly|yearly.
+     * @param int    $interval   Every N units.
+     * @param array  $weekdays   Monday=0..Sunday=6 (weekly only).
+     * @return int|false
+     */
+    private static function advance_occurrence($occurrence, $type, $interval, $weekdays) {
+        switch ($type) {
+            case 'daily':
+                return strtotime("+{$interval} day", $occurrence);
+            case 'weekly':
+                if (!empty($weekdays)) {
+                    // Move day by day until the next matching weekday (Mon=0..Sun=6).
+                    $next = strtotime('+1 day', $occurrence);
+                    for ($i = 0; $i < 14; $i++) {
+                        $w = (intval(gmdate('w', $next)) + 6) % 7; // Sunday(0)->6, Monday(1)->0, ...
+                        if (in_array($w, $weekdays, true)) { return $next; }
+                        $next = strtotime('+1 day', $next);
+                    }
+                    return false;
+                }
+                return strtotime("+{$interval} week", $occurrence);
+            case 'monthly':
+                return strtotime("+{$interval} month", $occurrence);
+            case 'yearly':
+                return strtotime("+{$interval} year", $occurrence);
+        }
+        return false;
+    }
+
+    /**
+     * Date (Y-m-d) of the last occurrence of an event, or null when the
+     * event has no finite end (unbounded recurrence).
+     *
+     * Derived analytically where possible:
+     *  - one-off events: the original event date,
+     *  - end_type=date: the recurrence end date,
+     *  - end_type=count: enumerated from the original first occurrence
+     *    (weekday-aware for weekly recurrences).
+     *
+     * @param int $post_id
+     * @return string|null
+     */
+    public static function get_last_occurrence_date($post_id) {
+        $enabled = awecal_get_post_meta($post_id, '_awecal_event_date_enabled', true);
+        if (!$enabled) { return null; }
+
+        $event_date_raw = awecal_get_post_meta($post_id, '_awecal_event_date', true);
+        if (!$event_date_raw) { return null; }
+
+        $type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_type', true) ?: 'none';
         if ($type === 'none') {
-            return ($start >= strtotime(gmdate('Y-m-d', $from) . ' 00:00:00')) ? gmdate('Y-m-d', $start) : null;
+            return self::normalize_ymd($event_date_raw) ?: null;
         }
 
-        $occurrence = $start;
-        $occurrence_index = 1; // first occurrence
-        $max_iterations = 1000; // safety
-        while ($max_iterations-- > 0) {
-            if ($occurrence >= strtotime(gmdate('Y-m-d', $from) . ' 00:00:00')) {
-                // Check end conditions
-                if ($end_type === 'date' && $end_date && strtotime($end_date.' 23:59:59') < $occurrence) { return null; }
-                if ($end_type === 'count' && $count_limit > 0 && $occurrence_index > $count_limit) { return null; }
-                return gmdate('Y-m-d', $occurrence);
-            }
-            // Advance occurrence
-            switch($type) {
-                case 'daily':
-                    $occurrence = strtotime("+{$interval} day", $occurrence);
-                    break;
-                case 'weekly':
-                    if (!empty($weekdays)) {
-                        // Move day by day until match weekday sequence
-                        $next = strtotime('+1 day', $occurrence);
-                        while(true) {
-                            // Convert PHP gmdate('w') (0=Sunday..6=Saturday) to Monday=0..Sunday=6 mapping
-                            $w = (intval(gmdate('w', $next)) + 6) % 7; // Sunday(0)->6, Monday(1)->0, ... Saturday(6)->5
-                            if (in_array($w, $weekdays, true)) { $occurrence_index++; $occurrence = strtotime(gmdate('Y-m-d', $next).' 00:00:00'); break; }
-                            $next = strtotime('+1 day', $next);
-                            // safety
-                            if ($next - $occurrence > 60*60*24*14) { break; }
-                        }
-                        continue 2;
-                    } else {
-                        $occurrence = strtotime("+{$interval} week", $occurrence);
-                    }
-                    break;
-                case 'monthly':
-                    $occurrence = strtotime("+{$interval} month", $occurrence);
-                    break;
-                case 'yearly':
-                    $occurrence = strtotime("+{$interval} year", $occurrence);
-                    break;
-                default:
-                    return null;
-            }
-            $occurrence_index++;
-            // End type checks mid-loop
-            if ($end_type === 'count' && $count_limit > 0 && $occurrence_index > $count_limit) { return null; }
-            if ($end_type === 'date' && $end_date && strtotime($end_date.' 23:59:59') < $occurrence) { return null; }
+        $end_type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_end_type', true) ?: 'none';
+        if ($end_type === 'date') {
+            $end_date = awecal_get_post_meta($post_id, '_awecal_event_recurrence_end_date', true);
+            return $end_date ? (self::normalize_ymd($end_date) ?: null) : null;
         }
-        return null; // fallback
+        if ($end_type !== 'count') {
+            return null;
+        }
+
+        $count_limit = intval(awecal_get_post_meta($post_id, '_awecal_event_recurrence_count', true));
+        if ($count_limit <= 0) { return null; } // 0/blank = unlimited
+
+        $interval = max(1, intval(awecal_get_post_meta($post_id, '_awecal_event_recurrence_interval', true) ?: 1));
+        $weekdays = self::get_weekdays($post_id);
+
+        $start = strtotime(gmdate('Y-m-d', strtotime($event_date_raw)) . ' 00:00:00');
+        if ($start === false) { return null; }
+
+        $occurrence = $start;
+        $index = 1;
+        $max_iterations = 5000; // safety
+        while ($index < $count_limit && $max_iterations-- > 0) {
+            $next = self::advance_occurrence($occurrence, $type, $interval, $weekdays);
+            if ($next === false || $next <= $occurrence) { return null; }
+            $occurrence = $next;
+            $index++;
+        }
+        return $index >= $count_limit ? gmdate('Y-m-d', $occurrence) : null;
+    }
+
+    /**
+     * Normalize a date-ish value to a Y-m-d string. '' when unparseable.
+     *
+     * @param mixed $val
+     * @return string
+     */
+    private static function normalize_ymd($val) {
+        $val = trim((string) $val);
+        if ($val === '') { return ''; }
+        $ts = strtotime($val);
+        return $ts ? gmdate('Y-m-d', $ts) : '';
     }
 
     /**

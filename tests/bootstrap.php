@@ -27,6 +27,8 @@ $GLOBALS['__awecal_registered_meta'] = []; // [meta_key] => args
 $GLOBALS['__awecal_posts'] = [];      // [post_id] => [title, content, excerpt]
 $GLOBALS['__awecal_options'] = [];    // option overrides
 $GLOBALS['__awecal_transients'] = []; // transient store
+$GLOBALS['__awecal_query_posts'] = []; // posts returned by the WP_Query stub
+$GLOBALS['__awecal_last_query_args'] = null; // args captured by the WP_Query stub
 
 date_default_timezone_set('UTC');
 
@@ -61,6 +63,78 @@ function awecal_test_reset_meta() {
     $GLOBALS['__awecal_meta'] = [];
     $GLOBALS['__awecal_registered_meta'] = [];
     $GLOBALS['__awecal_posts'] = [];
+    $GLOBALS['__awecal_options'] = [];
+    $GLOBALS['__awecal_transients'] = [];
+    $GLOBALS['__awecal_query_posts'] = [];
+    $GLOBALS['__awecal_last_query_args'] = null;
+    $GLOBALS['__awecal_filters'] = [];
+}
+
+/* -------------------------------------------------------------------------
+ * Error / REST / query stubs
+ * ---------------------------------------------------------------------- */
+
+class WP_Error {
+    public $code;
+    public $message;
+    public $data;
+    public function __construct($code = '', $message = '', $data = []) {
+        $this->code = $code;
+        $this->message = $message;
+        $this->data = $data;
+    }
+    public function get_error_code() { return $this->code; }
+    public function get_error_message() { return $this->message; }
+}
+
+function is_wp_error($thing) {
+    return $thing instanceof WP_Error;
+}
+
+class WP_REST_Server {
+    const READABLE = 'GET';
+}
+
+class AWECAL_Test_REST_Response {
+    public $data;
+    public $headers = [];
+    public function __construct($data) { $this->data = $data; }
+    public function header($name, $value) { $this->headers[$name] = $value; }
+}
+
+function rest_ensure_response($data) {
+    return new AWECAL_Test_REST_Response($data);
+}
+
+function wp_hash($data, $scheme = 'auth') {
+    return hash_hmac('md5', (string) $data, 'awecal-test-salt');
+}
+
+/**
+ * In-memory WP_Query stub: captures the args (so tests can assert the
+ * SQL-level meta_query / tax_query clauses) and returns the posts placed
+ * in $GLOBALS['__awecal_query_posts'], honoring posts_per_page/paged.
+ */
+class WP_Query {
+    public $posts = [];
+    public $found_posts = 0;
+    public $max_num_pages = 1;
+
+    public function __construct($args) {
+        $GLOBALS['__awecal_last_query_args'] = $args;
+        $all = array_values($GLOBALS['__awecal_query_posts']);
+        $per = isset($args['posts_per_page']) ? (int) $args['posts_per_page'] : 10;
+        if ($per < 1) { $per = max(1, count($all)); }
+        $page = max(1, (int) ($args['paged'] ?? 1));
+        $this->posts = array_slice($all, ($page - 1) * $per, $per);
+        if (!empty($args['no_found_rows'])) {
+            $this->found_posts = count($this->posts);
+            $this->max_num_pages = 1;
+        } else {
+            $this->found_posts = count($all);
+            $this->max_num_pages = max(1, (int) ceil(count($all) / $per));
+        }
+    }
 }
 
 /* -------------------------------------------------------------------------
@@ -102,8 +176,16 @@ function register_post_meta($post_type, $meta_key, $args) {
  * ---------------------------------------------------------------------- */
 
 function add_action($hook, $callback = null, $priority = 10, $args = 1) { return true; }
-function add_filter($hook, $callback = null, $priority = 10, $args = 1) { return true; }
-function apply_filters($hook, $value) { return $value; }
+function add_filter($hook, $callback = null, $priority = 10, $args = 1) {
+    $GLOBALS['__awecal_filters'][$hook][] = $callback;
+    return true;
+}
+function apply_filters($hook, $value) {
+    foreach ($GLOBALS['__awecal_filters'][$hook] ?? [] as $callback) {
+        $value = call_user_func($callback, $value);
+    }
+    return $value;
+}
 function register_activation_hook($file, $callback) { return true; }
 function register_deactivation_hook($file, $callback) { return true; }
 function current_user_can($cap, ...$args) { return true; }
