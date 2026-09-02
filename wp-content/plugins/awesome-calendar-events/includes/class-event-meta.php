@@ -19,7 +19,7 @@
  *  - _awecal_event_recurrence_end_type (string: none|date|count)
  *  - _awecal_event_recurrence_end_date (string: Y-m-d)
  *  - _awecal_event_recurrence_count (int: max number of occurrences)
- *  - _awecal_announcement (bool) marks the post as an announcement
+ *  - _awecal_announcement (string) announcement text; empty or missing = not an announcement
  *  - _awecal_announcement_expiration (string: Y-m-d H:i:s site-local) when the announcement stops being shown
  *
  * NOTE: Posts written before the `_awecal_` prefix migration store their meta
@@ -124,11 +124,12 @@ class Awesome_Calendar_Events_Event_Meta {
             'event_recurrence_end_type' => array_merge($meta_args_public, ['type' => 'string']),
             'event_recurrence_end_date' => array_merge($meta_args_public, ['type' => 'string']),
             'event_recurrence_count' => array_merge($meta_args_public, ['type' => 'integer']),
-            // Announcement flag (legacy sites store `_icob_announcement`; reads fall back via awecal_get_post_meta()).
+            // Announcement text (empty = not an announcement). Legacy sites store `_icob_announcement`
+            // boolean flags; reads fall back via awecal_get_post_meta().
             'announcement' => array_merge($meta_args_public, [
-                'type' => 'boolean',
-                'default' => false,
-                'sanitize_callback' => function($val){ return (bool)$val; }
+                'type' => 'string',
+                'default' => '',
+                'sanitize_callback' => function($val){ return sanitize_text_field((string)$val); }
             ]),
             // Announcement expiration (site-local datetime, empty = runs indefinitely).
             'announcement_expiration' => array_merge($meta_args_public, [
@@ -196,7 +197,7 @@ class Awesome_Calendar_Events_Event_Meta {
     }
     $duration_hours = floatval($duration_hours);
     $location = $this->get_meta($post->ID, '_awecal_event_location', '');
-    $announcement = (bool) $this->get_meta($post->ID, '_awecal_announcement', 0);
+    $announcement = (string) $this->get_meta($post->ID, '_awecal_announcement', '');
     $announcement_expiration = $this->get_meta($post->ID, '_awecal_announcement_expiration', '');
     // datetime-local inputs expect Y-m-d\TH:i
     $announcement_expiration_local = $announcement_expiration ? gmdate('Y-m-d\TH:i', strtotime($announcement_expiration)) : '';
@@ -277,8 +278,13 @@ class Awesome_Calendar_Events_Event_Meta {
         </div>
         <p>
             <label style="display:inline-flex;align-items:center;gap:4px;">
-                <input type="checkbox" id="icob_announcement" name="icob_announcement" value="1" <?php checked($announcement); ?> /> <?php esc_html_e('Announcement','awesome-calendar-events'); ?>
+                <input type="checkbox" id="icob_announcement" name="icob_announcement" value="1" <?php checked($announcement !== ''); ?> /> <?php esc_html_e('Announcement','awesome-calendar-events'); ?>
             </label>
+        </p>
+        <p id="icob_announcement_text_wrap" style="<?php echo $announcement === '' ? 'display:none;' : ''; ?>">
+            <label for="icob_announcement_text"><strong><?php esc_html_e('Announcement Text','awesome-calendar-events'); ?></strong></label>
+            <input type="text" id="icob_announcement_text" name="icob_announcement_text" value="<?php echo esc_attr($announcement); ?>" style="width:100%;" />
+            <small><?php esc_html_e('Shown while the announcement is active.', 'awesome-calendar-events'); ?></small>
         </p>
         <p id="icob_announcement_expiration_wrap">
             <label for="icob_announcement_expiration"><strong><?php esc_html_e('Announcement Ends','awesome-calendar-events'); ?></strong></label>
@@ -417,12 +423,15 @@ class Awesome_Calendar_Events_Event_Meta {
         $location = isset($_POST['icob_event_location']) ? sanitize_text_field(wp_unslash($_POST['icob_event_location'])) : '';
         update_post_meta($post_id, '_awecal_event_location', $enabled ? $location : '');
 
-        // Announcement (independent of the event date enabled flag)
-        $announcement = isset($_POST['icob_announcement']) ? 1 : 0;
+        // Announcement (independent of the event date enabled flag).
+        // The text field value populates _awecal_announcement; unchecked
+        // checkbox (or empty text) stores '' so the announcement is off.
+        $announcement_text = isset($_POST['icob_announcement_text']) ? sanitize_text_field(wp_unslash($_POST['icob_announcement_text'])) : '';
+        $announcement = isset($_POST['icob_announcement']) ? $announcement_text : '';
         update_post_meta($post_id, '_awecal_announcement', $announcement);
 
         $expiration_raw = isset($_POST['icob_announcement_expiration']) ? sanitize_text_field(wp_unslash($_POST['icob_announcement_expiration'])) : '';
-        $expiration = $announcement ? self::normalize_datetime_input($expiration_raw) : '';
+        $expiration = $announcement !== '' ? self::normalize_datetime_input($expiration_raw) : '';
         update_post_meta($post_id, '_awecal_announcement_expiration', $expiration);
     }
 

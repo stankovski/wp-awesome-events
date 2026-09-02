@@ -22,7 +22,7 @@ class EventsQueryApiTest extends TestCase {
             $this->assertArrayHasKey($key, $GLOBALS['__awecal_registered_meta'], "$key should be registered");
         }
 
-        $this->assertSame('boolean', $GLOBALS['__awecal_registered_meta']['_awecal_announcement']['type']);
+        $this->assertSame('string', $GLOBALS['__awecal_registered_meta']['_awecal_announcement']['type']);
         $this->assertSame('string', $GLOBALS['__awecal_registered_meta']['_awecal_announcement_expiration']['type']);
     }
 
@@ -31,19 +31,32 @@ class EventsQueryApiTest extends TestCase {
         $_POST = [
             'icob_event_meta_nonce' => 'nonce',
             'icob_announcement' => '1',
+            'icob_announcement_text' => 'Service moved to the main hall',
             'icob_announcement_expiration' => '2030-06-15T23:59',
         ];
 
         (new Awesome_Calendar_Events_Event_Meta())->save_meta($post_id);
 
-        $this->assertSame(1, get_post_meta($post_id, '_awecal_announcement', true));
+        $this->assertSame('Service moved to the main hall', get_post_meta($post_id, '_awecal_announcement', true));
         $this->assertSame('2030-06-15 23:59:00', get_post_meta($post_id, '_awecal_announcement_expiration', true));
         $this->assertArrayNotHasKey('_icob_announcement', $GLOBALS['__awecal_meta'][$post_id]);
     }
 
+    public function test_save_meta_stores_empty_string_when_checked_without_text() {
+        $post_id = 12;
+        $_POST = [
+            'icob_event_meta_nonce' => 'nonce',
+            'icob_announcement' => '1',
+        ];
+
+        (new Awesome_Calendar_Events_Event_Meta())->save_meta($post_id);
+
+        $this->assertSame('', get_post_meta($post_id, '_awecal_announcement', true));
+    }
+
     public function test_save_meta_clears_expiration_when_unchecked() {
         $post_id = 11;
-        update_post_meta($post_id, '_awecal_announcement', 1);
+        update_post_meta($post_id, '_awecal_announcement', 'Pool closed on Friday');
         update_post_meta($post_id, '_awecal_announcement_expiration', '2030-06-15 23:59:00');
 
         $_POST = [
@@ -53,7 +66,7 @@ class EventsQueryApiTest extends TestCase {
 
         (new Awesome_Calendar_Events_Event_Meta())->save_meta($post_id);
 
-        $this->assertSame(0, get_post_meta($post_id, '_awecal_announcement', true));
+        $this->assertSame('', get_post_meta($post_id, '_awecal_announcement', true));
         $this->assertSame('', get_post_meta($post_id, '_awecal_announcement_expiration', true));
     }
 
@@ -262,8 +275,8 @@ class EventsQueryApiTest extends TestCase {
         $post = awecal_test_create_post(4, 'Migrated Announcement');
         update_post_meta(4, '_icob_announcement', '1');
         update_post_meta(4, '_icob_announcement_expiration', '2020-01-01 00:00:00');
-        // Post-migration save stores canonical keys (empty expiration clears legacy value).
-        update_post_meta(4, '_awecal_announcement', 0);
+        // Post-migration save stores canonical keys (empty = not an announcement).
+        update_post_meta(4, '_awecal_announcement', '');
         update_post_meta(4, '_awecal_announcement_expiration', '');
 
         $item = Awesome_Calendar_Events_Events_Query_API::prepare_item($post);

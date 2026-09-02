@@ -112,9 +112,23 @@ class MetaHelperTest extends TestCase {
     public function test_announcement_enabled_meta_query_matches_both_prefixes() {
         $clause = awecal_event_announcement_enabled_meta_query();
         $this->assertSame('OR', $clause['relation']);
-        $keys = array_column(array_filter($clause, 'is_array'), 'key');
+        // Each prefix branch is a nested AND group of non-empty comparisons.
+        $this->assertSame('AND', $clause[0]['relation']);
+        $this->assertSame('AND', $clause[1]['relation']);
+        // Collect keys recursively.
+        $keys = [];
+        array_walk_recursive($clause, function($value, $key) use (&$keys) {
+            if ($key === 'key') {
+                $keys[] = $value;
+            }
+        });
         $this->assertContains('_awecal_announcement', $keys);
         $this->assertContains('_icob_announcement', $keys);
+        $this->assertCount(4, $keys);
+        foreach ($keys as $key) {
+            $this->assertSame('', $clause[$key === '_icob_announcement' ? 1 : 0][0]['value']);
+            $this->assertSame('!=', $clause[$key === '_icob_announcement' ? 1 : 0][0]['compare']);
+        }
     }
 
     public function test_announcement_expiration_meta_query_matches_both_prefixes() {
@@ -129,5 +143,39 @@ class MetaHelperTest extends TestCase {
             $this->assertSame('>=', $part['compare']);
             $this->assertSame('2030-01-01 00:00:00', $part['value']);
         }
+    }
+
+    public function test_recurrence_not_ended_meta_query_treats_empty_end_date_as_open() {
+        // The metabox stores '' (not an absent key) when no end date is set;
+        // the clause must match those rows, not only missing keys.
+        $clause = awecal_event_recurrence_not_ended_meta_query('2030-01-01');
+
+        $keys = [];
+        array_walk_recursive($clause, function($value, $key) use (&$keys) {
+            if ($key === 'key') {
+                $keys[] = $value;
+            }
+        });
+        $this->assertContains('_awecal_event_recurrence_end_date', $keys);
+        $this->assertContains('_icob_event_recurrence_end_date', $keys);
+
+        $compares = [];
+        array_walk_recursive($clause, function($value, $key) use (&$compares) {
+            if ($key === 'compare') {
+                $compares[] = $value;
+            }
+        });
+        $this->assertContains('NOT EXISTS', $compares);
+        $this->assertContains('=', $compares);
+        $this->assertContains('>=', $compares);
+
+        $values = [];
+        array_walk_recursive($clause, function($value, $key) use (&$values) {
+            if ($key === 'value') {
+                $values[] = $value;
+            }
+        });
+        $this->assertContains('', $values);
+        $this->assertContains('2030-01-01', $values);
     }
 }

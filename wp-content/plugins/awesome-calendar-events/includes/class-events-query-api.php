@@ -654,13 +654,17 @@ class Awesome_Calendar_Events_Events_Query_API {
     public static function prepare_item($post, $include_details = false) {
         $post_id = is_object($post) && isset($post->ID) ? (int) $post->ID : (int) $post;
 
+        // Announcement meta is a string; empty (or legacy '0') = not an announcement.
+        $announcement = (string) awecal_get_post_meta($post_id, '_awecal_announcement', true);
+        $has_announcement = $announcement !== '' && $announcement !== '0';
+
         $item = [
             'postId' => $post_id,
             'title' => get_the_title($post),
             'snippet' => self::get_snippet($post),
             'url' => get_permalink($post),
             'publishedAt' => self::get_published_at($post),
-            'announcement' => (bool) awecal_get_post_meta($post_id, '_awecal_announcement', true),
+            'announcement' => $has_announcement,
             'announcementEndDateTime' => self::normalize_expiration(
                 awecal_get_post_meta($post_id, '_awecal_announcement_expiration', true)
             ),

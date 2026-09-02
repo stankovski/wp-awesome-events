@@ -170,21 +170,39 @@ function awecal_event_date_range_meta_query($from = '', $to = '') {
  * Meta query clause matching posts flagged as announcements,
  * regardless of which prefix their meta was stored under.
  *
+ * Announcement meta is a non-empty text string. Legacy boolean storage
+ * wrote '1'/'0', so '0' is excluded as well. Value comparisons only
+ * match posts that actually carry the key; a missing key means the post
+ * is not an announcement.
+ *
  * @return array
  */
 function awecal_event_announcement_enabled_meta_query() {
+    $non_empty_clause = static function ($key) {
+        return [
+            'relation' => 'AND',
+            [
+                'key'     => $key,
+                'value'   => '',
+                'compare' => '!=',
+                'type'    => 'CHAR',
+            ],
+            [
+                'key'     => $key,
+                'value'   => '0',
+                'compare' => '!=',
+                'type'    => 'CHAR',
+            ],
+        ];
+    };
+
+    $canonical_key = awecal_meta_key('_icob_announcement');
+    $legacy_key = AWECAL_LEGACY_META_PREFIX . substr($canonical_key, strlen(AWECAL_META_PREFIX));
+
     return [
         'relation' => 'OR',
-        [
-            'key'     => awecal_meta_key('_icob_announcement'),
-            'value'   => '1',
-            'compare' => '=',
-        ],
-        [
-            'key'     => '_icob_announcement',
-            'value'   => '1',
-            'compare' => '=',
-        ],
+        $non_empty_clause($canonical_key),
+        $non_empty_clause($legacy_key),
     ];
 }
 
@@ -221,10 +239,11 @@ function awecal_event_announcement_expiration_meta_query($compare, $value) {
  * on or before the given reference date.
  *
  * A post matches when, for BOTH meta keys (canonical and legacy), the
- * recurrence end date is absent (NOT EXISTS) or is on/after the
- * reference date. The per-key OR grouping is required because a plain
- * value comparison only matches posts that actually have the meta key,
- * which would wrongly exclude events without an end date.
+ * recurrence end date is absent (NOT EXISTS), empty (the metabox stores
+ * '' when no end date is set), or is on/after the reference date. The
+ * per-key OR grouping is required because a plain value comparison only
+ * matches posts that actually have the meta key, which would wrongly
+ * exclude events without an end date.
  *
  * @param string $reference_date Y-m-d reference date.
  * @return array
@@ -239,6 +258,11 @@ function awecal_event_recurrence_not_ended_meta_query($reference_date) {
             [
                 'key'     => $key,
                 'compare' => 'NOT EXISTS',
+            ],
+            [
+                'key'     => $key,
+                'value'   => '',
+                'compare' => '=',
             ],
             [
                 'key'     => $key,

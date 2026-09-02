@@ -1,5 +1,5 @@
 (function () {
-	function init() {
+	function initRecurrence() {
 		var recSel = document.getElementById('icob_event_recurrence_type');
 		var weekdays = document.getElementById('icob_event_weekdays');
 		var endSel = document.getElementById('icob_event_recurrence_end_type');
@@ -29,6 +29,27 @@
 		endSel.addEventListener('change', update);
 		enabledCb.addEventListener('change', update);
 		update();
+	}
+
+	function initAnnouncement() {
+		var annCb = document.getElementById('icob_announcement');
+		var annTextWrap = document.getElementById('icob_announcement_text_wrap');
+
+		if (!annCb || !annTextWrap) {
+			return;
+		}
+
+		function update() {
+			annTextWrap.style.display = annCb.checked ? '' : 'none';
+		}
+
+		annCb.addEventListener('change', update);
+		update();
+	}
+
+	function init() {
+		initRecurrence();
+		initAnnouncement();
 	}
 
 	if (document.readyState === 'loading') {
