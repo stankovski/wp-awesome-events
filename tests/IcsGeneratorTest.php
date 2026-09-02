@@ -13,9 +13,9 @@ class IcsGeneratorTest extends TestCase {
 
     public function test_generate_calendar_wraps_events_in_vcalendar() {
         $post = $this->make_post(50);
-        update_post_meta(50, '_icob_event_date_enabled', 1);
-        update_post_meta(50, '_icob_event_date', '2030-06-15');
-        update_post_meta(50, '_icob_event_recurrence_type', 'none');
+        update_post_meta(50, '_awecal_event_date_enabled', 1);
+        update_post_meta(50, '_awecal_event_date', '2030-06-15');
+        update_post_meta(50, '_awecal_event_recurrence_type', 'none');
 
         $ics = (new Awesome_Calendar_Events_ICS_Generator())->generate_calendar([$post]);
 
@@ -48,10 +48,10 @@ class IcsGeneratorTest extends TestCase {
 
     public function test_escapes_special_characters_in_location() {
         $post = $this->make_post(53);
-        update_post_meta(53, '_icob_event_date_enabled', 1);
-        update_post_meta(53, '_icob_event_date', '2030-06-15');
-        update_post_meta(53, '_icob_event_recurrence_type', 'none');
-        update_post_meta(53, '_icob_event_location', "Hall A, room 2; level \"B\"\nline two");
+        update_post_meta(53, '_awecal_event_date_enabled', 1);
+        update_post_meta(53, '_awecal_event_date', '2030-06-15');
+        update_post_meta(53, '_awecal_event_recurrence_type', 'none');
+        update_post_meta(53, '_awecal_event_location', "Hall A, room 2; level \"B\"\nline two");
 
         $ics = (new Awesome_Calendar_Events_ICS_Generator())->generate_calendar([$post]);
 
@@ -62,8 +62,8 @@ class IcsGeneratorTest extends TestCase {
 
     public function test_recurrence_rule_for_weekly_with_weekdays() {
         $post_id = 54;
-        update_post_meta($post_id, '_icob_event_recurrence_type', 'weekly');
-        update_post_meta($post_id, '_icob_event_recurrence_weekdays', '[0,5]');
+        update_post_meta($post_id, '_awecal_event_recurrence_type', 'weekly');
+        update_post_meta($post_id, '_awecal_event_recurrence_weekdays', '[0,5]');
 
         $rule = (new Awesome_Calendar_Events_ICS_Generator())->get_recurrence_rule($post_id);
 
@@ -72,10 +72,10 @@ class IcsGeneratorTest extends TestCase {
 
     public function test_recurrence_rule_with_interval_and_count() {
         $post_id = 55;
-        update_post_meta($post_id, '_icob_event_recurrence_type', 'daily');
-        update_post_meta($post_id, '_icob_event_recurrence_interval', 2);
-        update_post_meta($post_id, '_icob_event_recurrence_end_type', 'count');
-        update_post_meta($post_id, '_icob_event_recurrence_count', 5);
+        update_post_meta($post_id, '_awecal_event_recurrence_type', 'daily');
+        update_post_meta($post_id, '_awecal_event_recurrence_interval', 2);
+        update_post_meta($post_id, '_awecal_event_recurrence_end_type', 'count');
+        update_post_meta($post_id, '_awecal_event_recurrence_count', 5);
 
         $rule = (new Awesome_Calendar_Events_ICS_Generator())->get_recurrence_rule($post_id);
 
@@ -94,17 +94,17 @@ class IcsGeneratorTest extends TestCase {
 
     public function test_recurrence_rule_null_for_non_recurring() {
         $post_id = 57;
-        update_post_meta($post_id, '_icob_event_recurrence_type', 'none');
+        update_post_meta($post_id, '_awecal_event_recurrence_type', 'none');
 
         $this->assertNull((new Awesome_Calendar_Events_ICS_Generator())->get_recurrence_rule($post_id));
     }
 
     public function test_all_day_event_with_duration_spanning_days() {
         $post = $this->make_post(58);
-        update_post_meta(58, '_icob_event_date_enabled', 1);
-        update_post_meta(58, '_icob_event_date', '2030-06-15');
-        update_post_meta(58, '_icob_event_recurrence_type', 'none');
-        update_post_meta(58, '_icob_event_duration_hours', 36);
+        update_post_meta(58, '_awecal_event_date_enabled', 1);
+        update_post_meta(58, '_awecal_event_date', '2030-06-15');
+        update_post_meta(58, '_awecal_event_recurrence_type', 'none');
+        update_post_meta(58, '_awecal_event_duration_hours', 36);
 
         $ics = (new Awesome_Calendar_Events_ICS_Generator())->generate_calendar([$post]);
 

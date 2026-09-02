@@ -23,11 +23,11 @@
  *  - _awecal_announcement_expiration (string: Y-m-d H:i:s site-local) when the announcement stops being shown
  *
  * NOTE: Posts written before the `_awecal_` prefix migration store their meta
- * under the historical prefix. Those keys are still registered (read-only for
- * REST consumers). All reads go through awecal_get_post_meta()
- * (see class-meta-helper.php), which is the single place aware of the legacy
- * prefix and transparently falls back to legacy data so existing posts, REST
- * consumers, and ICS feeds keep working.
+ * under the historical `_icob_` prefix. Those rows are renamed to the
+ * canonical prefix by the one-time migration
+ * (Awesome_Calendar_Events_Meta_Migration, see class-meta-migration.php),
+ * which reuses the save-time normalization rules. All reads go through
+ * awecal_get_post_meta() (see class-meta-helper.php).
  */
 
 if (!defined('ABSPATH')) { exit; }
@@ -124,8 +124,8 @@ class Awesome_Calendar_Events_Event_Meta {
             'event_recurrence_end_type' => array_merge($meta_args_public, ['type' => 'string']),
             'event_recurrence_end_date' => array_merge($meta_args_public, ['type' => 'string']),
             'event_recurrence_count' => array_merge($meta_args_public, ['type' => 'integer']),
-            // Announcement text (empty = not an announcement). Legacy sites store `_icob_announcement`
-            // boolean flags; reads fall back via awecal_get_post_meta().
+            // Announcement text (empty = not an announcement). Sites upgrading
+            // from the legacy boolean announcement flag are migrated on install.
             'announcement' => array_merge($meta_args_public, [
                 'type' => 'string',
                 'default' => '',
@@ -140,10 +140,7 @@ class Awesome_Calendar_Events_Event_Meta {
         ];
 
         foreach ($meta_defs as $suffix => $args) {
-            // Canonical key written by this plugin for new/updated posts.
             register_post_meta('post', AWECAL_META_PREFIX . $suffix, $args);
-            // Legacy key kept registered so existing posts stay exposed in REST.
-            register_post_meta('post', AWECAL_LEGACY_META_PREFIX . $suffix, $args);
         }
     }
 

@@ -36,6 +36,10 @@ if (!defined('HOUR_IN_SECONDS')) {
     define('HOUR_IN_SECONDS', 3600);
 }
 
+if (!defined('ARRAY_A')) {
+    define('ARRAY_A', 'ARRAY_A');
+}
+
 /* -------------------------------------------------------------------------
  * Test helpers
  * ---------------------------------------------------------------------- */
@@ -338,6 +342,14 @@ function wp_json_encode($data, $flags = 0) {
     return json_encode($data, $flags);
 }
 
+function maybe_unserialize($value) {
+    if (is_string($value)) {
+        $unserialized = @unserialize($value);
+        return $unserialized === false && $value !== 'b:0;' ? $value : $unserialized;
+    }
+    return $value;
+}
+
 /* -------------------------------------------------------------------------
  * Load plugin includes (read-only)
  * ---------------------------------------------------------------------- */
@@ -347,6 +359,7 @@ $plugin_includes = [
     'includes/class-event-meta.php',
     'includes/class-ics-generator.php',
     'includes/class-events-query-api.php',
+    'includes/class-meta-migration.php',
 ];
 
 foreach ($plugin_includes as $relative) {

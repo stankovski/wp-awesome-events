@@ -14,12 +14,16 @@ class EventsQueryApiTest extends TestCase {
      * Announcement meta registration & saving
      * ------------------------------------------------------------------ */
 
-    public function test_announcement_meta_registered_for_both_prefixes() {
+    public function test_announcement_meta_registered_for_canonical_prefix() {
         $meta = new Awesome_Calendar_Events_Event_Meta();
         $meta->register_meta();
 
-        foreach (['_awecal_announcement', '_icob_announcement', '_awecal_announcement_expiration', '_icob_announcement_expiration'] as $key) {
+        foreach (['_awecal_announcement', '_awecal_announcement_expiration'] as $key) {
             $this->assertArrayHasKey($key, $GLOBALS['__awecal_registered_meta'], "$key should be registered");
+        }
+
+        foreach (['_icob_announcement', '_icob_announcement_expiration'] as $key) {
+            $this->assertArrayNotHasKey($key, $GLOBALS['__awecal_registered_meta'], "$key should not be registered");
         }
 
         $this->assertSame('string', $GLOBALS['__awecal_registered_meta']['_awecal_announcement']['type']);
@@ -141,7 +145,7 @@ class EventsQueryApiTest extends TestCase {
         $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
         // [0] = enabled clause, [1] = recurrence-not-ended clause
         $this->assertCount(2, $clauses);
-        $this->assertSame('AND', $clauses[1]['relation']);
+        $this->assertSame('OR', $clauses[1]['relation']);
 
         $keys = [];
         $compares = [];
@@ -150,7 +154,7 @@ class EventsQueryApiTest extends TestCase {
             if ($k === 'compare') { $compares[] = $v; }
         });
         $this->assertContains('_awecal_event_recurrence_end_date', $keys);
-        $this->assertContains('_icob_event_recurrence_end_date', $keys);
+        $this->assertNotContains('_icob_event_recurrence_end_date', $keys);
         $this->assertContains('NOT EXISTS', $compares);
         $this->assertContains('>=', $compares);
     }
@@ -162,10 +166,9 @@ class EventsQueryApiTest extends TestCase {
         ]));
 
         $range = $args['meta_query'][1];
-        $this->assertSame('OR', $range['relation']);
-        $keys = array_column(array_filter($range, 'is_array'), 'key');
-        $this->assertContains('_awecal_event_date', $keys);
-        $this->assertContains('_icob_event_date', $keys);
+        $this->assertSame('_awecal_event_date', $range['key']);
+        $this->assertSame('BETWEEN', $range['compare']);
+        $this->assertArrayNotHasKey('relation', $range);
     }
 
     public function test_build_query_args_no_date_filter_has_no_range_clause() {
@@ -259,30 +262,15 @@ class EventsQueryApiTest extends TestCase {
         $this->assertSame('FREQ=WEEKLY;BYDAY=FR', $item['event']['recurrenceRule']);
     }
 
-    public function test_prepare_item_reads_legacy_announcement_meta() {
-        $post = awecal_test_create_post(3, 'Legacy Announcement');
-        // Pre-migration post with legacy `_icob_` keys only.
-        update_post_meta(3, '_icob_announcement', '1');
-        update_post_meta(3, '_icob_announcement_expiration', '2026-09-10 23:59:00');
+    public function test_prepare_item_reads_canonical_announcement_meta() {
+        $post = awecal_test_create_post(3, 'Announcement');
+        update_post_meta(3, '_awecal_announcement', 'Pool closed on Friday');
+        update_post_meta(3, '_awecal_announcement_expiration', '2026-09-10 23:59:00');
 
         $item = Awesome_Calendar_Events_Events_Query_API::prepare_item($post);
 
         $this->assertTrue($item['announcement']);
         $this->assertSame('2026-09-10T23:59:00+00:00', $item['announcementEndDateTime']);
-    }
-
-    public function test_prepare_item_canonical_announcement_wins_over_legacy() {
-        $post = awecal_test_create_post(4, 'Migrated Announcement');
-        update_post_meta(4, '_icob_announcement', '1');
-        update_post_meta(4, '_icob_announcement_expiration', '2020-01-01 00:00:00');
-        // Post-migration save stores canonical keys (empty = not an announcement).
-        update_post_meta(4, '_awecal_announcement', '');
-        update_post_meta(4, '_awecal_announcement_expiration', '');
-
-        $item = Awesome_Calendar_Events_Events_Query_API::prepare_item($post);
-
-        $this->assertFalse($item['announcement']);
-        $this->assertNull($item['announcementEndDateTime']);
     }
 
     public function test_prepare_item_event_null_when_not_enabled() {

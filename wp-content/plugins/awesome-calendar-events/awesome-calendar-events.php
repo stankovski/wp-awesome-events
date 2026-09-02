@@ -67,6 +67,11 @@ class Awesome_Calendar_Events_Plugin {
         // Ensure rewrite rules (e.g. /events.ics) survive DB restores or
         // updates that bypass the activation hook.
         add_action('admin_init', array($this, 'maybe_flush_rewrite_rules'));
+
+        // Rename legacy `_icob_` meta to the canonical `_awecal_` prefix.
+        // Runs on activation and once per version via admin_init so DB
+        // restores or file-level updates are also migrated.
+        add_action('admin_init', array($this, 'maybe_migrate_legacy_meta'));
     }
 
     /**
@@ -105,6 +110,8 @@ class Awesome_Calendar_Events_Plugin {
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-add-to-calendar-button.php';
         // Advanced Query Loop dynamic date placeholders
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/aql-dynamic-date.php';
+        // One-time legacy `_icob_` meta migration
+        require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-meta-migration.php';
     }
 
     /**
@@ -156,6 +163,7 @@ class Awesome_Calendar_Events_Plugin {
      * Plugin activation
      */
     public function activate() {
+        $this->maybe_migrate_legacy_meta();
         flush_rewrite_rules();
     }
 
@@ -170,6 +178,14 @@ class Awesome_Calendar_Events_Plugin {
             flush_rewrite_rules();
             update_option('awesome_calendar_events_rewrite_version', AWESOME_CALENDAR_EVENTS_VERSION);
         }
+    }
+
+    /**
+     * Rename legacy `_icob_` prefixed post meta to the canonical `_awecal_`
+     * prefix once per plugin version.
+     */
+    public function maybe_migrate_legacy_meta() {
+        Awesome_Calendar_Events_Meta_Migration::maybe_migrate();
     }
 
     /**

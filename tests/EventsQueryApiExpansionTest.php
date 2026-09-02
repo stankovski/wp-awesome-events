@@ -64,10 +64,8 @@ class EventsQueryApiExpansionTest extends TestCase {
 
     public function test_not_ended_meta_query_structure() {
         $clause = awecal_event_recurrence_not_ended_meta_query('2030-01-01');
-        $this->assertSame('AND', $clause['relation']);
-
-        $groups = array_values(array_filter($clause, 'is_array'));
-        $this->assertCount(2, $groups); // canonical group + legacy group
+        $this->assertSame('OR', $clause['relation']);
+        $this->assertCount(3, array_filter($clause, 'is_array'));
 
         $keys = [];
         $compares = [];
@@ -76,11 +74,11 @@ class EventsQueryApiExpansionTest extends TestCase {
             if ($k === 'compare') { $compares[] = $v; }
         });
         $this->assertContains('_awecal_event_recurrence_end_date', $keys);
-        $this->assertContains('_icob_event_recurrence_end_date', $keys);
-        // Each key gets a NOT EXISTS and a >= branch so events without an
+        $this->assertNotContains('_icob_event_recurrence_end_date', $keys);
+        // A NOT EXISTS and a >= branch so events without an
         // end date are not excluded.
-        $this->assertSame(2, count(array_keys($compares, 'NOT EXISTS')));
-        $this->assertSame(2, count(array_keys($compares, '>=')));
+        $this->assertSame(1, count(array_keys($compares, 'NOT EXISTS')));
+        $this->assertSame(1, count(array_keys($compares, '>=')));
     }
 
     public function test_expanded_query_uses_window_from_as_end_date_reference() {

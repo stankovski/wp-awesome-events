@@ -6,8 +6,7 @@
  *
  * Designed for 3rd party plugins to query posts that carry event data,
  * filtered by category, tags and datetime. Posts are matched on the
- * original event date stored in meta (`_awecal_event_date` / legacy
- * `_icob_event_date`).
+ * original event date stored in meta (`_awecal_event_date`).
  *
  * Modes:
  *  - Collapsed (default, `expand_recurring=false`): recurring events are
@@ -21,7 +20,7 @@
  *    sorted by occurrence date. One-off events become single instances.
  *
  * Stale events are excluded in both modes via the recurrence end date
- * (SQL, `_awecal_event_recurrence_end_date` / legacy key) and the
+ * (SQL, `_awecal_event_recurrence_end_date`) and the
  * recurrence occurrence count (in memory, via
  * Awesome_Calendar_Events_Event_Meta::get_last_occurrence_date()).
  *
@@ -36,7 +35,7 @@
  *  - Only `publish` status posts are ever returned.
  *  - Every parameter is validated/sanitized via the REST args schema;
  *    queries are built exclusively through the awecal_* meta query
- *    helpers (legacy + canonical prefix aware) and WP_Query. No raw SQL.
+ *    helpers and WP_Query. No raw SQL.
  *  - Permission callback defaults to public read (parity with the public
  *    ICS feeds); sites can lock the route down via the
  *    `awesome_calendar_events_api_permission_callback` filter.
@@ -552,10 +551,9 @@ class Awesome_Calendar_Events_Events_Query_API {
             ];
 
             if ($orderby === 'event_date') {
-                // Y-m-d strings sort correctly as meta_value. Sorting covers the
-                // canonical key; posts that only carry legacy meta may sort last.
+                // Y-m-d strings sort correctly as meta_value.
                 // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Sorting by the canonical event date meta key is required for event_date ordering.
-                $args['meta_key'] = awecal_meta_key('_icob_event_date');
+                $args['meta_key'] = AWECAL_META_PREFIX . 'event_date';
                 $args['orderby'] = 'meta_value';
                 $args['meta_type'] = 'CHAR';
             } else {
