@@ -22,10 +22,19 @@ if (!class_exists('wpdb')) {
             return vsprintf(str_replace(['%s', '%d'], ["'" . '%s' . "'", '%d'], $query), array_map('strval', $args));
         }
 
-        public function get_results($query, $output = null) {
-            if (!preg_match("/LIKE '([^']*)'/", $query, $m)) {
-                return [];
-            }
+    public function get_results($query, $output = null) {
+        return $this->match_like($query);
+    }
+
+    public function get_var($query) {
+        $matched = $this->match_like($query);
+        return $matched ? $matched[0]['meta_key'] : null;
+    }
+
+    private function match_like($query) {
+        if (!preg_match("/LIKE '([^']*)'/", $query, $m)) {
+            return [];
+        }
             // Unescape the esc_like() output (\% -> literal percent, \_ ->
             // literal underscore); remaining unescaped % are LIKE wildcards.
             $like = str_replace('\\%', '@@LIT@@', $m[1]);
@@ -133,16 +142,21 @@ class MetaMigrationTest extends TestCase {
         $this->assertSame('2030-06-15', get_post_meta(1300, '_awecal_event_date', true));
     }
 
-    public function test_maybe_migrate_runs_once_per_version() {
+    public function test_maybe_migrate_self_heals_when_legacy_rows_reappear() {
         $this->add_row(1, 10, '_icob_event_date', '2030-06-15');
 
         $this->assertSame(1, Awesome_Calendar_Events_Meta_Migration::maybe_migrate());
         $this->assertSame(AWESOME_CALENDAR_EVENTS_VERSION, get_option(Awesome_Calendar_Events_Meta_Migration::MIGRATION_OPTION));
 
-        // Second call: option already matches, no-op.
-        $this->add_row(2, 11, '_icob_event_date', '2030-06-15');
+        // Marker matches, no legacy rows: no-op.
         $this->assertSame(0, Awesome_Calendar_Events_Meta_Migration::maybe_migrate());
-        $this->assertSame('', get_post_meta(11, '_awecal_event_date', true));
+
+        // Legacy rows appearing after the marker was set (e.g. a DB restore
+        // or late seeding) are still migrated despite the matching marker.
+        $this->add_row(2, 11, '_icob_event_date', '2030-06-15');
+        $this->assertSame(1, Awesome_Calendar_Events_Meta_Migration::maybe_migrate());
+        $this->assertSame('2030-06-15', get_post_meta(11, '_awecal_event_date', true));
+        $this->assertCount(0, $this->wpdb->rows);
     }
 
     public function test_unknown_suffixes_are_copied_verbatim() {

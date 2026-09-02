@@ -29,8 +29,20 @@ class Awesome_Calendar_Events_Meta_Migration {
      * @return int Number of meta rows renamed (0 when already migrated).
      */
     public static function maybe_migrate() {
+        global $wpdb;
+
         if (get_option(self::MIGRATION_OPTION) === AWESOME_CALENDAR_EVENTS_VERSION) {
-            return 0;
+            // The marker only proves the migration ran for this version once.
+            // Legacy rows can reappear afterwards (DB restores, legacy data
+            // written by other tools), so do a cheap indexed existence check
+            // and self-heal when any `_icob_` rows are still around.
+            $remaining = $wpdb->get_var($wpdb->prepare(
+                "SELECT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE %s LIMIT 1",
+                $wpdb->esc_like(AWECAL_LEGACY_META_PREFIX) . '%'
+            ));
+            if ($remaining === null) {
+                return 0;
+            }
         }
         $renamed = self::run();
         update_option(self::MIGRATION_OPTION, AWESOME_CALENDAR_EVENTS_VERSION);
