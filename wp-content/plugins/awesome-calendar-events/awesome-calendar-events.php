@@ -185,6 +185,12 @@ class Awesome_Calendar_Events_Plugin {
      * prefix once per plugin version.
      */
     public function maybe_migrate_legacy_meta() {
+        // This runs on activation and admin_init, both of which happen
+        // after the `init` hook, so load the migration dependencies here.
+        require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-meta-helper.php';
+        require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-meta.php';
+        require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-meta-migration.php';
+
         Awesome_Calendar_Events_Meta_Migration::maybe_migrate();
     }
 
