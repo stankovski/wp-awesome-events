@@ -57,6 +57,7 @@ class Awesome_Calendar_Events_Events_ICS {
             'post_type' => 'post',
             'post_status' => 'publish',
             'posts_per_page' => -1,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Meta filtering on the event date keys is required to select posts that are events.
             'meta_query' => [
                 'relation' => 'AND',
                 awecal_event_date_enabled_meta_query(),

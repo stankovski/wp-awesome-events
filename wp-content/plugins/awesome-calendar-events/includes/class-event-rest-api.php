@@ -47,6 +47,7 @@ class Awesome_Calendar_Events_Event_REST_API {
             'posts_per_page' => min($per_page, 100),
             'orderby' => 'title',
             'order' => 'ASC',
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Meta filtering on the event-date-enabled key is required to select posts that are events.
             'meta_query' => [
                 awecal_event_date_enabled_meta_query(),
             ],

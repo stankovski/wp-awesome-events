@@ -230,7 +230,7 @@ class Awesome_Calendar_Events_Events_Query_API {
         if ($date_from !== '' && $date_to !== '' && $date_from > $date_to) {
             return new WP_Error(
                 'rest_invalid_param',
-                __('date_from must not be after date_to.'),
+                __('date_from must not be after date_to.', 'awesome-calendar-events'),
                 ['status' => 400]
             );
         }
@@ -516,6 +516,7 @@ class Awesome_Calendar_Events_Events_Query_API {
                 'ignore_sticky_posts' => true,
                 'no_found_rows' => true,
                 'update_post_term_cache' => $include_details,
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Meta filtering on the event date/end-date keys is required to match events; results are bounded by the posts-scan cap.
                 'meta_query' => [
                     'relation' => 'AND',
                     awecal_event_date_enabled_meta_query(),
@@ -546,12 +547,14 @@ class Awesome_Calendar_Events_Events_Query_API {
                 'ignore_sticky_posts' => true,
                 // Term data is only needed when serializing term slugs in details mode.
                 'update_post_term_cache' => $include_details,
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Meta filtering on the event date keys is required to match events; date filtering uses a single indexed CHAR BETWEEN clause.
                 'meta_query' => $meta_query,
             ];
 
             if ($orderby === 'event_date') {
                 // Y-m-d strings sort correctly as meta_value. Sorting covers the
                 // canonical key; posts that only carry legacy meta may sort last.
+                // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- Sorting by the canonical event date meta key is required for event_date ordering.
                 $args['meta_key'] = awecal_meta_key('_icob_event_date');
                 $args['orderby'] = 'meta_value';
                 $args['meta_type'] = 'CHAR';
@@ -564,6 +567,7 @@ class Awesome_Calendar_Events_Events_Query_API {
             if (count($tax_query) > 1) {
                 $tax_query['relation'] = 'AND';
             }
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Category/tag filtering is a requested API feature and cannot be expressed without tax_query.
             $args['tax_query'] = $tax_query;
         }
 
@@ -627,7 +631,7 @@ class Awesome_Calendar_Events_Events_Query_API {
     private static function invalid_token_error() {
         return new WP_Error(
             'rest_invalid_param',
-            __('Invalid page token.'),
+            __('Invalid page token.', 'awesome-calendar-events'),
             ['status' => 400]
         );
     }
@@ -668,6 +672,7 @@ class Awesome_Calendar_Events_Events_Query_API {
             $item['imageUrl'] = get_the_post_thumbnail_url($post, 'large');
             $thumbnail_id = (int) get_post_thumbnail_id($post);
             $item['imageAlt'] = $thumbnail_id ? (string) get_post_meta($thumbnail_id, '_wp_attachment_image_alt', true) : '';
+            // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Core filter intentionally applied so full body HTML matches front-end rendering.
             $item['fullBody'] = apply_filters('the_content', (string) ($post->post_content ?? ''));
             $item['categories'] = self::get_term_slugs($post_id, 'category');
             $item['tags'] = self::get_term_slugs($post_id, 'post_tag');

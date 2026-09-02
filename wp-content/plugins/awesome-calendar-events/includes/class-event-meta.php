@@ -199,7 +199,7 @@ class Awesome_Calendar_Events_Event_Meta {
     $announcement = (bool) $this->get_meta($post->ID, '_awecal_announcement', 0);
     $announcement_expiration = $this->get_meta($post->ID, '_awecal_announcement_expiration', '');
     // datetime-local inputs expect Y-m-d\TH:i
-    $announcement_expiration_local = $announcement_expiration ? esc_attr(gmdate('Y-m-d\TH:i', strtotime($announcement_expiration))) : '';
+    $announcement_expiration_local = $announcement_expiration ? gmdate('Y-m-d\TH:i', strtotime($announcement_expiration)) : '';
 
     // Weekday labels aligned to new Monday=0..Sunday=6 indexing
     $weekday_labels = [__('Mon','awesome-calendar-events'),__('Tue','awesome-calendar-events'),__('Wed','awesome-calendar-events'),__('Thu','awesome-calendar-events'),__('Fri','awesome-calendar-events'),__('Sat','awesome-calendar-events'),__('Sun','awesome-calendar-events')];
@@ -282,7 +282,7 @@ class Awesome_Calendar_Events_Event_Meta {
         </p>
         <p id="icob_announcement_expiration_wrap">
             <label for="icob_announcement_expiration"><strong><?php esc_html_e('Announcement Ends','awesome-calendar-events'); ?></strong></label>
-            <input type="datetime-local" id="icob_announcement_expiration" name="icob_announcement_expiration" value="<?php echo $announcement_expiration_local; ?>" style="width:100%;" />
+            <input type="datetime-local" id="icob_announcement_expiration" name="icob_announcement_expiration" value="<?php echo esc_attr($announcement_expiration_local); ?>" style="width:100%;" />
             <small><?php esc_html_e('Leave empty to run indefinitely.', 'awesome-calendar-events'); ?></small>
         </p>
         <?php
@@ -439,7 +439,7 @@ class Awesome_Calendar_Events_Event_Meta {
         $val = trim((string) $val);
         if ($val === '') { return ''; }
         $ts = strtotime($val);
-        return $ts ? date('Y-m-d H:i:s', $ts) : '';
+        return $ts ? gmdate('Y-m-d H:i:s', $ts) : '';
     }
 
     /**
