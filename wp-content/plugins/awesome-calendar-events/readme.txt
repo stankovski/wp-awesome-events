@@ -65,6 +65,13 @@ Yes, each event with a date has a downloadable `.ics` file that can be linked to
 
 In the block editor, open the Awesome Calendar Events category and insert "Add to Calendar." It automatically creates a Buttons block containing the configured calendar button. On the published event, the button offers Google Calendar, Apple Calendar, Outlook, Office 365, Yahoo Calendar, and an iCal download using the event's date, time, location, and title.
 
+== Screenshots ==
+
+1. Event date and recurrence settings in the block editor sidebar, including start time, duration, location, and weekly weekday selection
+2. Announcement settings and event shortcodes reference in the Event panel
+3. Event shortcodes for location, date, and time used in a post with the Add to Calendar button
+4. Event List block on the frontend showing upcoming events with friendly date badges
+
 == Changelog ==
 
 = 1.0.0 =
