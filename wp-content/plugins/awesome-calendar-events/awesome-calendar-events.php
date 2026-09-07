@@ -94,6 +94,8 @@ class Awesome_Calendar_Events_Plugin {
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-rest-api.php';
         // Public events query API (awecal/v1/events)
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-events-query-api.php';
+        // Event list block (Query Loop variation backed by the events query API)
+        require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-list-block.php';
         // Event date block
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-date-block.php';
         // Event countdown block
@@ -126,6 +128,8 @@ class Awesome_Calendar_Events_Plugin {
         new Awesome_Calendar_Events_Event_REST_API();
         // Initialize public events query API
         new Awesome_Calendar_Events_Events_Query_API();
+        // Initialize event list block
+        new Awesome_Calendar_Events_Event_List_Block();
         // Initialize event date block
         new Awesome_Calendar_Events_Event_Date_Block();
         // Initialize event countdown block

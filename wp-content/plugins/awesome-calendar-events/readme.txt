@@ -22,9 +22,14 @@ Awesome Calendar Events turns ordinary posts into full-featured events. Give a p
 * Per-event `.ics` download so visitors can add a single event to their calendar
 * "Add to Calendar" button block with Google, Apple, Outlook, and Office 365 options
 * Event date block and event countdown block for the block editor
+* Event List block: a Query Loop block that lists upcoming events (recurring events shown once), filterable by category or tags
 * Shortcodes for displaying event dates and countdowns outside the block editor
 * REST API endpoint for querying event posts programmatically
 * Advanced Query Loop (AQL) integration with dynamic date placeholders for event meta queries
+
+= Event List block =
+
+The "Event List" block (in the Awesome Calendar Events category) is built on the core Query Loop block and lists upcoming events using the events query API. Recurring events are shown once while their recurrence is ongoing. When inserted, the default item template contains the Event Date block on top, followed by the Featured Image and Title. The only query customization available is filtering by category or tags.
 
 = Advanced Query Loop integration =
 

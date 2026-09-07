@@ -27,6 +27,7 @@ GET /wp-json/awecal/v1/events
 | `date_from` | `YYYY-MM-DD` | — | Inclusive lower bound of the datetime filter. |
 | `date_to` | `YYYY-MM-DD` | — | Inclusive upper bound of the datetime filter. |
 | `expand_recurring` | bool | `false` | Expand recurring events into occurrence instances (see [Expansion mode](#expansion-mode-expand_recurringtrue)). |
+| `upcoming` | bool | `true` | Collapsed mode only: include only upcoming events (original event date today or later, or recurrence not ended). Ignored when `date_from`/`date_to` are provided. |
 | `search` | string | — | Standard WordPress search term. |
 | `include_details` | bool | `false` | Include post details (`excerpt`, `imageUrl`, `imageAlt`, `fullBody`, `categories`, `tags`). |
 | `page_token` | string | — | Opaque pagination cursor from the `X-WP-NextPageToken` header. |
@@ -42,7 +43,9 @@ must not be after `date_to`.
 - **Collapsed mode** (default): the filter applies to the **original
   event date** (`_awecal_event_date`, legacy `_icob_event_date`) for both
   one-off and recurring events. Recurring events are returned **once** —
-  occurrences are never expanded server-side.
+  occurrences are never expanded server-side. Recurring events are
+  always listed **before** one-off events (the requested `orderby`/`order`
+  is preserved within each group).
 - **Expansion mode** (`expand_recurring=true`): the filter applies to
   **occurrences**. A weekly event that started years ago still matches,
   and yields one item per occurrence inside the window.

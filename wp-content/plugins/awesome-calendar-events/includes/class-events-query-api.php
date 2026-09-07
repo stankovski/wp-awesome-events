@@ -19,6 +19,13 @@
  *    occurrence inside the window (bounded by per-event and scan caps),
  *    sorted by occurrence date. One-off events become single instances.
  *
+ * `upcoming` (collapsed mode only, default true) restricts results to
+ * upcoming events: one-off events with an original event date of today or
+ * later, or recurring events whose recurrence has not ended. It is
+ * ignored when an explicit date_from/date_to range is requested. In
+ * collapsed mode, recurring events are always listed before one-off
+ * events (within each group the requested sort order is preserved).
+ *
  * Stale events are excluded in both modes via the recurrence end date
  * (SQL, `_awecal_event_recurrence_end_date`) and the
  * recurrence occurrence count (in memory, via
@@ -148,6 +155,11 @@ class Awesome_Calendar_Events_Events_Query_API {
                 'description' => 'Expand recurring events into occurrence instances inside the datetime window.',
                 'type' => 'boolean',
                 'default' => false,
+            ],
+            'upcoming' => [
+                'description' => 'Collapsed mode only: include only upcoming events (original event date today or later, or recurrence not ended). Defaults to true; ignored when date_from/date_to are provided.',
+                'type' => 'boolean',
+                'default' => true,
             ],
             'search' => [
                 'description' => 'Search term.',
@@ -290,6 +302,9 @@ class Awesome_Calendar_Events_Events_Query_API {
             $items[] = self::prepare_item($post, $include_details);
         }
 
+        // Recurring events always come before one-off events.
+        $items = self::sort_recurring_first($items);
+
         $next_token = null;
         if ($page < (int) $query->max_num_pages) {
             $next_token = self::create_page_token(['p' => $page + 1]);
@@ -428,7 +443,7 @@ class Awesome_Calendar_Events_Events_Query_API {
      * @param string $reference_date Y-m-d
      * @return bool
      */
-    private function is_stale_recurring($post_id, $reference_date) {
+    public static function is_stale_recurring($post_id, $reference_date) {
         $type = awecal_get_post_meta($post_id, '_awecal_event_recurrence_type', true) ?: 'none';
         if ($type === 'none') {
             return false;
@@ -530,12 +545,37 @@ class Awesome_Calendar_Events_Events_Query_API {
 
             $date_from = (string) $request->get_param('date_from');
             $date_to = (string) $request->get_param('date_to');
+
+            // `upcoming` defaults to true (a missing param reads as null)
+            // but is ignored when an explicit date range is requested so
+            // past-range queries keep working.
+            $upcoming = $request->get_param('upcoming');
+            $upcoming = ($upcoming === null) ? true : (bool) $upcoming;
+
             if ($date_from !== '' || $date_to !== '') {
                 $meta_query[] = awecal_event_date_range_meta_query($date_from, $date_to);
+                $meta_query[] = awecal_event_recurrence_not_ended_meta_query(current_time('Y-m-d'));
+            } elseif ($upcoming) {
+                // Upcoming: matches either a future original event date
+                // (one-off events), or a RECURRING event whose recurrence
+                // has not ended. The is-recurring scope is required because
+                // the not-ended clause alone also matches posts without an
+                // end date — which would let past one-off events through.
+                // Count-exhausted recurring events are excluded in memory
+                // in get_collapsed_result() via is_stale_recurring().
+                $today = current_time('Y-m-d');
+                $meta_query[] = [
+                    'relation' => 'OR',
+                    awecal_event_date_range_meta_query($today, ''),
+                    [
+                        'relation' => 'AND',
+                        awecal_event_is_recurring_meta_query(),
+                        awecal_event_recurrence_not_ended_meta_query($today),
+                    ],
+                ];
+            } else {
+                $meta_query[] = awecal_event_recurrence_not_ended_meta_query(current_time('Y-m-d'));
             }
-
-            // Exclude events whose recurrence ended before today.
-            $meta_query[] = awecal_event_recurrence_not_ended_meta_query(current_time('Y-m-d'));
 
             $args = [
                 'post_type' => 'post',
@@ -641,6 +681,37 @@ class Awesome_Calendar_Events_Events_Query_API {
     /* ------------------------------------------------------------------ *
      * Item preparation
      * ------------------------------------------------------------------ */
+
+    /**
+     * Order items so recurring events always come before one-off events,
+     * preserving the existing sort order within each group.
+     *
+     * @param array $items
+     * @return array
+     */
+    public static function sort_recurring_first(array $items) {
+        $recurring = [];
+        $single = [];
+        foreach ($items as $item) {
+            if (self::is_recurring_item($item)) {
+                $recurring[] = $item;
+            } else {
+                $single[] = $item;
+            }
+        }
+        return array_merge($recurring, $single);
+    }
+
+    /**
+     * Whether an API item is a recurring event (identified by a non-null
+     * recurrence rule in its event payload).
+     *
+     * @param array $item
+     * @return bool
+     */
+    private static function is_recurring_item($item) {
+        return isset($item['event']['recurrenceRule']) && $item['event']['recurrenceRule'] !== null;
+    }
 
     /**
      * Serialize a post into an API item.

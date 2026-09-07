@@ -303,7 +303,8 @@ class EventsQueryApiExpansionTest extends TestCase {
         ]));
 
         $ids = array_map(fn($i) => $i['postId'], $response->data);
-        $this->assertSame([1, 2], $ids);
+        // Recurring events are always listed before one-off events.
+        $this->assertSame([2, 1], $ids);
         $this->assertSame('3', $response->headers['X-WP-Total']);
         $this->assertArrayNotHasKey('X-WP-NextPageToken', $response->headers);
     }

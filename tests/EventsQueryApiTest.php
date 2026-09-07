@@ -143,7 +143,8 @@ class EventsQueryApiTest extends TestCase {
     public function test_build_query_args_includes_recurrence_end_date_clause() {
         $args = $this->api->build_query_args($this->make_request([]));
         $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
-        // [0] = enabled clause, [1] = recurrence-not-ended clause
+        // [0] = enabled clause, [1] = upcoming OR group (defaults to true),
+        // which contains the recurrence-not-ended arm.
         $this->assertCount(2, $clauses);
         $this->assertSame('OR', $clauses[1]['relation']);
 
@@ -174,7 +175,7 @@ class EventsQueryApiTest extends TestCase {
     public function test_build_query_args_no_date_filter_has_no_range_clause() {
         $args = $this->api->build_query_args($this->make_request([]));
         $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
-        // [0] = enabled clause, [1] = recurrence-not-ended clause; no date range.
+        // [0] = enabled clause, [1] = upcoming OR group; no date range.
         $this->assertCount(2, $clauses);
         $this->assertSame('AND', $args['meta_query']['relation']);
         $compares = [];
@@ -182,6 +183,134 @@ class EventsQueryApiTest extends TestCase {
             if ($k === 'compare') { $compares[] = $v; }
         });
         $this->assertNotContains('BETWEEN', $compares);
+    }
+
+    public function test_build_query_args_upcoming_defaults_to_true() {
+        $args = $this->api->build_query_args($this->make_request([]));
+        $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
+        $this->assertCount(2, $clauses);
+        $this->assertSame('OR', $clauses[1]['relation']);
+        $keys = [];
+        array_walk_recursive($clauses[1], function($v, $k) use (&$keys) {
+            if ($k === 'key') { $keys[] = $v; }
+        });
+        $this->assertContains('_awecal_event_date', $keys);
+        $this->assertContains('_awecal_event_recurrence_end_date', $keys);
+    }
+
+    public function test_build_query_args_upcoming_scopes_not_ended_to_recurring() {
+        $args = $this->api->build_query_args($this->make_request([]));
+        $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
+
+        // Second arm of the upcoming OR group must be an AND group that
+        // combines the is-recurring scope with the not-ended clause, so
+        // past one-off events (no end date) do not match.
+        $or_arms = array_values(array_filter($clauses[1], 'is_array'));
+        $this->assertCount(2, $or_arms);
+        $this->assertSame('AND', $or_arms[1]['relation']);
+        $keys = [];
+        array_walk_recursive($or_arms[1], function($v, $k) use (&$keys) {
+            if ($k === 'key') { $keys[] = $v; }
+        });
+        $this->assertContains('_awecal_event_recurrence_type', $keys);
+        $this->assertContains('_awecal_event_recurrence_end_date', $keys);
+    }
+
+    public function test_build_query_args_explicit_date_range_disables_upcoming() {
+        $args = $this->api->build_query_args($this->make_request([
+            'date_from' => '2020-01-01',
+            'date_to' => '2020-12-31',
+        ]));
+
+        $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
+        // [0] = enabled, [1] = date range, [2] = recurrence-not-ended.
+        // The upcoming OR group must not be applied.
+        $this->assertCount(3, $clauses);
+        $this->assertSame('_awecal_event_date', $clauses[1]['key']);
+        $this->assertSame('BETWEEN', $clauses[1]['compare']);
+        $this->assertSame('OR', $clauses[2]['relation']);
+        $keys = [];
+        array_walk_recursive($clauses[2], function($v, $k) use (&$keys) {
+            if ($k === 'key') { $keys[] = $v; }
+        });
+        $this->assertNotContains('_awecal_event_date', $keys);
+    }
+
+    public function test_build_query_args_upcoming_opt_out() {
+        $args = $this->api->build_query_args($this->make_request([
+            'upcoming' => false,
+        ]));
+        $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
+        // [0] = enabled clause, [1] = recurrence-not-ended clause; no
+        // upcoming date clause.
+        $this->assertCount(2, $clauses);
+        $compares = [];
+        array_walk_recursive($clauses, function($v, $k) use (&$compares) {
+            if ($k === 'key') { $compares[] = $v; }
+        });
+        $this->assertNotContains('_awecal_event_date', $compares);
+    }
+
+    public function test_build_query_args_upcoming_adds_or_group() {
+        $args = $this->api->build_query_args($this->make_request([
+            'upcoming' => true,
+        ]));
+
+        $clauses = array_values(array_filter($args['meta_query'], 'is_array'));
+        // [0] = enabled clause, [1] = upcoming OR group replacing the
+        // plain recurrence-not-ended clause.
+        $this->assertCount(2, $clauses);
+        $this->assertSame('OR', $clauses[1]['relation']);
+
+        $keys = [];
+        $compares = [];
+        array_walk_recursive($clauses[1], function($v, $k) use (&$keys, &$compares) {
+            if ($k === 'key') { $keys[] = $v; }
+            if ($k === 'compare') { $compares[] = $v; }
+        });
+        // OR group must match a future original event date OR an
+        // unended recurrence (scoped to recurring events only, so past
+        // one-off events cannot match via the absent end date).
+        $this->assertContains('_awecal_event_date', $keys);
+        $this->assertContains('_awecal_event_recurrence_end_date', $keys);
+        $this->assertContains('_awecal_event_recurrence_type', $keys);
+        $this->assertContains('>=', $compares);
+        $this->assertContains('NOT EXISTS', $compares);
+    }
+
+    public function test_sort_recurring_first() {
+        $items = [
+            ['postId' => 1, 'event' => null],
+            ['postId' => 2, 'event' => ['recurrenceRule' => null]],
+            ['postId' => 3, 'event' => ['recurrenceRule' => 'RRULE:FREQ=WEEKLY']],
+            ['postId' => 4, 'event' => ['recurrenceRule' => 'RRULE:FREQ=DAILY']],
+        ];
+
+        $sorted = Awesome_Calendar_Events_Events_Query_API::sort_recurring_first($items);
+
+        $this->assertSame([3, 4, 1, 2], array_column($sorted, 'postId'));
+    }
+
+    public function test_is_stale_recurring() {
+        // One-off events are never stale.
+        update_post_meta(1, '_awecal_event_date_enabled', 1);
+        update_post_meta(1, '_awecal_event_date', '2020-01-01');
+        update_post_meta(1, '_awecal_event_recurrence_type', 'none');
+        $this->assertFalse(Awesome_Calendar_Events_Events_Query_API::is_stale_recurring(1, '2030-01-01'));
+
+        // Recurring events without a finite end are never stale.
+        update_post_meta(2, '_awecal_event_date_enabled', 1);
+        update_post_meta(2, '_awecal_event_date', '2020-01-01');
+        update_post_meta(2, '_awecal_event_recurrence_type', 'weekly');
+        $this->assertFalse(Awesome_Calendar_Events_Events_Query_API::is_stale_recurring(2, '2030-01-01'));
+
+        // Recurring events with an exhausted occurrence count are stale.
+        update_post_meta(3, '_awecal_event_date_enabled', 1);
+        update_post_meta(3, '_awecal_event_date', '2020-01-01');
+        update_post_meta(3, '_awecal_event_recurrence_type', 'weekly');
+        update_post_meta(3, '_awecal_event_recurrence_end_type', 'count');
+        update_post_meta(3, '_awecal_event_recurrence_count', 1);
+        $this->assertTrue(Awesome_Calendar_Events_Events_Query_API::is_stale_recurring(3, '2030-01-01'));
     }
 
     public function test_build_query_args_taxonomy_filters() {

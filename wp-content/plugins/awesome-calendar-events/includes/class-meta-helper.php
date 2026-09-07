@@ -162,6 +162,32 @@ function awecal_event_announcement_expiration_meta_query($compare, $value) {
 }
 
 /**
+ * Meta query clause matching posts flagged as recurring events.
+ *
+ * The recurrence type is always written ('none' for one-off events), so a
+ * post is recurring when the key exists with a value other than 'none'.
+ * The value '' comparison is required because a missing key would
+ * otherwise fall through the 'none' comparison via SQL NULL semantics.
+ *
+ * @return array
+ */
+function awecal_event_is_recurring_meta_query() {
+    return [
+        'relation' => 'AND',
+        [
+            'key'     => AWECAL_META_PREFIX . 'event_recurrence_type',
+            'value'   => '',
+            'compare' => '!=',
+        ],
+        [
+            'key'     => AWECAL_META_PREFIX . 'event_recurrence_type',
+            'value'   => 'none',
+            'compare' => '!=',
+        ],
+    ];
+}
+
+/**
  * Meta query clause excluding posts whose recurrence has already ended
  * on or before the given reference date.
  *
