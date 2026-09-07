@@ -1,6 +1,6 @@
 <?php
 /**
- * Announcement Container Block
+ * Event Announcement block
  *
  * Container block that conditionally renders when a current post has an
  * unexpired announcement.
@@ -72,7 +72,7 @@ class Awesome_Calendar_Events_Announcement_Container_Block {
                 ],
             ],
             'category' => 'awesome-calendar-events',
-            'title' => __('Announcement Container', 'awesome-calendar-events'),
+            'title' => __('Event Announcement', 'awesome-calendar-events'),
             'description' => __('A container that displays content when the current post has an unexpired announcement.', 'awesome-calendar-events'),
         ]);
     }
