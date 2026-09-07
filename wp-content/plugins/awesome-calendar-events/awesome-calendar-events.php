@@ -98,6 +98,8 @@ class Awesome_Calendar_Events_Plugin {
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-date-block.php';
         // Event countdown block
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-countdown-block.php';
+        // Announcement container block
+        require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-announcement-container-block.php';
         // Event shortcodes
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-shortcodes.php';
         // ICS generator utility
@@ -128,6 +130,8 @@ class Awesome_Calendar_Events_Plugin {
         new Awesome_Calendar_Events_Event_Date_Block();
         // Initialize event countdown block
         new Awesome_Calendar_Events_Event_Countdown_Block();
+        // Initialize announcement container block
+        new Awesome_Calendar_Events_Announcement_Container_Block();
         // Initialize event shortcodes
         new Awesome_Calendar_Events_Event_Shortcodes();
         // Initialize ICS events endpoint

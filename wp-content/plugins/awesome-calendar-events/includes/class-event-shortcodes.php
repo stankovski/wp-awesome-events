@@ -9,6 +9,8 @@
  * - [awecal_event_friendly_date] - Outputs friendly/relative date (Today, Tomorrow, This Monday, or weekday names)
  * - [awecal_event_time] - Outputs event start time
  * - [awecal_event_location] - Outputs event location
+ *
+ * Legacy shortcode names without the awecal_ prefix are also supported.
  */
 
 if (!defined('ABSPATH')) { exit; }
@@ -28,6 +30,12 @@ class Awesome_Calendar_Events_Event_Shortcodes {
         add_shortcode('awecal_event_time', [$this, 'event_time_shortcode']);
         add_shortcode('awecal_event_full_time', [$this, 'event_full_time_shortcode']);
         add_shortcode('awecal_event_location', [$this, 'event_location_shortcode']);
+
+        add_shortcode('event_date', [$this, 'event_date_shortcode']);
+        add_shortcode('event_friendly_date', [$this, 'event_friendly_date_shortcode']);
+        add_shortcode('event_time', [$this, 'event_time_shortcode']);
+        add_shortcode('event_full_time', [$this, 'event_full_time_shortcode']);
+        add_shortcode('event_location', [$this, 'event_location_shortcode']);
     }
 
     /**
@@ -36,7 +44,13 @@ class Awesome_Calendar_Events_Event_Shortcodes {
      */
     public function process_shortcodes_in_blocks($block_content, $block) {
         // Only process if content contains our shortcodes
-        if (is_string($block_content) && strpos($block_content, '[awecal_event_') !== false) {
+        if (
+            is_string($block_content)
+            && (
+                strpos($block_content, '[awecal_event_') !== false
+                || strpos($block_content, '[event_') !== false
+            )
+        ) {
             return wp_kses_post(do_shortcode($block_content));
         }
         return $block_content;
