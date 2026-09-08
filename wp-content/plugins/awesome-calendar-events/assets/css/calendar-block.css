@@ -1,0 +1,196 @@
+/**
+ * Calendar block styles.
+ *
+ * Shared by the Calendar block and its Calendar Date / Event Details
+ * container blocks (frontend and editor).
+ */
+
+.awecal-calendar .awecal-calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.awecal-calendar .awecal-calendar-month-label {
+    font-weight: 600;
+    font-size: 1.1em;
+}
+
+.awecal-calendar .awecal-calendar-nav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    background: transparent;
+    color: inherit;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.awecal-calendar .awecal-calendar-nav:hover:not(:disabled) {
+    opacity: 0.8;
+}
+
+.awecal-calendar .awecal-calendar-nav:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.awecal-calendar.awecal-calendar-is-loading .awecal-calendar-grid {
+    opacity: 0.6;
+}
+
+.awecal-calendar .awecal-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+}
+
+.awecal-calendar .awecal-calendar-weekday {
+    font-weight: 600;
+    font-size: 0.8em;
+    text-align: center;
+    padding: 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.awecal-calendar .awecal-calendar-day {
+    min-height: 72px;
+    padding: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.awecal-calendar .awecal-calendar-day.is-other-month {
+    opacity: 0.45;
+}
+
+.awecal-calendar .awecal-calendar-day.is-today {
+    border-color: currentColor;
+}
+
+.awecal-calendar .awecal-calendar-day-number {
+    font-weight: 600;
+    font-size: 0.85em;
+    margin-bottom: 4px;
+}
+
+.awecal-calendar .awecal-calendar-event {
+    margin: 0 0 4px;
+    padding: 3px 6px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.05);
+    font-size: 0.78em;
+    line-height: 1.35;
+}
+
+.awecal-calendar .awecal-calendar-event:last-child {
+    margin-bottom: 0;
+}
+
+.awecal-calendar .awecal-calendar-event-title {
+    margin: 0 0 2px;
+    font-size: 1em;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.awecal-calendar .awecal-calendar-event-title a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.awecal-calendar .awecal-calendar-event-title a:hover {
+    text-decoration: underline;
+}
+
+.awecal-calendar .awecal-calendar-event-time,
+.awecal-calendar .awecal-calendar-event-location,
+.awecal-calendar .awecal-calendar-event-snippet {
+    display: block;
+    opacity: 0.75;
+    font-size: 0.95em;
+}
+
+.awecal-calendar .awecal-calendar-event-snippet {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Editor previews */
+
+.awecal-calendar-editor-preview {
+    pointer-events: none;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 16px;
+    background: rgba(0, 0, 0, 0.02);
+}
+
+.awecal-calendar-editor-preview .awecal-calendar-nav {
+    border-color: #757575;
+    color: #757575;
+    cursor: default;
+}
+
+.awecal-calendar-editor-note {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #757575;
+    font-style: italic;
+}
+
+.awecal-calendar-editor-template {
+    border: 2px dashed #0073aa;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+.awecal-calendar-editor-template-title {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #0073aa;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+}
+
+.awecal-calendar-date-editor .awecal-calendar-date-editor-preview {
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.awecal-event-details-editor .awecal-calendar-event {
+    background: rgba(0, 0, 0, 0.05);
+    font-size: 13px;
+}
+
+@media (max-width: 600px) {
+    .awecal-calendar .awecal-calendar-day {
+        min-height: 48px;
+        padding: 2px;
+    }
+
+    .awecal-calendar .awecal-calendar-event {
+        font-size: 0.7em;
+        padding: 2px 4px;
+    }
+
+    .awecal-calendar .awecal-calendar-event-time,
+    .awecal-calendar .awecal-calendar-event-location,
+    .awecal-calendar .awecal-calendar-event-snippet {
+        display: none;
+    }
+}

@@ -1,0 +1,47 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "awesome-calendar-events/calendar-date",
+	"title": "Calendar Date",
+	"description": "Container for a single calendar date cell. Shows the day number and the event details for that date.",
+	"category": "awesome-calendar-events",
+	"icon": "calendar-alt",
+	"keywords": [ "calendar", "date", "day", "container" ],
+	"textdomain": "awesome-calendar-events",
+	"editorScript": "awesome-calendar-events-calendar-date-editor",
+	"style": "awesome-calendar-events-calendar-style",
+	"usesContext": [ "awesome-calendar-events/date" ],
+	"attributes": {
+		"showDateNumber": {
+			"type": "boolean",
+			"default": true
+		}
+	},
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"color": {
+			"gradients": true,
+			"link": true,
+			"text": true,
+			"background": true,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"text": true
+			}
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontWeight": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	}
+}

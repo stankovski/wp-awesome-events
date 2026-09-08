@@ -3,7 +3,7 @@ Contributors: stankovski
 Tags: events, calendar, ics, recurrence, countdown
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 Requires PHP: 8.0
 License: GPL v2 or later
 License URI: https://github.com/stankovski/wp-awesome-events/blob/main/LICENSE
@@ -71,8 +71,12 @@ In the block editor, open the Awesome Calendar Events category and insert "Add t
 2. Announcement settings and event shortcodes reference in the Event panel
 3. Event shortcodes for location, date, and time used in a post with the Add to Calendar button
 4. Event List block on the frontend showing upcoming events with friendly date badges
+5. Calendar block on the frontend showing a month grid of events with previous/next month navigation
 
 == Changelog ==
+
+= 1.1.0 =
+* Added the Calendar block with a month grid, previous/next month navigation, and customizable Calendar Date and Event Details inner blocks
 
 = 1.0.0 =
 * Initial release

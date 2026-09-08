@@ -3,7 +3,7 @@
  * Plugin Name: Awesome Calendar Events
  * Plugin URI: https://github.com/stankovski/wp-awesome-events
  * Description: Manage event dates and recurring schedules, publish calendar feeds, display countdowns, and let visitors add events to their calendar.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: stankovski
  * Author URI: https://goodsoftware.foundation/
  * Text Domain: awesome-calendar-events
@@ -102,6 +102,8 @@ class Awesome_Calendar_Events_Plugin {
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-countdown-block.php';
         // Announcement container block
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-announcement-container-block.php';
+        // Calendar block (grid) with date/event container blocks
+        require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-calendar-block.php';
         // Event shortcodes
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-event-shortcodes.php';
         // ICS generator utility
@@ -136,6 +138,8 @@ class Awesome_Calendar_Events_Plugin {
         new Awesome_Calendar_Events_Event_Countdown_Block();
         // Initialize announcement container block
         new Awesome_Calendar_Events_Announcement_Container_Block();
+        // Initialize calendar block (grid) with date/event container blocks
+        new Awesome_Calendar_Events_Calendar_Block();
         // Initialize event shortcodes
         new Awesome_Calendar_Events_Event_Shortcodes();
         // Initialize ICS events endpoint

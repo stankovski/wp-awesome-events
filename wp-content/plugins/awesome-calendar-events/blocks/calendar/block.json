@@ -1,0 +1,68 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "awesome-calendar-events/calendar",
+	"title": "Calendar",
+	"description": "Displays a month calendar grid of events with previous/next month navigation.",
+	"category": "awesome-calendar-events",
+	"icon": "calendar-alt",
+	"keywords": [ "calendar", "events", "month", "grid" ],
+	"textdomain": "awesome-calendar-events",
+	"editorScript": "awesome-calendar-events-calendar-editor",
+	"style": "awesome-calendar-events-calendar-style",
+	"attributes": {
+		"startOfWeek": {
+			"type": "integer",
+			"default": 0
+		},
+		"showNavigation": {
+			"type": "boolean",
+			"default": true
+		},
+		"initialOffset": {
+			"type": "integer",
+			"default": 0
+		},
+		"maxEventsPerDay": {
+			"type": "integer",
+			"default": 3
+		},
+		"categories": {
+			"type": "string",
+			"default": ""
+		},
+		"tags": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"align": [ "wide", "full" ],
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"color": {
+			"gradients": true,
+			"link": true,
+			"text": true,
+			"background": true,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"text": true
+			}
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	}
+}
