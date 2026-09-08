@@ -36,7 +36,11 @@ class Awesome_Calendar_Events_Event_Meta {
     public function __construct() {
         add_action('add_meta_boxes', [$this, 'add_meta_box']);
         add_action('save_post', [$this, 'save_meta']);
-        add_action('init', [$this, 'register_meta']);
+        if (doing_action('init') || did_action('init')) {
+            $this->register_meta();
+        } else {
+            add_action('init', [$this, 'register_meta']);
+        }
         add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_assets']);
     }
 

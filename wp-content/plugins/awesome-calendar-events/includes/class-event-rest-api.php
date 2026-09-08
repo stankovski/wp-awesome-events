@@ -35,6 +35,59 @@ class Awesome_Calendar_Events_Event_REST_API {
                 ],
             ],
         ]);
+
+        // Computed event display values for a single post. Used by the block
+        // editor previews so they mirror the server-rendered output (next
+        // occurrence, weekday fallbacks, relative weeks) rather than raw meta.
+        register_rest_route('icob/v1', '/event-display/(?P<id>\d+)', [
+            'methods' => 'GET',
+            'callback' => [$this, 'get_event_display'],
+            'permission_callback' => function() {
+                return current_user_can('edit_posts');
+            },
+            'args' => [
+                'id' => [
+                    'description' => 'Post ID',
+                    'type' => 'integer',
+                    'sanitize_callback' => 'absint',
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * Return the unified computed event display values for a post.
+     *
+     * @param WP_REST_Request $request Request.
+     * @return WP_REST_Response|WP_Error
+     */
+    public function get_event_display($request) {
+        $post_id = absint($request['id']);
+        if (!$post_id || !get_post($post_id)) {
+            return new WP_Error('awecal_event_display_not_found', __('Post not found.', 'awesome-calendar-events'), ['status' => 404]);
+        }
+
+        if (!class_exists('Awesome_Calendar_Events_Event_Meta')) {
+            return new WP_Error('awecal_event_display_unavailable', __('Event meta unavailable.', 'awesome-calendar-events'), ['status' => 500]);
+        }
+
+        // relative_week = true so the editor preview can offer relative output.
+        $display = Awesome_Calendar_Events_Event_Meta::get_event_date_display($post_id, null, true, true);
+
+        return rest_ensure_response([
+            'date'           => (string) $display['date'],
+            'iso'            => (string) $display['iso'],
+            'weekdays'       => (string) $display['weekdays'],
+            'relative'       => (string) $display['relative'],
+            'start_time'     => (string) $display['start_time'],
+            'location'       => (string) $display['location'],
+            'has_value'      => (bool) $display['has_value'],
+            // Raw saved meta so the editor can detect unsaved (dirty) edits
+            // and prefer live client-side values over the saved computation.
+            'raw_date'       => (string) awecal_get_post_meta($post_id, '_awecal_event_date', true),
+            'raw_start_time' => (string) awecal_get_post_meta($post_id, '_awecal_event_start_time', true),
+            'raw_location'   => (string) awecal_get_post_meta($post_id, '_awecal_event_location', true),
+        ]);
     }
 
     public function get_event_posts($request) {

@@ -3,8 +3,8 @@
     const shared = window.awecalEventBlocks;
     if (!shared || !shared.createEventMetaEdit) { return; }
 
-    registerBlockType('awesome-calendar-events/event-date', {
-        edit: shared.createEventMetaEdit({ type: 'date', metaKey: '_awecal_event_date' }),
+    registerBlockType('awesome-calendar-events/event-time', {
+        edit: shared.createEventMetaEdit({ type: 'time', metaKey: '_awecal_event_start_time' }),
         save: () => null
     });
 })();

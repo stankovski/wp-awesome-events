@@ -1,0 +1,62 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "awesome-calendar-events/event-time",
+	"title": "Event Time",
+	"description": "Displays the event start time for the current post.",
+	"category": "awesome-calendar-events",
+	"icon": "clock",
+	"keywords": [ "event", "time", "start", "calendar" ],
+	"textdomain": "awesome-calendar-events",
+	"editorScript": "awesome-calendar-events-event-time-block-editor",
+	"style": "awesome-calendar-events-event-date-block-style",
+	"usesContext": [ "postId", "postType", "queryId" ],
+	"attributes": {
+		"timeFormat": {
+			"type": "string",
+			"default": ""
+		},
+		"fallbackText": {
+			"type": "string",
+			"default": ""
+		},
+		"label": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"anchor": true,
+		"html": false,
+		"className": true,
+		"color": {
+			"gradients": true,
+			"link": true,
+			"text": true,
+			"background": true,
+			"__experimentalDefaultControls": {
+				"background": true,
+				"text": true,
+				"link": true
+			}
+		},
+		"spacing": {
+			"margin": true,
+			"padding": true
+		},
+		"typography": {
+			"fontSize": true,
+			"lineHeight": true,
+			"textAlign": true,
+			"__experimentalFontFamily": true,
+			"__experimentalFontWeight": true,
+			"__experimentalFontStyle": true,
+			"__experimentalTextTransform": true,
+			"__experimentalTextDecoration": true,
+			"__experimentalLetterSpacing": true,
+			"__experimentalDefaultControls": {
+				"fontSize": true
+			}
+		}
+	}
+}

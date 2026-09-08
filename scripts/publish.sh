@@ -6,16 +6,21 @@
 #   1. Reads the "Version:" header from the plugin's main PHP file.
 #   2. Copies the plugin source into the SVN working copy's "trunk" directory
 #      (excluding development-only files).
-#   3. Commits trunk.
-#   4. Creates a "tags/<version>" copy from trunk and commits it.
+#   3. Copies the plugin assets (icons, banners, screenshots) into the SVN
+#      working copy's "assets" directory and commits it.
+#   4. Commits trunk.
+#   5. Creates a "tags/<version>" copy from trunk and commits it
+#      (skipped with --no-tag).
 #
 # Usage:
-#   scripts/publish.sh [--dry-run] [SVN_DIR]
+#   scripts/publish.sh [--dry-run] [--no-tag] [SVN_DIR]
 #
 # SVN_DIR defaults to <repo-root>/../wp-svn/awesome-calendar-events
 #
 # With --dry-run (or -n) the script reports what it would do but does not
 # modify the working copy or commit anything to the remote repository.
+# With --no-tag the script syncs and commits trunk and assets but does not
+# create or commit a version tag.
 #
 # Requirements: rsync, svn (Subversion command-line client).
 set -euo pipefail
@@ -28,12 +33,15 @@ PLUGIN_SLUG="awesome-calendar-events"
 PLUGIN_DIR="$REPO_ROOT/wp-content/plugins/$PLUGIN_SLUG"
 PLUGIN_MAIN_FILE="$PLUGIN_DIR/$PLUGIN_SLUG.php"
 
-# Parse arguments: an optional --dry-run/-n flag and an optional SVN_DIR.
+# Parse arguments: optional --dry-run/-n and --no-tag flags and an optional
+# SVN_DIR.
 DRY_RUN=0
+NO_TAG=0
 SVN_DIR=""
 for arg in "$@"; do
     case "$arg" in
         --dry-run|-n) DRY_RUN=1 ;;
+        --no-tag) NO_TAG=1 ;;
         *) SVN_DIR="$arg" ;;
     esac
 done
@@ -83,26 +91,33 @@ fi
 
 TRUNK_DIR="$SVN_DIR/trunk"
 TAG_DIR="$SVN_DIR/tags/$VERSION"
+ASSETS_DIR="$REPO_ROOT/assets"
 
 echo "Plugin slug : $PLUGIN_SLUG"
 echo "Version     : $VERSION"
 echo "Source      : $PLUGIN_DIR"
+echo "Assets      : $ASSETS_DIR"
 echo "SVN dir     : $SVN_DIR"
 if [ "$DRY_RUN" -eq 1 ]; then
     echo "Mode        : DRY RUN (no changes will be committed)"
 fi
+if [ "$NO_TAG" -eq 1 ]; then
+    echo "Tagging     : skipped (--no-tag)"
+fi
 echo
 
 # Refuse to overwrite an existing tag.
-if [ -e "$TAG_DIR" ]; then
-    echo "Error: tag already exists: $TAG_DIR" >&2
-    echo "Bump the Version in $PLUGIN_SLUG.php before publishing." >&2
-    exit 1
-fi
-if svn info "^/$PLUGIN_SLUG/tags/$VERSION" >/dev/null 2>&1; then
-    echo "Error: tag $VERSION already exists in the remote repository." >&2
-    echo "Bump the Version in $PLUGIN_SLUG.php before publishing." >&2
-    exit 1
+if [ "$NO_TAG" -eq 0 ]; then
+    if [ -e "$TAG_DIR" ]; then
+        echo "Error: tag already exists: $TAG_DIR" >&2
+        echo "Bump the Version in $PLUGIN_SLUG.php before publishing." >&2
+        exit 1
+    fi
+    if svn info "^/$PLUGIN_SLUG/tags/$VERSION" >/dev/null 2>&1; then
+        echo "Error: tag $VERSION already exists in the remote repository." >&2
+        echo "Bump the Version in $PLUGIN_SLUG.php before publishing." >&2
+        exit 1
+    fi
 fi
 
 # Make sure the working copy is up to date.
@@ -129,11 +144,27 @@ if [ "$DRY_RUN" -eq 1 ]; then
     echo "Changes that would be synced into trunk:"
     rsync "${RSYNC_OPTS[@]}" --dry-run --itemize-changes "$PLUGIN_DIR/" "$TRUNK_DIR/"
     echo
-    echo "Dry run complete. Would commit trunk and create tag $VERSION."
+    echo "Changes that would be synced into assets:"
+    rsync "${RSYNC_OPTS[@]}" --dry-run --itemize-changes "$ASSETS_DIR/" "$SVN_DIR/assets/"
+    echo
+    echo "Dry run complete. Would commit trunk and assets$( [ "$NO_TAG" -eq 1 ] || echo ", then create tag $VERSION" )."
     exit 0
 fi
 echo "Syncing plugin source into trunk..."
 rsync "${RSYNC_OPTS[@]}" "$PLUGIN_DIR/" "$TRUNK_DIR/"
+
+# ---------------------------------------------------------------------------
+# Sync plugin assets (icons, banners, screenshots) into the SVN assets dir.
+# These live at the repository root, NOT inside trunk.
+# ---------------------------------------------------------------------------
+SVN_ASSETS_DIR="$SVN_DIR/assets"
+if [ ! -d "$SVN_ASSETS_DIR" ]; then
+    echo "Creating SVN assets directory..."
+    mkdir -p "$SVN_ASSETS_DIR"
+    svn add "$SVN_ASSETS_DIR" >/dev/null
+fi
+echo "Syncing plugin assets..."
+rsync "${RSYNC_OPTS[@]}" "$ASSETS_DIR/" "$SVN_ASSETS_DIR/"
 
 # ---------------------------------------------------------------------------
 # Stage adds/deletes in trunk.
@@ -155,8 +186,33 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Stage adds/deletes in assets, then commit.
+# ---------------------------------------------------------------------------
+echo "Staging changes in assets..."
+svn add --force "$SVN_ASSETS_DIR" >/dev/null
+svn status "$SVN_ASSETS_DIR" | awk '/^!/ {print $2}' | while IFS= read -r missing; do
+    [ -n "$missing" ] && svn delete "$missing" >/dev/null
+done
+
+ASSETS_STATUS="$(svn status "$SVN_ASSETS_DIR")"
+if [ -n "$ASSETS_STATUS" ]; then
+    echo "Committing assets..."
+    svn commit "$SVN_ASSETS_DIR" -m "Update plugin assets"
+else
+    echo "No changes to commit in assets."
+fi
+
+# ---------------------------------------------------------------------------
 # Create and commit the tag from trunk.
 # ---------------------------------------------------------------------------
+if [ "$NO_TAG" -eq 1 ]; then
+    echo
+    echo "Skipping tag creation (--no-tag)."
+    echo
+    echo "Done. Synced $PLUGIN_SLUG (trunk and assets) without tagging."
+    exit 0
+fi
+
 echo "Creating tag $VERSION..."
 svn copy "$TRUNK_DIR" "$TAG_DIR"
 svn commit "$TAG_DIR" -m "Tag version $VERSION"

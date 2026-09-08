@@ -11,7 +11,7 @@
  * Requires at least: 6.0
  * Tested up to: 7.1
  * Requires PHP: 8.0
- * License: GPL v2 or later
+ * License: MIT
  * License URI: https://github.com/stankovski/wp-awesome-events/blob/main/LICENSE
  */
 
