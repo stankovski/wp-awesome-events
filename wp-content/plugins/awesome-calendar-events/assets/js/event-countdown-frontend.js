@@ -141,7 +141,11 @@
     window.addEventListener('beforeunload', cleanupCountdowns);
 
     // Re-initialize if blocks are dynamically added (e.g., via AJAX)
-    if (window.MutationObserver) {
+    function observeBody() {
+        if (!document.body) {
+            return;
+        }
+
         const observer = new MutationObserver(function(mutations) {
             let shouldInit = false;
             mutations.forEach(function(mutation) {
@@ -165,6 +169,14 @@
             childList: true,
             subtree: true
         });
+    }
+
+    if (window.MutationObserver) {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', observeBody);
+        } else {
+            observeBody();
+        }
     }
 
     // Export for manual initialization if needed

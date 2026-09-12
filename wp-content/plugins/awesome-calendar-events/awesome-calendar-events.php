@@ -114,6 +114,8 @@ class Awesome_Calendar_Events_Plugin {
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-single-event-ics.php';
         // Add to Calendar button block variation
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-add-to-calendar-button.php';
+        // Block patterns
+        require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/class-block-patterns.php';
         // Advanced Query Loop dynamic date placeholders
         require_once AWESOME_CALENDAR_EVENTS_PLUGIN_DIR . 'includes/aql-dynamic-date.php';
         // One-time legacy `_icob_` meta migration
@@ -148,6 +150,8 @@ class Awesome_Calendar_Events_Plugin {
         new Awesome_Calendar_Events_Single_Event_ICS();
         // Initialize add to calendar button
         new Awesome_Calendar_Events_Add_To_Calendar_Button();
+        // Initialize block patterns
+        new Awesome_Calendar_Events_Block_Patterns();
     }
 
     /**

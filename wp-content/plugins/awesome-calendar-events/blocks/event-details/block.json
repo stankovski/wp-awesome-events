@@ -11,6 +11,7 @@
 	"editorScript": "awesome-calendar-events-event-details-editor",
 	"style": "awesome-calendar-events-calendar-style",
 	"usesContext": [ "awesome-calendar-events/event" ],
+	"parent": [ "awesome-calendar-events/calendar-date" ],
 	"attributes": {
 		"showTitle": {
 			"type": "boolean",

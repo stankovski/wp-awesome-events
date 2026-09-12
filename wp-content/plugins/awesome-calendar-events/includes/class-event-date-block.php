@@ -241,13 +241,17 @@ class Awesome_Calendar_Events_Event_Date_Block {
 			return $result;
 		}
 
-		$timestamp = strtotime(gmdate('Y-m-d') . ' ' . $start_time);
-		if (!$timestamp) {
+		// The stored time is site-local (as entered in the event meta box).
+		// Parse it in the site timezone so wp_date() below renders the same
+		// wall-clock time instead of shifting it by the UTC offset.
+		try {
+			$datetime = new DateTimeImmutable($start_time, wp_timezone());
+		} catch (Exception $e) {
 			return $result;
 		}
 
-		$result['datetime'] = gmdate('H:i', $timestamp);
-		$result['value']    = wp_date($time_format, $timestamp);
+		$result['datetime'] = $datetime->format('H:i');
+		$result['value']    = wp_date($time_format, $datetime->getTimestamp());
 
 		return $result;
 	}

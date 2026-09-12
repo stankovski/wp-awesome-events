@@ -11,6 +11,7 @@
 	"editorScript": "awesome-calendar-events-calendar-date-editor",
 	"style": "awesome-calendar-events-calendar-style",
 	"usesContext": [ "awesome-calendar-events/date" ],
+	"parent": [ "awesome-calendar-events/calendar" ],
 	"attributes": {
 		"showDateNumber": {
 			"type": "boolean",
