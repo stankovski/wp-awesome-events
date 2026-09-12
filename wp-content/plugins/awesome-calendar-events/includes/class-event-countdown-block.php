@@ -21,7 +21,7 @@ class Awesome_Calendar_Events_Event_Countdown_Block {
             wp_register_script(
                 'awesome-calendar-events-event-countdown-block-editor',
                 AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-countdown-block.js',
-                ['wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data'],
+                ['awesome-calendar-events-block-icons', 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-block-editor', 'wp-components', 'wp-data', 'wp-core-data'],
                 $ver,
                 true
             );

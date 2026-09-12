@@ -45,7 +45,7 @@ class Awesome_Calendar_Events_Event_List_Block {
         wp_enqueue_script(
             'awesome-calendar-events-event-list-block-editor',
             AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-list-block.js',
-            ['wp-blocks', 'wp-element', 'wp-i18n'],
+            ['awesome-calendar-events-block-icons', 'wp-blocks', 'wp-element', 'wp-i18n'],
             $version,
             true
         );

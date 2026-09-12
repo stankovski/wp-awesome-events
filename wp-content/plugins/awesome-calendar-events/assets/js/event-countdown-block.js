@@ -9,7 +9,7 @@
     registerBlockType('awesome-calendar-events/event-countdown', {
         title: __('Event Countdown', 'awesome-calendar-events'),
         description: __('Displays a live countdown timer to the next event occurrence.', 'awesome-calendar-events'),
-        icon: 'clock',
+        icon: window.awecalBlockIcons.eventCountdown,
         category: 'awesome-calendar-events',
         supports: {
             html: false,

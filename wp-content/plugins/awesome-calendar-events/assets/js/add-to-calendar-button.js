@@ -19,7 +19,7 @@
     registerBlockType('awesome-calendar-events/add-to-calendar', {
         title: __('Add to Calendar', 'awesome-calendar-events'),
         description: __('Button that opens a calendar selection dialog for the event', 'awesome-calendar-events'),
-        icon: 'calendar-alt',
+        icon: window.awecalBlockIcons.addToCalendar,
         category: 'awesome-calendar-events',
         keywords: ['event', 'calendar', 'ical'],
         supports: {
@@ -49,7 +49,7 @@
         name: 'awecal-add-to-calendar',
         title: __('Add to Calendar', 'awesome-calendar-events'),
         description: __('Button that opens a calendar selection dialog for the event', 'awesome-calendar-events'),
-        icon: 'calendar-alt',
+        icon: window.awecalBlockIcons.addToCalendar,
         attributes: getAddToCalendarButtonAttributes(),
         isActive: (blockAttributes) => {
             return blockAttributes.className && blockAttributes.className.includes('is-style-add-to-calendar');

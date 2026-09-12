@@ -40,7 +40,7 @@ class Awesome_Calendar_Events_Event_Date_Block {
 		wp_register_script(
 			'awesome-calendar-events-event-date-block-editor',
 			AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-date-block.js',
-			array('awesome-calendar-events-event-meta-blocks-shared'),
+			array('awesome-calendar-events-block-icons', 'awesome-calendar-events-event-meta-blocks-shared'),
 			$version,
 			true
 		);
@@ -48,7 +48,7 @@ class Awesome_Calendar_Events_Event_Date_Block {
 		wp_register_script(
 			'awesome-calendar-events-event-time-block-editor',
 			AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-time-block.js',
-			array('awesome-calendar-events-event-meta-blocks-shared'),
+			array('awesome-calendar-events-block-icons', 'awesome-calendar-events-event-meta-blocks-shared'),
 			$version,
 			true
 		);
@@ -56,7 +56,7 @@ class Awesome_Calendar_Events_Event_Date_Block {
 		wp_register_script(
 			'awesome-calendar-events-event-location-block-editor',
 			AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-location-block.js',
-			array('awesome-calendar-events-event-meta-blocks-shared'),
+			array('awesome-calendar-events-block-icons', 'awesome-calendar-events-event-meta-blocks-shared'),
 			$version,
 			true
 		);

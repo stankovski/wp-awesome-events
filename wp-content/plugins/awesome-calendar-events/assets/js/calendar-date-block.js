@@ -10,7 +10,7 @@
     registerBlockType('awesome-calendar-events/calendar-date', {
         title: __('Calendar Date', 'awesome-calendar-events'),
         description: __('Container for a single calendar date cell. Shows the day number and the event details for that date.', 'awesome-calendar-events'),
-        icon: 'calendar-alt',
+        icon: window.awecalBlockIcons.calendarDate,
         category: 'awesome-calendar-events',
         keywords: [
             __('calendar', 'awesome-calendar-events'),

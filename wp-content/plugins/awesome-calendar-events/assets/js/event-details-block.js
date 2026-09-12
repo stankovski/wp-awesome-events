@@ -10,7 +10,7 @@
     registerBlockType('awesome-calendar-events/event-details', {
         title: __('Event Details', 'awesome-calendar-events'),
         description: __('Container that displays a single event inside a calendar date cell.', 'awesome-calendar-events'),
-        icon: 'megaphone',
+        icon: window.awecalBlockIcons.eventDetails,
         category: 'awesome-calendar-events',
         keywords: [
             __('event', 'awesome-calendar-events'),

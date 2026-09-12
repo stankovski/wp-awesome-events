@@ -70,7 +70,7 @@
     registerBlockType('awesome-calendar-events/calendar', {
         title: __('Calendar', 'awesome-calendar-events'),
         description: __('Displays a month calendar grid of events with previous/next month navigation.', 'awesome-calendar-events'),
-        icon: 'calendar-alt',
+        icon: window.awecalBlockIcons.calendar,
         category: 'awesome-calendar-events',
         keywords: [
             __('calendar', 'awesome-calendar-events'),

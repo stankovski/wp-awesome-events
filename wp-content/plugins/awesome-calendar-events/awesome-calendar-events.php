@@ -57,6 +57,10 @@ class Awesome_Calendar_Events_Plugin {
      * Initialize WordPress hooks
      */
     private function init_hooks() {
+        // Register the shared custom block icon script before the block
+        // classes register their editor scripts (which use it as a
+        // dependency); init_blocks() runs at the default priority 10.
+        add_action('init', array($this, 'register_block_icons'), 5);
         add_action('init', array($this, 'init'));
         add_filter('block_categories_all', array($this, 'add_block_category'), 10, 2);
 
@@ -72,6 +76,23 @@ class Awesome_Calendar_Events_Plugin {
         // Runs on activation and once per version via admin_init so DB
         // restores or file-level updates are also migrated.
         add_action('admin_init', array($this, 'maybe_migrate_legacy_meta'));
+    }
+
+    /**
+     * Register the shared block icon script (custom SVG icons).
+     *
+     * Defines the `awesome-calendar-events-block-icons` handle used as a
+     * dependency by editor scripts of blocks that register their icons
+     * client-side (see assets/js/block-icons.js).
+     */
+    public function register_block_icons() {
+        wp_register_script(
+            'awesome-calendar-events-block-icons',
+            AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/block-icons.js',
+            array('wp-element'),
+            AWESOME_CALENDAR_EVENTS_VERSION,
+            true
+        );
     }
 
     /**

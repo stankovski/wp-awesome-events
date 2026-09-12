@@ -24,7 +24,7 @@
 
     registerBlockType('awesome-calendar-events/announcement-container', {
         title: __('Event Announcement', 'awesome-calendar-events'),
-        icon: 'megaphone',
+        icon: window.awecalBlockIcons.announcement,
         category: 'awesome-calendar-events',
         description: __('A container that displays content when the current post has an unexpired announcement.', 'awesome-calendar-events'),
         keywords: [

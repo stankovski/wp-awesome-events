@@ -49,7 +49,7 @@ class Awesome_Calendar_Events_Calendar_Block {
 		wp_register_script(
 			'awesome-calendar-events-calendar-editor',
 			AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/calendar-block.js',
-			['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
+			['awesome-calendar-events-block-icons', 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
 			$version,
 			true
 		);
@@ -57,7 +57,7 @@ class Awesome_Calendar_Events_Calendar_Block {
 		wp_register_script(
 			'awesome-calendar-events-calendar-date-editor',
 			AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/calendar-date-block.js',
-			['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
+			['awesome-calendar-events-block-icons', 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
 			$version,
 			true
 		);
@@ -65,7 +65,7 @@ class Awesome_Calendar_Events_Calendar_Block {
 		wp_register_script(
 			'awesome-calendar-events-event-details-editor',
 			AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/event-details-block.js',
-			['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
+			['awesome-calendar-events-block-icons', 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
 			$version,
 			true
 		);

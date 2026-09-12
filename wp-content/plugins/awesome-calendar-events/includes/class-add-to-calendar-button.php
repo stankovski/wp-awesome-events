@@ -56,7 +56,7 @@ class Awesome_Calendar_Events_Add_To_Calendar_Button {
         wp_register_script(
             'awesome-calendar-events-add-to-calendar-button',
             AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/add-to-calendar-button.js',
-            ['wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-data', 'wp-block-editor'],
+            ['awesome-calendar-events-block-icons', 'wp-blocks', 'wp-element', 'wp-i18n', 'wp-components', 'wp-data', 'wp-block-editor'],
             $ver,
             true
         );

@@ -23,7 +23,7 @@ class Awesome_Calendar_Events_Announcement_Container_Block {
         wp_register_script(
             'awesome-calendar-events-announcement-container-block-editor',
             AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/announcement-container-block.js',
-            ['wp-blocks', 'wp-element', 'wp-block-editor', 'wp-i18n'],
+            ['awesome-calendar-events-block-icons', 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-i18n'],
             $version,
             true
         );

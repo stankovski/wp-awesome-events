@@ -8,7 +8,7 @@
         name: 'awesome-calendar-events/event-list',
         title: __('Event List', 'awesome-calendar-events'),
         description: __('Display a list of upcoming events, optionally filtered by category or tags. Recurring events are shown once.', 'awesome-calendar-events'),
-        icon: 'calendar-alt',
+        icon: window.awecalBlockIcons.eventList,
         keywords: [
             __('event', 'awesome-calendar-events'),
             __('events', 'awesome-calendar-events'),
