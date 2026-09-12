@@ -1,6 +1,6 @@
 .awecal-event-date-block,
 .awecal-event-time-block,
-.awecal-event-location-block { display: inline-flex; align-items: baseline; gap: 4px; font-weight: 400; }
+.awecal-event-location-block { display: block; font-weight: 400; }
 .awecal-event-label { font-weight: 100; }
 .awecal-event-date-block .awecal-event-date-label { font-weight: 600; }
 .awecal-event-date-block-editor { padding: 8px; border: 1px dashed #ccc; background: #f8f8f8; font-size: 13px; }

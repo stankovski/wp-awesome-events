@@ -3,7 +3,7 @@
  * Plugin Name: Awesome Calendar Events
  * Plugin URI: https://github.com/stankovski/wp-awesome-events
  * Description: Manage event dates and recurring schedules, publish calendar feeds, display countdowns, and let visitors add events to their calendar.
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author: stankovski
  * Author URI: https://goodsoftware.foundation/
  * Text Domain: awesome-calendar-events
@@ -21,7 +21,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('AWESOME_CALENDAR_EVENTS_VERSION', '1.1.1');
+define('AWESOME_CALENDAR_EVENTS_VERSION', '1.1.2');
 define('AWESOME_CALENDAR_EVENTS_PLUGIN_FILE', __FILE__);
 define('AWESOME_CALENDAR_EVENTS_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('AWESOME_CALENDAR_EVENTS_PLUGIN_URL', plugin_dir_url(__FILE__));

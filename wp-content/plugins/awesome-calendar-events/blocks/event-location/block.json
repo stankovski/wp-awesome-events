@@ -9,6 +9,7 @@
 	"keywords": [ "event", "location", "venue", "calendar" ],
 	"textdomain": "awesome-calendar-events",
 	"editorScript": "awesome-calendar-events-event-location-block-editor",
+	"editorStyle": "awesome-calendar-events-event-date-block-editor-style",
 	"style": "awesome-calendar-events-event-date-block-style",
 	"usesContext": [ "postId", "postType", "queryId" ],
 	"attributes": {

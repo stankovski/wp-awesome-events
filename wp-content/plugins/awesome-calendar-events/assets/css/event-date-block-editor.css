@@ -1,0 +1,6 @@
+/* Editor-only: mirror the frontend layout for the event meta blocks
+ * (date/time/location). Applied to the classes shared with the frontend
+ * stylesheet via useBlockProps(). */
+.awecal-event-date-block,
+.awecal-event-time-block,
+.awecal-event-location-block { display: block; font-weight: 400; }

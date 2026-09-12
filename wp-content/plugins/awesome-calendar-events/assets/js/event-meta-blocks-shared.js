@@ -91,7 +91,12 @@
 
 		return function EventMetaEdit( props ) {
 			const { attributes, setAttributes, context } = props;
-			const blockProps = useBlockProps();
+			// Mirror the server-rendered wrapper classes so the editor preview
+			// matches the frontend (e.g. inline-flex, no line breaks between
+			// consecutive event meta blocks).
+			const blockProps = useBlockProps( {
+				className: 'awecal-event-' + type + '-block',
+			} );
 
 			// Context postId/postType (query loop), falling back to the editor's current post.
 			const editorPost = useSelect( ( select ) => {

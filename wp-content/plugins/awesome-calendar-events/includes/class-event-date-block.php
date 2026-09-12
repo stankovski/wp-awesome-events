@@ -68,6 +68,13 @@ class Awesome_Calendar_Events_Event_Date_Block {
 			$version
 		);
 
+		wp_register_style(
+			'awesome-calendar-events-event-date-block-editor-style',
+			AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/css/event-date-block-editor.css',
+			array(),
+			$version
+		);
+
 		if (!function_exists('register_block_type')) { return; }
 
 		register_block_type(
