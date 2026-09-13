@@ -223,6 +223,57 @@ class Awesome_Calendar_Events_Calendar_Block {
 
 		$cells = '';
 		$date_template = $this->find_template_block($block, 'awesome-calendar-events/calendar-date');
+
+		// Capture the editor-applied classes/styles of the date cell and event
+		// item wrappers (background, colors, spacing, typography, custom
+		// classes) so the frontend script can re-apply them when re-rendering
+		// cells during month navigation.
+		$day_dynamic   = ['awecal-calendar-day', 'is-today', 'is-other-month', 'has-events', 'is-empty'];
+		$event_dynamic = ['awecal-calendar-event'];
+		if ($date_template !== null) {
+			$static = $this->get_static_wrapper_attrs(
+				$date_template,
+				[
+					self::CONTEXT_DATE => [
+						'date'           => '1970-01-01',
+						'isToday'        => false,
+						'isCurrentMonth' => true,
+						'events'         => [],
+						'maxEvents'      => 0,
+					],
+				],
+				$day_dynamic
+			);
+			if ($static) {
+				$config['dateCell']['staticClasses'] = $static['classes'];
+				$config['dateCell']['staticStyle'] = $static['style'];
+			}
+
+			// The event details container lives inside the date container.
+			foreach ((array) ($date_template['innerBlocks'] ?? []) as $nested) {
+				if (($nested['blockName'] ?? '') !== 'awesome-calendar-events/event-details') {
+					continue;
+				}
+				$static = $this->get_static_wrapper_attrs(
+					$nested,
+					[
+						self::CONTEXT_EVENT => [
+							'title'      => '',
+							'url'        => '',
+							'snippet'    => '',
+							'occurrence' => ['start' => ''],
+							'event'      => ['location' => ''],
+						],
+					],
+					$event_dynamic
+				);
+				if ($static) {
+					$config['eventItem']['staticClasses'] = $static['classes'];
+					$config['eventItem']['staticStyle'] = $static['style'];
+				}
+				break;
+			}
+		}
 		$parent_context = ($block && isset($block->context) && is_array($block->context)) ? $block->context : [];
 
 		for ($day = $grid_start; $day <= $grid_end; $day = $day->modify('+1 day')) {
@@ -450,6 +501,46 @@ class Awesome_Calendar_Events_Calendar_Block {
 			}
 		}
 		return $parsed;
+	}
+
+	/**
+	 * Static wrapper attributes of a block: editor-applied classes
+	 * (custom class names, color classes like `has-background`) and inline
+	 * styles (colors, gradients, spacing, typography). Captured via a probe
+	 * render of the parsed block so the frontend re-render can mirror the
+	 * server markup. Dynamic per-instance classes are stripped.
+	 *
+	 * @param array|null $parsed_block Parsed block.
+	 * @param array      $context      Context for the probe render.
+	 * @param string[]   $dynamic      Dynamic classes to strip.
+	 * @return array|null ['classes' => string[], 'style' => string] or null.
+	 */
+	private function get_static_wrapper_attrs($parsed_block, $context, $dynamic) {
+		if (!is_array($parsed_block)) {
+			return null;
+		}
+
+		$probe = new WP_Block($parsed_block, $context);
+
+		$html = $probe->render();
+		if (!preg_match('/^<div\s+([^>]*?)>/s', $html, $m)) {
+			return null;
+		}
+
+		$result = ['classes' => [], 'style' => ''];
+		if (preg_match('/class="([^"]*)"/', $m[1], $cm)) {
+			foreach (preg_split('/\s+/', trim($cm[1])) as $class) {
+				if ($class === '' || in_array($class, $dynamic, true)) {
+					continue;
+				}
+				$result['classes'][] = $class;
+			}
+		}
+		if (preg_match('/style="([^"]*)"/', $m[1], $sm)) {
+			$result['style'] = $sm[1];
+		}
+
+		return ($result['classes'] || $result['style'] !== '') ? $result : null;
 	}
 
 	/* ------------------------------------------------------------------ *

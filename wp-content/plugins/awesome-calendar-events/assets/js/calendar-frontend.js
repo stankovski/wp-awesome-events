@@ -40,6 +40,17 @@
     }
 
     /**
+     * Decode HTML entities (e.g. `&#8211;`) from API values before
+     * escaping. Mirrors the PHP side, where esc_html() renders existing
+     * entities as-is instead of double-encoding them.
+     */
+    function decodeEntities(value) {
+        const el = document.createElement('textarea');
+        el.innerHTML = String(value == null ? '' : value);
+        return el.value;
+    }
+
+    /**
      * Grid bounds for a Y-m month string: UTC start date and total cells
      * (leading/trailing cells of adjacent months included).
      */
@@ -87,7 +98,7 @@
     function renderEvent(event, cfg) {
         const o = cfg.eventItem || {};
         let inner = '';
-        const title = event.title || '';
+        const title = decodeEntities(event.title || '');
 
         if (o.showTitle && title) {
             const t = escapeHtml(title);
@@ -103,14 +114,23 @@
         }
 
         if (o.showLocation && event.event && event.event.location) {
-            inner += '<span class="awecal-calendar-event-location">' + escapeHtml(event.event.location) + '</span>';
+            inner += '<span class="awecal-calendar-event-location">' + escapeHtml(decodeEntities(event.event.location)) + '</span>';
         }
 
         if (o.showSnippet && event.snippet) {
-            inner += '<span class="awecal-calendar-event-snippet">' + escapeHtml(event.snippet) + '</span>';
+            inner += '<span class="awecal-calendar-event-snippet">' + escapeHtml(decodeEntities(event.snippet)) + '</span>';
         }
 
-        return '<div class="awecal-calendar-event">' + inner + '</div>';
+        const eventClasses = ['awecal-calendar-event'];
+        if (o.staticClasses) {
+            o.staticClasses.forEach(function(c) {
+                if (eventClasses.indexOf(c) === -1) {
+                    eventClasses.push(c);
+                }
+            });
+        }
+        return '<div class="' + escapeHtml(eventClasses.join(' ')) + '"' +
+            (o.staticStyle ? ' style="' + escapeHtml(o.staticStyle) + '"' : '') + '>' + inner + '</div>';
     }
 
     /**
@@ -133,6 +153,8 @@
         });
 
         const bounds = gridBounds(ym, cfg.startOfWeek);
+        const staticClasses = (cfg.dateCell && cfg.dateCell.staticClasses) || [];
+        const staticStyle = (cfg.dateCell && cfg.dateCell.staticStyle) || '';
         for (let i = 0; i < bounds.total; i++) {
             const day = new Date(bounds.start.getTime() + i * 86400000);
             const ymd = isoDate(day);
@@ -145,8 +167,14 @@
                 classes.push('is-other-month');
             }
             classes.push(events.length ? 'has-events' : 'is-empty');
+            staticClasses.forEach(function(c) {
+                if (classes.indexOf(c) === -1) {
+                    classes.push(c);
+                }
+            });
 
-            html += '<div class="' + classes.join(' ') + '" data-date="' + ymd + '">';
+            html += '<div class="' + escapeHtml(classes.join(' ')) + '" data-date="' + ymd + '"' +
+                (staticStyle ? ' style="' + escapeHtml(staticStyle) + '"' : '') + '>';
             if (!cfg.dateCell || cfg.dateCell.showDateNumber) {
                 html += '<div class="awecal-calendar-day-number">' + day.getUTCDate() + '</div>';
             }
