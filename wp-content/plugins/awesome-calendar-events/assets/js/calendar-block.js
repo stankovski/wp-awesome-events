@@ -93,7 +93,8 @@
             initialOffset: { type: 'integer', default: 0 },
             maxEventsPerDay: { type: 'integer', default: 3 },
             categories: { type: 'string', default: '' },
-            tags: { type: 'string', default: '' }
+            tags: { type: 'string', default: '' },
+            mobileView: { type: 'string', default: 'list' }
         },
 
         edit: function(props) {
@@ -137,6 +138,17 @@
                             onChange: function(value) { setAttributes({ maxEventsPerDay: value }); },
                             min: 0,
                             max: 10
+                        }),
+                        el(SelectControl, {
+                            label: __('Mobile View', 'awesome-calendar-events'),
+                            help: __('How the calendar appears on small screens.', 'awesome-calendar-events'),
+                            value: attributes.mobileView,
+                            options: [
+                                { label: __('Show calendar', 'awesome-calendar-events'), value: 'calendar' },
+                                { label: __('Show list', 'awesome-calendar-events'), value: 'list' },
+                                { label: __('Hide', 'awesome-calendar-events'), value: 'hide' }
+                            ],
+                            onChange: function(value) { setAttributes({ mobileView: value }); }
                         }),
                         el(TextControl, {
                             label: __('Filter by Categories', 'awesome-calendar-events'),

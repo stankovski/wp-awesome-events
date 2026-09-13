@@ -177,20 +177,43 @@
     font-size: 13px;
 }
 
+/* Mobile view ("Show list"): agenda list layout on small screens — the
+   grid collapses into a single column of day entries (only days with
+   events), each listing its events in the full event details format. */
 @media (max-width: 600px) {
-    .awecal-calendar .awecal-calendar-day {
-        min-height: 48px;
-        padding: 2px;
-    }
-
-    .awecal-calendar .awecal-calendar-event {
-        font-size: 0.7em;
-        padding: 2px 4px;
-    }
-
-    .awecal-calendar .awecal-calendar-event-time,
-    .awecal-calendar .awecal-calendar-event-location,
-    .awecal-calendar .awecal-calendar-event-snippet {
+    .awecal-calendar.awecal-mobile-view-hide {
         display: none;
+    }
+
+    .awecal-calendar.awecal-mobile-view-list .awecal-calendar-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .awecal-calendar.awecal-mobile-view-list .awecal-calendar-weekday,
+    .awecal-calendar.awecal-mobile-view-list .awecal-calendar-day.is-empty,
+    .awecal-calendar.awecal-mobile-view-list .awecal-calendar-day.is-other-month {
+        display: none;
+    }
+
+    .awecal-calendar.awecal-mobile-view-list .awecal-calendar-day {
+        min-height: 0;
+        padding: 12px 4px;
+        border: none;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 0;
+    }
+
+    .awecal-calendar.awecal-mobile-view-list .awecal-calendar-day-number {
+        font-size: 0.75em;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+        opacity: 0.7;
+        margin-bottom: 8px;
+    }
+
+    .awecal-calendar.awecal-mobile-view-list .awecal-calendar-event {
+        font-size: 0.85em;
+        padding: 8px 10px;
     }
 }

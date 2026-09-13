@@ -125,6 +125,10 @@ class Awesome_Calendar_Events_Calendar_Block {
 		$show_navigation = !isset($attributes['showNavigation']) || (bool) $attributes['showNavigation'];
 		$categories      = trim((string) ($attributes['categories'] ?? ''));
 		$tags            = trim((string) ($attributes['tags'] ?? ''));
+		$mobile_view     = (string) ($attributes['mobileView'] ?? 'list');
+		if (!in_array($mobile_view, ['calendar', 'list', 'hide'], true)) {
+			$mobile_view = 'list';
+		}
 
 		// Displayed month: current month shifted by initialOffset months.
 		$offset = (int) ($attributes['initialOffset'] ?? 0);
@@ -320,7 +324,7 @@ class Awesome_Calendar_Events_Calendar_Block {
 		}
 
 		$wrapper_attributes = get_block_wrapper_attributes([
-			'class' => 'awecal-calendar',
+			'class' => 'awecal-calendar awecal-mobile-view-' . $mobile_view,
 		]);
 
 		$nav = '';
