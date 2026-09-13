@@ -3,7 +3,7 @@ Contributors: stankovski
 Tags: events, calendar, ics, recurrence, countdown
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 1.1.3
+Stable tag: 1.2.1
 Requires PHP: 8.0
 License: GPL v2 or later
 License URI: https://github.com/stankovski/wp-awesome-events/blob/main/LICENSE
