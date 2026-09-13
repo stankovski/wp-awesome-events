@@ -132,11 +132,8 @@
 
 .awecal-calendar-editor-preview {
     pointer-events: none;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 4px;
     padding: 12px;
     margin-bottom: 16px;
-    background: rgba(0, 0, 0, 0.02);
 }
 
 .awecal-calendar-editor-preview .awecal-calendar-nav {

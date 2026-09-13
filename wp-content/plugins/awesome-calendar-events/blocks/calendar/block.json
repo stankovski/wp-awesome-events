@@ -59,6 +59,21 @@
 			"margin": true,
 			"padding": true
 		},
+		"__experimentalBorder": {
+			"radius": true,
+			"color": true,
+			"width": true,
+			"style": true,
+			"__experimentalDefaultControls": {
+				"radius": true,
+				"color": true,
+				"width": true,
+				"style": true
+			}
+		},
+		"shadow": {
+			"__experimentalDefaultControls": true
+		},
 		"typography": {
 			"fontSize": true,
 			"lineHeight": true,

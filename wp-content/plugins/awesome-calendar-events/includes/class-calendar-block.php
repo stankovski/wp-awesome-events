@@ -49,7 +49,7 @@ class Awesome_Calendar_Events_Calendar_Block {
 		wp_register_script(
 			'awesome-calendar-events-calendar-editor',
 			AWESOME_CALENDAR_EVENTS_PLUGIN_URL . 'assets/js/calendar-block.js',
-			['awesome-calendar-events-block-icons', 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n'],
+			['awesome-calendar-events-block-icons', 'wp-blocks', 'wp-element', 'wp-block-editor', 'wp-components', 'wp-i18n', 'wp-api-fetch'],
 			$version,
 			true
 		);
@@ -389,10 +389,14 @@ class Awesome_Calendar_Events_Calendar_Block {
 			$request->set_param('per_page', Awesome_Calendar_Events_Events_Query_API::MAX_PER_PAGE);
 			$request->set_param('include_details', false);
 			if ($categories !== '') {
-				$request->set_param('categories', $categories);
+				// Sanitize here: set_param values are only sanitized by the
+				// REST dispatcher when the request is routed; this internal
+				// call invokes the callback directly, so the comma string
+				// must be converted to the slug array the query expects.
+				$request->set_param('categories', $api->sanitize_slug_list($categories));
 			}
 			if ($tags !== '') {
-				$request->set_param('tags', $tags);
+				$request->set_param('tags', $api->sanitize_slug_list($tags));
 			}
 			if ($token !== null) {
 				$request->set_param('page_token', $token);

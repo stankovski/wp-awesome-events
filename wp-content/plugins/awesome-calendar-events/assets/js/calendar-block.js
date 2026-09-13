@@ -2,13 +2,96 @@
     'use strict';
 
     const { registerBlockType } = wp.blocks;
-    const { createElement: el, Fragment } = wp.element;
-    const { InspectorControls, InnerBlocks, useBlockProps } = wp.blockEditor;
-    const { PanelBody, ToggleControl, SelectControl, TextControl, RangeControl } = wp.components;
+    const { createElement: el, Fragment, useState, useEffect } = wp.element;
+    const {
+        InspectorControls,
+        InnerBlocks,
+        useBlockProps
+    } = wp.blockEditor;
+    const { PanelBody, ToggleControl, SelectControl, FormTokenField, RangeControl } = wp.components;
     const { __ } = wp.i18n;
+    const apiFetch = window.wp.apiFetch;
+
+    /**
+     * Taxonomy term filter control (autocomplete + multi-select), mirroring
+     * the Query Loop block's taxonomy controls. Terms are fetched from the
+     * REST API; tokens display term names while the attribute persists a
+     * comma-separated slug list (the format consumed by the events query
+     * API). Slugs without a matching term (e.g. removed terms) are kept and
+     * displayed as-is so existing blocks are not silently mutated.
+     */
+    function TaxonomyFilter(props) {
+        const { restBase, label, help, slugs, onChangeSlugs } = props;
+        const [terms, setTerms] = useState([]);
+
+        useEffect(function() {
+            let active = true;
+            apiFetch({ path: '/wp/v2/' + restBase + '?per_page=100&orderby=name&order=asc&_fields=id,name,slug' })
+                .then(function(data) {
+                    if (active && Array.isArray(data)) { setTerms(data); }
+                })
+                .catch(function() {
+                    if (active) { setTerms([]); }
+                });
+            return function() { active = false; };
+        }, [restBase]);
+
+        const slugToName = {};
+        const nameToSlug = {};
+        terms.forEach(function(term) {
+            if (!term || !term.slug) { return; }
+            slugToName[term.slug] = term.name || term.slug;
+            if (term.name) { nameToSlug[term.name] = term.slug; }
+        });
+
+        const selectedSlugs = (slugs || '').split(',').map(function(s) { return s.trim(); }).filter(Boolean);
+
+        // Resolve a token value to a term slug: exact name match first, then
+        // a case-insensitive match (FormTokenField suggestions match case
+        // insensitively), otherwise keep the token as a raw slug.
+        const resolveSlug = function(token) {
+            if (Object.prototype.hasOwnProperty.call(nameToSlug, token)) {
+                return nameToSlug[token];
+            }
+            const lower = token.toLocaleLowerCase();
+            const match = terms.find(function(term) {
+                return term && term.name && term.name.toLocaleLowerCase() === lower;
+            });
+            return match ? match.slug : token;
+        };
+
+        const value = selectedSlugs.map(function(slug) { return slugToName[slug] || slug; });
+        const suggestions = terms
+            .map(function(term) { return term.name; })
+            .filter(function(name) { return name && !selectedSlugs.includes(nameToSlug[name]); });
+
+        return el(FormTokenField, {
+            label: label,
+            help: help,
+            value: value,
+            suggestions: suggestions,
+            onChange: function(tokens) {
+                const next = [];
+                tokens.forEach(function(token) {
+                    const slug = String(token).trim();
+                    if (slug === '') { return; }
+                    const resolved = resolveSlug(slug);
+                    if (!next.includes(resolved)) { next.push(resolved); }
+                });
+                onChangeSlugs(next.join(','));
+            },
+            maxSuggestions: 20,
+            __experimentalExpandOnFocus: true,
+            __experimentalShowHowTo: false
+        });
+    }
 
     /**
      * Build a static preview grid for the current month (editor only).
+     *
+     * The container has no border/shadow of its own: the block wrapper
+     * (useBlockProps) already carries the border/shadow the user configures
+     * via block supports, mirroring the server-rendered wrapper.
      */
     function buildPreviewGrid() {
         const now = new Date();
@@ -43,7 +126,10 @@
 
         return el(
             'div',
-            { className: 'awecal-calendar-editor-preview', 'aria-hidden': true },
+            {
+                className: 'awecal-calendar-editor-preview',
+                'aria-hidden': true
+            },
             el(
                 'div',
                 { className: 'awecal-calendar-header' },
@@ -85,6 +171,8 @@
             className: true,
             color: { gradients: true, link: true, text: true, background: true },
             spacing: { margin: true, padding: true },
+            __experimentalBorder: { radius: true, color: true, width: true, style: true },
+            shadow: true,
             typography: { fontSize: true, lineHeight: true }
         },
         attributes: {
@@ -150,17 +238,19 @@
                             ],
                             onChange: function(value) { setAttributes({ mobileView: value }); }
                         }),
-                        el(TextControl, {
+                        el(TaxonomyFilter, {
+                            restBase: 'categories',
                             label: __('Filter by Categories', 'awesome-calendar-events'),
-                            help: __('Comma-separated category slugs.', 'awesome-calendar-events'),
-                            value: attributes.categories,
-                            onChange: function(value) { setAttributes({ categories: value }); }
+                            help: __('Only show events assigned to the selected categories.', 'awesome-calendar-events'),
+                            slugs: attributes.categories,
+                            onChangeSlugs: function(value) { setAttributes({ categories: value }); }
                         }),
-                        el(TextControl, {
+                        el(TaxonomyFilter, {
+                            restBase: 'tags',
                             label: __('Filter by Tags', 'awesome-calendar-events'),
-                            help: __('Comma-separated tag slugs.', 'awesome-calendar-events'),
-                            value: attributes.tags,
-                            onChange: function(value) { setAttributes({ tags: value }); }
+                            help: __('Only show events assigned to the selected tags.', 'awesome-calendar-events'),
+                            slugs: attributes.tags,
+                            onChangeSlugs: function(value) { setAttributes({ tags: value }); }
                         })
                     )
                 ),
