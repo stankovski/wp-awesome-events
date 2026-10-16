@@ -180,6 +180,8 @@ function register_post_meta($post_type, $meta_key, $args) {
  * ---------------------------------------------------------------------- */
 
 function add_action($hook, $callback = null, $priority = 10, $args = 1) { return true; }
+function doing_action($hook) { return false; }
+function did_action($hook) { return 0; }
 function add_filter($hook, $callback = null, $priority = 10, $args = 1) {
     $GLOBALS['__awecal_filters'][$hook][] = $callback;
     return true;
@@ -254,6 +256,14 @@ function current_time($type) {
 }
 
 function date_i18n($format, $timestamp = null) {
+    return date($format, $timestamp ?: time());
+}
+
+function wp_timezone() {
+    return new DateTimeZone(date_default_timezone_get());
+}
+
+function wp_date($format, $timestamp = null) {
     return date($format, $timestamp ?: time());
 }
 

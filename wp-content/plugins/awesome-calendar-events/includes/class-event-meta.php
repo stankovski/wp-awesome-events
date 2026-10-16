@@ -781,6 +781,52 @@ class Awesome_Calendar_Events_Event_Meta {
     }
 
     /**
+     * Unified event time display helper.
+     *
+     * Resolution order (shared by the event-time block, block bindings and
+     * the [awecal_event_time] / [awecal_event_full_time] shortcodes):
+     *  1. Custom time label (_awecal_event_custom_time_label), when set.
+     *  2. Formatted start time (_awecal_event_start_time), parsed in the
+     *     site timezone so the rendered wall clock matches the entered value.
+     *
+     * Returns array with keys:
+     *  - 'value' => display string ('' when nothing to show)
+     *  - 'datetime' => machine-readable H:i time for the "time" element
+     *                  ('' for custom labels)
+     *  - 'is_custom_label' => bool whether the value came from the label
+     */
+    public static function get_event_time_display($post_id, $time_format = null) {
+        $result = [
+            'value' => '',
+            'datetime' => '',
+            'is_custom_label' => false,
+        ];
+
+        $time_format = $time_format ?: get_option('time_format');
+
+        $custom_label = trim((string) awecal_get_post_meta($post_id, '_awecal_event_custom_time_label', true));
+        if ($custom_label !== '') {
+            $result['value'] = $custom_label;
+            $result['is_custom_label'] = true;
+            return $result;
+        }
+
+        $start_time = trim((string) awecal_get_post_meta($post_id, '_awecal_event_start_time', true));
+        if ($start_time === '') { return $result; }
+
+        try {
+            $datetime = new DateTimeImmutable($start_time, wp_timezone());
+        } catch (Exception $e) {
+            return $result;
+        }
+
+        $result['datetime'] = $datetime->format('H:i');
+        $result['value'] = wp_date($time_format, $datetime->getTimestamp());
+
+        return $result;
+    }
+
+    /**
      * Parse the stored weekday meta into an integer array (Monday=0..Sunday=6).
      * Supports new canonical string format "[0,2,5]" and legacy array storage.
      */

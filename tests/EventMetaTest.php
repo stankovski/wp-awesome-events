@@ -181,6 +181,41 @@ class EventMetaTest extends TestCase {
     }
 
     /* ------------------------------------------------------------------ *
+     * Unified time display (custom label + start time)
+     * ------------------------------------------------------------------ */
+
+    public function test_get_event_time_display_prefers_custom_time_label() {
+        $post_id = 45;
+        update_post_meta($post_id, '_awecal_event_custom_time_label', 'After Sunset');
+        update_post_meta($post_id, '_awecal_event_start_time', '10:30');
+
+        $display = Awesome_Calendar_Events_Event_Meta::get_event_time_display($post_id, 'g:i A');
+
+        $this->assertSame('After Sunset', $display['value']);
+        $this->assertSame('', $display['datetime']);
+        $this->assertTrue($display['is_custom_label']);
+    }
+
+    public function test_get_event_time_display_formats_start_time() {
+        $post_id = 46;
+        update_post_meta($post_id, '_awecal_event_start_time', '10:30');
+
+        $display = Awesome_Calendar_Events_Event_Meta::get_event_time_display($post_id, 'H:i');
+
+        $this->assertSame('10:30', $display['value']);
+        $this->assertSame('10:30', $display['datetime']);
+        $this->assertFalse($display['is_custom_label']);
+    }
+
+    public function test_get_event_time_display_empty_without_time_or_label() {
+        $display = Awesome_Calendar_Events_Event_Meta::get_event_time_display(47, 'H:i');
+
+        $this->assertSame('', $display['value']);
+        $this->assertSame('', $display['datetime']);
+        $this->assertFalse($display['is_custom_label']);
+    }
+
+    /* ------------------------------------------------------------------ *
      * Weekday parsing
      * ------------------------------------------------------------------ */
 

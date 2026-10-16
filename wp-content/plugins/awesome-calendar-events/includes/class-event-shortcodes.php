@@ -190,24 +190,18 @@ class Awesome_Calendar_Events_Event_Shortcodes {
             return esc_html($atts['fallback']);
         }
 
-        // Check for custom time label first
-        $custom_label = awecal_get_post_meta($post_id, '_awecal_event_custom_time_label', true);
-        if (!empty($custom_label)) {
-            return esc_html($custom_label);
-        }
-
-        $time_raw = awecal_get_post_meta($post_id, '_awecal_event_start_time', true);
-        if (!$time_raw) {
+        if (!class_exists('Awesome_Calendar_Events_Event_Meta')) {
             return esc_html($atts['fallback']);
         }
 
-        // Parse and format the time
-        $ts = strtotime(gmdate('Y-m-d') . ' ' . $time_raw);
-        if (!$ts) {
-            return esc_html($atts['fallback']);
+        // Shared resolution logic: custom time label first, then formatted start time.
+        $display = Awesome_Calendar_Events_Event_Meta::get_event_time_display($post_id, $atts['format']);
+
+        if ('' !== $display['value']) {
+            return esc_html($display['value']);
         }
 
-        return esc_html(date_i18n($atts['format'], $ts));
+        return esc_html($atts['fallback']);
     }
 
     /**
@@ -235,39 +229,38 @@ class Awesome_Calendar_Events_Event_Shortcodes {
             return esc_html($atts['fallback']);
         }
 
-        // Check for custom time label first
-        $custom_label = awecal_get_post_meta($post_id, '_awecal_event_custom_time_label', true);
-        if (!empty($custom_label)) {
-            return esc_html($custom_label);
-        }
-
-        $start_time_raw = awecal_get_post_meta($post_id, '_awecal_event_start_time', true);
-        $end_time_raw = awecal_get_post_meta($post_id, '_awecal_event_end_time', true);
-
-        if (!$start_time_raw) {
+        if (!class_exists('Awesome_Calendar_Events_Event_Meta')) {
             return esc_html($atts['fallback']);
         }
 
-        // Parse and format the start time
-        $start_ts = strtotime(gmdate('Y-m-d') . ' ' . $start_time_raw);
-        if (!$start_ts) {
+        // Shared resolution logic: custom time label first, then formatted start time.
+        $display = Awesome_Calendar_Events_Event_Meta::get_event_time_display($post_id, $atts['format']);
+
+        if ('' === $display['value']) {
             return esc_html($atts['fallback']);
         }
 
-        $start_formatted = date_i18n($atts['format'], $start_ts);
+        // Custom time label replaces the whole time range.
+        if (!empty($display['is_custom_label'])) {
+            return esc_html($display['value']);
+        }
+
+        $start_formatted = $display['value'];
 
         // If no end time, just return start time
+        $end_time_raw = awecal_get_post_meta($post_id, '_awecal_event_end_time', true);
         if (!$end_time_raw) {
             return esc_html($start_formatted);
         }
 
-        // Parse and format the end time
-        $end_ts = strtotime(gmdate('Y-m-d') . ' ' . $end_time_raw);
-        if (!$end_ts) {
+        // Parse and format the end time in the site timezone
+        try {
+            $end_datetime = new DateTimeImmutable(trim((string) $end_time_raw), wp_timezone());
+        } catch (Exception $e) {
             return esc_html($start_formatted);
         }
 
-        $end_formatted = date_i18n($atts['format'], $end_ts);
+        $end_formatted = wp_date($atts['format'], $end_datetime->getTimestamp());
 
         return esc_html($start_formatted . $atts['separator'] . $end_formatted);
     }

@@ -224,8 +224,12 @@ class Awesome_Calendar_Events_Event_Date_Block {
 	/**
 	 * Resolve the formatted event start time for a post.
 	 *
+	 * Delegates to the shared Awesome_Calendar_Events_Event_Meta::get_event_time_display()
+	 * helper so the block, block bindings and shortcodes share the same
+	 * resolution logic (custom time label first, then formatted start time).
+	 *
 	 * Returns an array with:
-	 *  - 'value'    => formatted time string
+	 *  - 'value'    => display string (custom label or formatted time)
 	 *  - 'datetime' => machine-readable H:i time for the "time" element (may be empty)
 	 *
 	 * @param int    $post_id     Post ID.
@@ -233,34 +237,14 @@ class Awesome_Calendar_Events_Event_Date_Block {
 	 * @return array
 	 */
 	private static function get_formatted_time($post_id, $time_format) {
-		$result = array(
-			'value'    => '',
-			'datetime' => '',
-		);
-
 		if (!class_exists('Awesome_Calendar_Events_Event_Meta')) {
-			return $result;
+			return array(
+				'value'    => '',
+				'datetime' => '',
+			);
 		}
 
-		$display    = Awesome_Calendar_Events_Event_Meta::get_event_date_display($post_id, null, true, false);
-		$start_time = isset($display['start_time']) ? $display['start_time'] : '';
-		if ('' === $start_time) {
-			return $result;
-		}
-
-		// The stored time is site-local (as entered in the event meta box).
-		// Parse it in the site timezone so wp_date() below renders the same
-		// wall-clock time instead of shifting it by the UTC offset.
-		try {
-			$datetime = new DateTimeImmutable($start_time, wp_timezone());
-		} catch (Exception $e) {
-			return $result;
-		}
-
-		$result['datetime'] = $datetime->format('H:i');
-		$result['value']    = wp_date($time_format, $datetime->getTimestamp());
-
-		return $result;
+		return Awesome_Calendar_Events_Event_Meta::get_event_time_display($post_id, $time_format);
 	}
 
 	/**
